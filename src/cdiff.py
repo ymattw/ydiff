@@ -41,7 +41,7 @@ class Diff(object):
         self.__new_path = new_path
         self.__hunks = hunks
 
-    def view_traditional(self, show_color):
+    def render_traditional(self, show_color):
         out = []
         if show_color:
             color = None    # Use default
@@ -51,72 +51,72 @@ class Diff(object):
             end_color = 'none'
 
         for line in self.__headers:
-            out.append(self._view_header(line, color, end_color))
+            out.append(self._render_header(line, color, end_color))
 
-        out.append(self._view_old_path(self.__old_path, color, end_color))
-        out.append(self._view_new_path(self.__new_path, color, end_color))
+        out.append(self._render_old_path(self.__old_path, color, end_color))
+        out.append(self._render_new_path(self.__new_path, color, end_color))
 
         for hunk in self.__hunks:
-            out.append(self._view_hunk_header(hunk.get_header(), color,
+            out.append(self._render_hunk_header(hunk.get_header(), color,
                 end_color))
             for (attr, line) in hunk:
                 if attr == '-':
-                    out.append(self._view_old(attr+line, color, end_color))
+                    out.append(self._render_old(attr+line, color, end_color))
                 elif attr == '+':
-                    out.append(self._view_new(attr+line, color, end_color))
+                    out.append(self._render_new(attr+line, color, end_color))
                 else:
-                    out.append(self._view_common(attr+line, color, end_color))
+                    out.append(self._render_common(attr+line, color, end_color))
 
         return ''.join(out)
 
-    def view_side_by_side(self, show_color, show_number, width):
+    def render_side_by_side(self, show_color, show_number, width):
         """Do not really need to parse the hunks..."""
         return 'TODO: show_color=%s, show_number=%s, width=%d' % (show_color,
                 show_number, width)
 
-    def _view_header(self, line, color=None, end_color=None):
+    def _render_header(self, line, color=None, end_color=None):
         if color is None:
             color='cyan'
         if end_color is None:
             end_color = 'reset'
         return self.__mark_color(line, color, end_color)
 
-    def _view_old_path(self, line, color=None, end_color=None):
+    def _render_old_path(self, line, color=None, end_color=None):
         if color is None:
             color='yellow'
         if end_color is None:
             end_color = 'reset'
         return self.__mark_color(line, color, end_color)
 
-    def _view_new_path(self, line, color=None, end_color=None):
+    def _render_new_path(self, line, color=None, end_color=None):
         if color is None:
             color='yellow'
         if end_color is None:
             end_color = 'reset'
         return self.__mark_color(line, color, end_color)
 
-    def _view_hunk_header(self, line, color=None, end_color=None):
+    def _render_hunk_header(self, line, color=None, end_color=None):
         if color is None:
             color='lightblue'
         if end_color is None:
             end_color = 'reset'
         return self.__mark_color(line, color, end_color)
 
-    def _view_old(self, line, color=None, end_color=None):
+    def _render_old(self, line, color=None, end_color=None):
         if color is None:
             color='red'
         if end_color is None:
             end_color = 'reset'
         return self.__mark_color(line, color, end_color)
 
-    def _view_new(self, line, color=None, end_color=None):
+    def _render_new(self, line, color=None, end_color=None):
         if color is None:
             color='green'
         if end_color is None:
             end_color = 'reset'
         return self.__mark_color(line, color, end_color)
 
-    def _view_common(self, line, color=None, end_color=None):
+    def _render_common(self, line, color=None, end_color=None):
         if color is None:
             color='none'
         if end_color is None:
@@ -297,29 +297,29 @@ class DiffParser(object):
         return out_diffs
 
 
-class DiffViewer(object):
+class DiffRender(object):
 
     def __init__(self, stream):
         self.__diffs = DiffParser(stream).get_diffs()
 
-    def view(self, show_color=True, show_number=False, width=0,
+    def render(self, show_color=True, show_number=False, width=0,
             traditional=False):
         if traditional:
-            return self.__view_traditional(show_color)
+            return self.__render_traditional(show_color)
         else:
-            return self.__view_side_by_side(show_color, show_number, width)
+            return self.__render_side_by_side(show_color, show_number, width)
 
-    def __view_traditional(self, show_color):
+    def __render_traditional(self, show_color):
         out = []
         for diff in self.__diffs:
-            out.append(diff.view_traditional(show_color))
+            out.append(diff.render_traditional(show_color))
         return out
 
-    def __view_side_by_side(self, show_color, show_number, width):
+    def __render_side_by_side(self, show_color, show_number, width):
         """width of 0 or negative means auto detect terminal width"""
         out = []
         for diff in self.__diffs:
-            out.append(diff.view_side_by_side(show_color, show_number, width))
+            out.append(diff.render_side_by_side(show_color, show_number, width))
         return out
 
 
@@ -334,8 +334,6 @@ if __name__ == '__main__':
             {'prog': os.path.basename(sys.argv[0])}
 
     parser = optparse.OptionParser(usage)
-    parser.add_option('-c', '--color', metavar='on|off|auto', default='auto',
-            help='enforce color' 'on|off|auto, default is auto')
     parser.add_option('-n', '--number', action='store_true',
             help='show line number')
     parser.add_option('-w', '--width', type='int', default=0,
@@ -345,15 +343,7 @@ if __name__ == '__main__':
                   'mode (omit -n, -w)'))
     opts, args = parser.parse_args()
 
-    if opts.color == 'yes':
-        show_color = True
-    elif opts.color == 'no':
-        show_color = False
-    elif opts.color == 'auto':
-        show_color = sys.stdout.isatty()
-    else:
-        sys.stderr.write('Invalid color mode, try --help option for usage\n')
-        sys.exit(1)
+    show_color = sys.stdout.isatty()
 
     if opts.width < 0:
         opts.width = 0
@@ -370,20 +360,19 @@ if __name__ == '__main__':
     if diff_hdl is not sys.stdin:
         diff_hdl.close()
 
-    diffviewer = DiffViewer(stream)
-    view = diffviewer.view(show_color=show_color, show_number=opts.number,
+    render = DiffRender(stream)
+    color_diff = render.render(show_color=show_color, show_number=opts.number,
             width=opts.width, traditional=opts.traditional)
 
     if sys.stdout.isatty():
-        # args stolen fron git source, see less(1)
-        # https://github.com/git/git/blob/master/pager.c
+        # args stolen fron git source: github.com/git/git/blob/master/pager.c
         pager = subprocess.Popen(['less', '-FRSXK'],
                 stdin=subprocess.PIPE, stdout=sys.stdout)
-        pager.stdin.write(''.join(view))
+        pager.stdin.write(''.join(color_diff))
         pager.stdin.close()
         pager.wait()
     else:
-        sys.stdout.write(''.join(view))
+        sys.stdout.write(''.join(color_diff))
 
     sys.exit(0)
 
