@@ -1,0 +1,30 @@
+diff --git a/Makefile b/Makefile
+index 2dc65aa..4d698fc 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2,9 +2,12 @@
+ 
+ .PHONY: test single
+ 
+-test: single
++test: single multi
+ 
+ single:
+ 	src/diffview.py -t tests/single.diff
+ 
++multi:
++	src/diffview.py -t tests/multi.diff
++
+ # vim:set noet ts=8 sw=8:
+diff --git a/README.md b/README.md
+index 39b5c84..1da3039 100644
+--- a/README.md
++++ b/README.md
+@@ -1,3 +1,7 @@
+ ## About
+ 
++Diff viewer.
++
+ ## Usage
++
++TODO

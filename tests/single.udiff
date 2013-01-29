@@ -1,0 +1,143 @@
+diff --git a/diffview b/diffview
+index 80ff9a2..f92c107 100755
+--- a/diffview
++++ b/diffview
+@@ -2,20 +2,26 @@
+ 
+ import sys
+ import os
++import re
+ 
+ 
+ class Diff(object):
+ 
+-    def __init__(self, diff_lines):
+-        self.__diff_lines = diff_lines
+-        self.__type = 'udiff'
++    def __init__(self):
++        pass
++
++
++class Udiff(Diff):
++
++    def __init__(self, patch):
++        self.__patch = patch
+ 
+     def view_traditional(self, show_color):
+         if show_color:
+-            for line in self.__diff_lines:
++            for line in self.__patch:
+                 sys.stdout.write(self.__colorize(line))
+         else:
+-            for line in self.__diff_lines:
++            for line in self.__patch:
+                 sys.stdout.write(line)
+ 
+     def view_side_by_side(self, show_color, show_number, width):
+@@ -27,47 +33,79 @@ class Diff(object):
+                 'red': '\x1b[31m',
+                 'green': '\x1b[32m',
+                 'yellow': '\x1b[33m',
++                'blue': '\x1b[34m',
+                 'cyan': '\x1b[36m',
+                 'none': '\x1b[0m',
++                'lightblue': '\x1b[1;34m',
+             }
+         return colors.get(start_code, 'none') + text + colors.get(end_code,
+                 'none')
+ 
+     def __colorize(self, line):
+-        if line.startswith('diff ') or line.startswith('--- ') or \
+-                line.startswith('+++ '):
++        if line.startswith('--- ') or line.startswith('+++ '):
+             return self.__mark_color(line, 'yellow')
+         elif line.startswith('@@ '):
+-            return self.__mark_color(line, 'cyan')
++            return self.__mark_color(line, 'lightblue')
+         elif line.startswith('-'):
+             return self.__mark_color(line, 'red')
+         elif line.startswith('+'):
+             return self.__mark_color(line, 'green')
++        elif not line.startswith(' '):
++            return self.__mark_color(line, 'cyan')
+         else:
+             return line
+ 
+ 
+ class DiffParser(object):
+ 
+-    def __init__(self, all_diff_lines):
+-        self.__all_diff_lines = all_diff_lines
++    def __init__(self, patch_set):
++        for line in patch_set[:10]:
++            if line.startswith('--- '):
++                self.__type = 'udiff'
++                break
++        else:
++            raise RuntimeError('unknown diff type')
++
++        self.__patch_set = patch_set
+ 
+     def parse(self):
+-        diffs = []
++        if self.__type == 'udiff':
++            return self.__parse_udiff()
+ 
+-        # parse all diff lines here, construct a Diff object for diff lines of
+-        # one file one time
+-        #
+-        diff_lines = self.__all_diff_lines
+-        diffs.append(Diff(diff_lines))
++    def __parse_udiff(self):
++        """parse all diff lines here, construct a list of Udiff objects"""
++        diffs = []
++        patch = []
++        saw_diff = False
++
++        while self.__patch_set:
++            line = self.__patch_set[0]
++            if re.match('^[+@ -]', line):
++                # see a diff line
++                saw_diff = True
++                patch.append(self.__patch_set.pop(0))
++            else:
++                # see a header line
++                if saw_diff:
++                    # a header line for new file
++                    diffs.append(Udiff(patch))
++                    patch = []
++                    saw_diff = False
++                else:
++                    # still header line for current file
++                    patch.append(self.__patch_set.pop(0))
++
++        # the last patch
++        if patch:
++            diffs.append(Udiff(patch))
+ 
+         return diffs
+ 
+ 
+ class DiffViewer(object):
+ 
+-    def __init__(self, all_diff_lines):
+-        self.__diffs = DiffParser(all_diff_lines).parse()
++    def __init__(self, patch_set):
++        self.__diffs = DiffParser(patch_set).parse()
+ 
+     def view(self, show_color=True, show_number=False, width=0, traditional=False):
+         if traditional:
+@@ -130,11 +168,11 @@ if __name__ == '__main__':
+     else:
+         diff_hdl = sys.stdin
+ 
+-    all_diff_lines = diff_hdl.readlines()
++    patch_set = diff_hdl.readlines()
+     if diff_hdl != sys.stdin:
+         diff_hdl.close()
+ 
+-    diffviewer = DiffViewer(all_diff_lines)
++    diffviewer = DiffViewer(patch_set)
+     diffviewer.view(show_color=show_color, show_number=opts.number,
+             width=opts.width, traditional=opts.traditional)
+ 
