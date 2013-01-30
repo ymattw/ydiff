@@ -3,138 +3,165 @@
 import sys
 import os
 import re
+import difflib
+
+
+COLORS = {
+    'reset'         : '\x1b[0m',
+    'red'           : '\x1b[31m',
+    'green'         : '\x1b[32m',
+    'yellow'        : '\x1b[33m',
+    'blue'          : '\x1b[34m',
+    'magenta'       : '\x1b[35m',
+    'cyan'          : '\x1b[36m',
+    'lightred'      : '\x1b[1;31m',
+    'lightgreen'    : '\x1b[1;32m',
+    'lightyellow'   : '\x1b[1;33m',
+    'lightblue  '   : '\x1b[1;34m',
+    'lightmagenta'  : '\x1b[1;35m',
+    'lightcyan'     : '\x1b[1;36m',
+}
+
+def ansi_code(color):
+    return COLORS.get(color, '')
+
+def colorize(text, start_color, end_color='reset'):
+    return ansi_code(start_color) + text + ansi_code(end_color)
 
 
 class Hunk(object):
 
     def __init__(self, hunk_header, old_addr, old_offset, new_addr, new_offset):
-        self.__hunk_header = hunk_header
-        self.__old_addr = old_addr
-        self.__old_offset = old_offset
-        self.__new_addr = new_addr
-        self.__new_offset = new_offset
-        self.__hunk_list = []   # 2-element group (attr, line)
+        self._hunk_header = hunk_header
+        self._old_addr = old_addr
+        self._old_offset = old_offset
+        self._new_addr = new_addr
+        self._new_offset = new_offset
+        self._hunk_list = []   # 2-element group (attr, line)
 
     def get_header(self):
-        return self.__hunk_header
+        return self._hunk_header
 
     def get_old_addr(self):
-        return (self.__old_addr, self.__old_offset)
+        return (self._old_addr, self._old_offset)
 
     def get_new_addr(self):
-        return (self.__new_addr, self.__new_offset)
+        return (self._new_addr, self._new_offset)
 
     def append(self, attr, line):
         """attr: '-': old, '+': new, ' ': common"""
-        self.__hunk_list.append((attr, line))
+        self._hunk_list.append((attr, line))
+
+    def mdiff(self):
+        """The difflib._mdiff() function returns an interator which returns a
+        tuple: (from line tuple, to line tuple, boolean flag)
+
+        from/to line tuple -- (line num, line text)
+            line num -- integer or None (to indicate a context separation)
+            line text -- original line text with following markers inserted:
+                '\0+' -- marks start of added text
+                '\0-' -- marks start of deleted text
+                '\0^' -- marks start of changed text
+                '\1' -- marks end of added/deleted/changed text
+
+        boolean flag -- None indicates context separation, True indicates
+            either "from" or "to" line contains a change, otherwise False.
+        """
+        return difflib._mdiff(self._get_old_text(), self._get_new_text())
+
+    def _get_old_text(self):
+        out = []
+        for (attr, line) in self._hunk_list:
+            if attr != '+':
+                out.append(line)
+        return out
+
+    def _get_new_text(self):
+        out = []
+        for (attr, line) in self._hunk_list:
+            if attr != '-':
+                out.append(line)
+        return out
 
     def __iter__(self):
-        for hunk_line in self.__hunk_list:
+        for hunk_line in self._hunk_list:
             yield hunk_line
 
 
 class Diff(object):
 
     def __init__(self, headers, old_path, new_path, hunks):
-        self.__headers = headers
-        self.__old_path = old_path
-        self.__new_path = new_path
-        self.__hunks = hunks
+        self._headers = headers
+        self._old_path = old_path
+        self._new_path = new_path
+        self._hunks = hunks
 
-    def render_traditional(self, show_color):
+    def markup_traditional(self):
         out = []
-        if show_color:
-            color = None    # Use default
-            end_color = None
-        else:
-            color = 'none'  # No color
-            end_color = 'none'
 
-        for line in self.__headers:
-            out.append(self._render_header(line, color, end_color))
+        for line in self._headers:
+            out.append(self._markup_header(line))
 
-        out.append(self._render_old_path(self.__old_path, color, end_color))
-        out.append(self._render_new_path(self.__new_path, color, end_color))
+        out.append(self._markup_old_path(self._old_path))
+        out.append(self._markup_new_path(self._new_path))
 
-        for hunk in self.__hunks:
-            out.append(self._render_hunk_header(hunk.get_header(), color,
-                end_color))
-            for (attr, line) in hunk:
-                if attr == '-':
-                    out.append(self._render_old(attr+line, color, end_color))
-                elif attr == '+':
-                    out.append(self._render_new(attr+line, color, end_color))
+        for hunk in self._hunks:
+            out.append(self._markup_hunk_header(hunk.get_header()))
+            save_line = ''
+            for from_info, to_info, changed in hunk.mdiff():
+                if changed:
+                    if not from_info[0]:
+                        line = to_info[1].strip('\x00\x01')
+                        out.append(self._markup_new(line))
+                    elif not to_info[0]:
+                        line = from_info[1].strip('\x00\x01')
+                        out.append(self._markup_old(line))
+                    else:
+                        out.append(self._markup_old('-' +
+                            self._markup_old_mix(from_info[1])))
+                        out.append(self._markup_new('+' +
+                            self._markup_new_mix(to_info[1])))
                 else:
-                    out.append(self._render_common(attr+line, color, end_color))
-
+                    out.append(self._markup_common(' ' + from_info[1]))
         return ''.join(out)
 
-    def render_side_by_side(self, show_color, show_number, width):
+    def markup_side_by_side(self, show_number, width):
         """Do not really need to parse the hunks..."""
-        return 'TODO: show_color=%s, show_number=%s, width=%d' % (show_color,
-                show_number, width)
+        return 'TODO: show_number=%s, width=%d' % (show_number, width)
 
-    def _render_header(self, line, color=None, end_color=None):
-        if color is None:
-            color='cyan'
-        if end_color is None:
-            end_color = 'reset'
-        return self.__mark_color(line, color, end_color)
+    def _markup_header(self, line):
+        return colorize(line, 'cyan')
 
-    def _render_old_path(self, line, color=None, end_color=None):
-        if color is None:
-            color='yellow'
-        if end_color is None:
-            end_color = 'reset'
-        return self.__mark_color(line, color, end_color)
+    def _markup_old_path(self, line):
+        return colorize(line, 'yellow')
 
-    def _render_new_path(self, line, color=None, end_color=None):
-        if color is None:
-            color='yellow'
-        if end_color is None:
-            end_color = 'reset'
-        return self.__mark_color(line, color, end_color)
+    def _markup_new_path(self, line):
+        return colorize(line, 'yellow')
 
-    def _render_hunk_header(self, line, color=None, end_color=None):
-        if color is None:
-            color='lightblue'
-        if end_color is None:
-            end_color = 'reset'
-        return self.__mark_color(line, color, end_color)
+    def _markup_hunk_header(self, line):
+        return colorize(line, 'blue')
 
-    def _render_old(self, line, color=None, end_color=None):
-        if color is None:
-            color='red'
-        if end_color is None:
-            end_color = 'reset'
-        return self.__mark_color(line, color, end_color)
+    def _markup_common(self, line):
+        return colorize(line, 'reset')
 
-    def _render_new(self, line, color=None, end_color=None):
-        if color is None:
-            color='green'
-        if end_color is None:
-            end_color = 'reset'
-        return self.__mark_color(line, color, end_color)
+    def _markup_old(self, line):
+        return colorize(line, 'lightred')
 
-    def _render_common(self, line, color=None, end_color=None):
-        if color is None:
-            color='none'
-        if end_color is None:
-            end_color = 'none'
-        return self.__mark_color(line, color, end_color)
+    def _markup_new(self, line):
+        return colorize(line, 'lightgreen')
 
-    def __mark_color(self, text, start_code, end_code):
-        colors = {
-                'none'          : '',
-                'reset'         : '\x1b[0m',
-                'red'           : '\x1b[31m',
-                'green'         : '\x1b[32m',
-                'yellow'        : '\x1b[33m',
-                'blue'          : '\x1b[34m',
-                'cyan'          : '\x1b[36m',
-                'lightblue'     : '\x1b[1;34m',
-            }
-        return colors.get(start_code) + text + colors.get(end_code)
+    def _markup_mix(self, line, end_color):
+        line = line.replace('\x00-', ansi_code('red'))
+        line = line.replace('\x00+', ansi_code('green'))
+        line = line.replace('\x00^', ansi_code('lightyellow'))
+        line = line.replace('\x01', ansi_code(end_color))
+        return colorize(line, end_color)
+
+    def _markup_old_mix(self, line):
+        return self._markup_mix(line, 'red')
+
+    def _markup_new_mix(self, line):
+        return self._markup_mix(line, 'green')
 
 
 class Udiff(Diff):
@@ -178,27 +205,27 @@ class DiffParser(object):
     def __init__(self, stream):
         for line in stream[:10]:
             if line.startswith('+++ '):
-                self.__type = 'udiff'
+                self._type = 'udiff'
                 break
         else:
             raise RuntimeError('unknown diff type')
 
         try:
-            self.__diffs = self.__parse(stream)
+            self._diffs = self._parse(stream)
         except (AssertionError, IndexError):
             raise RuntimeError('invalid patch format')
 
 
     def get_diffs(self):
-        return self.__diffs
+        return self._diffs
 
-    def __parse(self, stream):
-        if self.__type == 'udiff':
-            return self.__parse_udiff(stream)
+    def _parse(self, stream):
+        if self._type == 'udiff':
+            return self._parse_udiff(stream)
         else:
             raise RuntimeError('unsupported diff format')
 
-    def __parse_udiff(self, stream):
+    def _parse_udiff(self, stream):
         """parse all diff lines here, construct a list of Udiff objects"""
         out_diffs = []
         headers = []
@@ -297,29 +324,28 @@ class DiffParser(object):
         return out_diffs
 
 
-class DiffRender(object):
+class DiffMarkup(object):
 
     def __init__(self, stream):
-        self.__diffs = DiffParser(stream).get_diffs()
+        self._diffs = DiffParser(stream).get_diffs()
 
-    def render(self, show_color=True, show_number=False, width=0,
-            traditional=False):
-        if traditional:
-            return self.__render_traditional(show_color)
+    def markup(self, side_by_side=False, show_number=False, width=0):
+        if side_by_side:
+            return self._markup_side_by_side(show_number, width)
         else:
-            return self.__render_side_by_side(show_color, show_number, width)
+            return self._markup_traditional()
 
-    def __render_traditional(self, show_color):
+    def _markup_traditional(self):
         out = []
-        for diff in self.__diffs:
-            out.append(diff.render_traditional(show_color))
+        for diff in self._diffs:
+            out.append(diff.markup_traditional())
         return out
 
-    def __render_side_by_side(self, show_color, show_number, width):
+    def _markup_side_by_side(self, show_number, width):
         """width of 0 or negative means auto detect terminal width"""
         out = []
-        for diff in self.__diffs:
-            out.append(diff.render_side_by_side(show_color, show_number, width))
+        for diff in self._diffs:
+            out.append(diff.markup_side_by_side(show_number, width))
         return out
 
 
@@ -334,16 +360,13 @@ if __name__ == '__main__':
             {'prog': os.path.basename(sys.argv[0])}
 
     parser = optparse.OptionParser(usage)
+    parser.add_option('-s', '--side-by-side', action='store_true',
+            help=('show in side-by-side mode'))
     parser.add_option('-n', '--number', action='store_true',
             help='show line number')
     parser.add_option('-w', '--width', type='int', default=0,
-            help='set text width for each side')
-    parser.add_option('-t', '--traditional', action='store_true',
-            help=('show in traditional format other than default side-by-side '
-                  'mode (omit -n, -w)'))
+            help='set line width (side-by-side mode only)')
     opts, args = parser.parse_args()
-
-    show_color = sys.stdout.isatty()
 
     if opts.width < 0:
         opts.width = 0
@@ -360,11 +383,11 @@ if __name__ == '__main__':
     if diff_hdl is not sys.stdin:
         diff_hdl.close()
 
-    render = DiffRender(stream)
-    color_diff = render.render(show_color=show_color, show_number=opts.number,
-            width=opts.width, traditional=opts.traditional)
-
     if sys.stdout.isatty():
+        markup = DiffMarkup(stream)
+        color_diff = markup.markup(side_by_side=opts.side_by_side,
+                show_number=opts.number, width=opts.width)
+
         # args stolen fron git source: github.com/git/git/blob/master/pager.c
         pager = subprocess.Popen(['less', '-FRSXK'],
                 stdin=subprocess.PIPE, stdout=sys.stdout)
@@ -372,7 +395,8 @@ if __name__ == '__main__':
         pager.stdin.close()
         pager.wait()
     else:
-        sys.stdout.write(''.join(color_diff))
+        # pipe out stream untouched to make sure it is still a patch
+        sys.stdout.write(''.join(stream))
 
     sys.exit(0)
 
