@@ -97,27 +97,63 @@ class Diff(object):
 
         for hunk in self._hunks:
             out.append(self._markup_hunk_header(hunk.get_header()))
-            save_line = ''
-            for from_info, to_info, changed in hunk.mdiff():
+            for old, new, changed in hunk.mdiff():
                 if changed:
-                    if not from_info[0]:
-                        line = to_info[1].strip('\x00\x01')
+                    if not old[0]:
+                        # The '+' char after \x00 is kept
+                        line = new[1].strip('\x00\x01')
                         out.append(self._markup_new(line))
-                    elif not to_info[0]:
-                        line = from_info[1].strip('\x00\x01')
+                    elif not new[0]:
+                        # The '-' char after \x00 is kept
+                        line = old[1].strip('\x00\x01')
                         out.append(self._markup_old(line))
                     else:
                         out.append(self._markup_old('-') +
-                            self._markup_old_mix(from_info[1]))
+                            self._markup_old_mix(old[1]))
                         out.append(self._markup_new('+') +
-                            self._markup_new_mix(to_info[1]))
+                            self._markup_new_mix(new[1]))
                 else:
-                    out.append(self._markup_common(' ' + from_info[1]))
+                    out.append(self._markup_common(' ' + old[1]))
         return ''.join(out)
 
     def markup_side_by_side(self, show_number, width):
-        """Do not really need to parse the hunks..."""
-        return 'TODO: show_number=%s, width=%d' % (show_number, width)
+        """width of 0 means infinite width, None means auto detect"""
+        def _normalize(line):
+            return line.replace('\t', ' ' * 8).replace('\n', '')
+
+        width = 80
+        line_fmt = '%%-%ds | %%-%ds\n' % (width, width)
+        out = []
+
+        for line in self._headers:
+            out.append(self._markup_header(line))
+
+        out.append(self._markup_old_path(self._old_path))
+        out.append(self._markup_new_path(self._new_path))
+
+        for hunk in self._hunks:
+            out.append(self._markup_hunk_header(hunk.get_header()))
+            for old, new, changed in hunk.mdiff():
+                left = _normalize(old[1])
+                right = _normalize(new[1])
+                if changed:
+                    if not old[0]:
+                        right = right.lstrip('\x00+').rstrip('\x01')
+                        out.append(line_fmt % (' ', self._markup_new(right)))
+                    elif not new[0]:
+                        left = left.lstrip('\x00-').rstrip('\x01')
+                        out.append(line_fmt % (self._markup_old(left), ' '))
+                    else:
+                        out.append(line_fmt % (
+                            self._markup_old_mix(left),
+                            self._markup_new_mix(right)
+                            ))
+                else:
+                    out.append(line_fmt % (
+                        self._markup_common(left),
+                        self._markup_common(right)
+                        ))
+        return ''.join(out)
 
     def _markup_header(self, line):
         return colorize(line, 'cyan')
@@ -320,7 +356,6 @@ class DiffMarkup(object):
         return out
 
     def _markup_side_by_side(self, show_number, width):
-        """width of 0 or negative means auto detect terminal width"""
         out = []
         for diff in self._diffs:
             out.append(diff.markup_side_by_side(show_number, width))
@@ -342,11 +377,11 @@ if __name__ == '__main__':
             help=('show in side-by-side mode'))
     parser.add_option('-n', '--number', action='store_true',
             help='show line number')
-    parser.add_option('-w', '--width', type='int', default=0,
+    parser.add_option('-w', '--width', type='int', default=None,
             help='set line width (side-by-side mode only)')
     opts, args = parser.parse_args()
 
-    if opts.width < 0:
+    if opts.width and opts.width < 0:
         opts.width = 0
 
     if len(args) >= 1:
