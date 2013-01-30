@@ -1,6 +1,9 @@
 # Makefile for testing
 
-.PHONY: test single-udiff multi-udiff
+.PHONY: dogfood test single-udiff multi-udiff
+
+dogfood:
+	git diff | src/cdiff.py
 
 test: single-udiff multi-udiff
 

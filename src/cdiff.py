@@ -17,7 +17,7 @@ COLORS = {
     'lightred'      : '\x1b[1;31m',
     'lightgreen'    : '\x1b[1;32m',
     'lightyellow'   : '\x1b[1;33m',
-    'lightblue  '   : '\x1b[1;34m',
+    'lightblue'     : '\x1b[1;34m',
     'lightmagenta'  : '\x1b[1;35m',
     'lightcyan'     : '\x1b[1;36m',
 }
@@ -31,22 +31,12 @@ def colorize(text, start_color, end_color='reset'):
 
 class Hunk(object):
 
-    def __init__(self, hunk_header, old_addr, old_offset, new_addr, new_offset):
+    def __init__(self, hunk_header):
         self._hunk_header = hunk_header
-        self._old_addr = old_addr
-        self._old_offset = old_offset
-        self._new_addr = new_addr
-        self._new_offset = new_offset
         self._hunk_list = []   # 2-element group (attr, line)
 
     def get_header(self):
         return self._hunk_header
-
-    def get_old_addr(self):
-        return (self._old_addr, self._old_offset)
-
-    def get_new_addr(self):
-        return (self._new_addr, self._new_offset)
 
     def append(self, attr, line):
         """attr: '-': old, '+': new, ' ': common"""
@@ -117,10 +107,10 @@ class Diff(object):
                         line = from_info[1].strip('\x00\x01')
                         out.append(self._markup_old(line))
                     else:
-                        out.append(self._markup_old('-' +
-                            self._markup_old_mix(from_info[1])))
-                        out.append(self._markup_new('+' +
-                            self._markup_new_mix(to_info[1])))
+                        out.append(self._markup_old('-') +
+                            self._markup_old_mix(from_info[1]))
+                        out.append(self._markup_new('+') +
+                            self._markup_new_mix(to_info[1]))
                 else:
                     out.append(self._markup_common(' ' + from_info[1]))
         return ''.join(out)
@@ -139,7 +129,7 @@ class Diff(object):
         return colorize(line, 'yellow')
 
     def _markup_hunk_header(self, line):
-        return colorize(line, 'blue')
+        return colorize(line, 'lightblue')
 
     def _markup_common(self, line):
         return colorize(line, 'reset')
@@ -150,18 +140,20 @@ class Diff(object):
     def _markup_new(self, line):
         return colorize(line, 'lightgreen')
 
-    def _markup_mix(self, line, end_color):
-        line = line.replace('\x00-', ansi_code('red'))
-        line = line.replace('\x00+', ansi_code('green'))
-        line = line.replace('\x00^', ansi_code('lightyellow'))
-        line = line.replace('\x01', ansi_code(end_color))
-        return colorize(line, end_color)
+    def _markup_mix(self, line, base_color, del_color, add_color, chg_color):
+        line = line.replace('\x00-', ansi_code(del_color))
+        line = line.replace('\x00+', ansi_code(add_color))
+        line = line.replace('\x00^', ansi_code(chg_color))
+        line = line.replace('\x01', ansi_code(base_color))
+        return colorize(line, base_color)
 
     def _markup_old_mix(self, line):
-        return self._markup_mix(line, 'red')
+        return self._markup_mix(line, 'cyan', 'lightred', 'lightgreen',
+                'yellow')
 
     def _markup_new_mix(self, line):
-        return self._markup_mix(line, 'green')
+        return self._markup_mix(line, 'lightcyan', 'lightred', 'lightgreen',
+                'lightyellow')
 
 
 class Udiff(Diff):
@@ -278,21 +270,7 @@ class DiffParser(object):
                     hunks.append(hunk)
                     hunk = None
                 else:
-                    # @@ -3,7 +3,6 @@
-                    hunk_header = stream.pop(0)
-
-                    addr_info = hunk_header.split()[1]
-                    assert addr_info.startswith('-')
-                    old_addr = addr_info.split(',')[0]
-                    old_offset = addr_info.split(',')[1]
-
-                    addr_info = hunk_header.split()[2]
-                    assert addr_info.startswith('+')
-                    new_addr = addr_info.split(',')[0]
-                    new_offset = addr_info.split(',')[1]
-
-                    hunk = Hunk(hunk_header, old_addr, old_offset, new_addr,
-                            new_offset)
+                    hunk = Hunk(stream.pop(0))
 
             elif Udiff.is_old(stream[0]) or Udiff.is_new(stream[0]) or \
                     Udiff.is_common(stream[0]):

@@ -1,143 +1,114 @@
-diff --git a/diffview b/diffview
-index 80ff9a2..f92c107 100755
---- a/diffview
-+++ b/diffview
-@@ -2,20 +2,26 @@
+diff --git a/src/cdiff.py b/src/cdiff.py
+index 1db7807..c17032f 100755
+--- a/src/cdiff.py
++++ b/src/cdiff.py
+@@ -17,7 +17,7 @@ COLORS = {
+     'lightred'      : '\x1b[1;31m',
+     'lightgreen'    : '\x1b[1;32m',
+     'lightyellow'   : '\x1b[1;33m',
+-    'lightblue  '   : '\x1b[1;34m',
++    'lightblue'     : '\x1b[1;34m',
+     'lightmagenta'  : '\x1b[1;35m',
+     'lightcyan'     : '\x1b[1;36m',
+ }
+@@ -31,23 +31,13 @@ def colorize(text, start_color, end_color='reset'):
  
- import sys
- import os
-+import re
+ class Hunk(object):
  
+-    def __init__(self, hunk_header, old_addr, old_offset, new_addr, new_offset):
++    def __init__(self, hunk_header):
+         self._hunk_header = hunk_header
+-        self._old_addr = old_addr
+-        self._old_offset = old_offset
+-        self._new_addr = new_addr
+-        self._new_offset = new_offset
+         self._hunk_list = []   # 2-element group (attr, line)
  
- class Diff(object):
+     def get_header(self):
+         return self._hunk_header
  
--    def __init__(self, diff_lines):
--        self.__diff_lines = diff_lines
--        self.__type = 'udiff'
-+    def __init__(self):
-+        pass
-+
-+
-+class Udiff(Diff):
-+
-+    def __init__(self, patch):
-+        self.__patch = patch
+-    def get_old_addr(self):
+-        return (self._old_addr, self._old_offset)
+-
+-    def get_new_addr(self):
+-        return (self._new_addr, self._new_offset)
+-
+     def append(self, attr, line):
+         """attr: '-': old, '+': new, ' ': common"""
+         self._hunk_list.append((attr, line))
+@@ -117,10 +107,10 @@ class Diff(object):
+                         line = from_info[1].strip('\x00\x01')
+                         out.append(self._markup_old(line))
+                     else:
+-                        out.append(self._markup_old('-' +
+-                            self._markup_old_mix(from_info[1])))
+-                        out.append(self._markup_new('+' +
+-                            self._markup_new_mix(to_info[1])))
++                        out.append(self._markup_old('-') +
++                            self._markup_old_mix(from_info[1]))
++                        out.append(self._markup_new('+') +
++                            self._markup_new_mix(to_info[1]))
+                 else:
+                     out.append(self._markup_common(' ' + from_info[1]))
+         return ''.join(out)
+@@ -139,7 +129,7 @@ class Diff(object):
+         return colorize(line, 'yellow')
  
-     def view_traditional(self, show_color):
-         if show_color:
--            for line in self.__diff_lines:
-+            for line in self.__patch:
-                 sys.stdout.write(self.__colorize(line))
-         else:
--            for line in self.__diff_lines:
-+            for line in self.__patch:
-                 sys.stdout.write(line)
+     def _markup_hunk_header(self, line):
+-        return colorize(line, 'blue')
++        return colorize(line, 'lightblue')
  
-     def view_side_by_side(self, show_color, show_number, width):
-@@ -27,47 +33,79 @@ class Diff(object):
-                 'red': '\x1b[31m',
-                 'green': '\x1b[32m',
-                 'yellow': '\x1b[33m',
-+                'blue': '\x1b[34m',
-                 'cyan': '\x1b[36m',
-                 'none': '\x1b[0m',
-+                'lightblue': '\x1b[1;34m',
-             }
-         return colors.get(start_code, 'none') + text + colors.get(end_code,
-                 'none')
+     def _markup_common(self, line):
+         return colorize(line, 'reset')
+@@ -150,18 +140,20 @@ class Diff(object):
+     def _markup_new(self, line):
+         return colorize(line, 'lightgreen')
  
-     def __colorize(self, line):
--        if line.startswith('diff ') or line.startswith('--- ') or \
--                line.startswith('+++ '):
-+        if line.startswith('--- ') or line.startswith('+++ '):
-             return self.__mark_color(line, 'yellow')
-         elif line.startswith('@@ '):
--            return self.__mark_color(line, 'cyan')
-+            return self.__mark_color(line, 'lightblue')
-         elif line.startswith('-'):
-             return self.__mark_color(line, 'red')
-         elif line.startswith('+'):
-             return self.__mark_color(line, 'green')
-+        elif not line.startswith(' '):
-+            return self.__mark_color(line, 'cyan')
-         else:
-             return line
+-    def _markup_mix(self, line, end_color):
+-        line = line.replace('\x00-', ansi_code('red'))
+-        line = line.replace('\x00+', ansi_code('green'))
+-        line = line.replace('\x00^', ansi_code('lightyellow'))
+-        line = line.replace('\x01', ansi_code(end_color))
+-        return colorize(line, end_color)
++    def _markup_mix(self, line, base_color, del_color, add_color, chg_color):
++        line = line.replace('\x00-', ansi_code(del_color))
++        line = line.replace('\x00+', ansi_code(add_color))
++        line = line.replace('\x00^', ansi_code(chg_color))
++        line = line.replace('\x01', ansi_code(base_color))
++        return colorize(line, base_color)
  
+     def _markup_old_mix(self, line):
+-        return self._markup_mix(line, 'red')
++        return self._markup_mix(line, 'cyan', 'lightred', 'lightgreen',
++                'yellow')
  
- class DiffParser(object):
- 
--    def __init__(self, all_diff_lines):
--        self.__all_diff_lines = all_diff_lines
-+    def __init__(self, patch_set):
-+        for line in patch_set[:10]:
-+            if line.startswith('--- '):
-+                self.__type = 'udiff'
-+                break
-+        else:
-+            raise RuntimeError('unknown diff type')
-+
-+        self.__patch_set = patch_set
- 
-     def parse(self):
--        diffs = []
-+        if self.__type == 'udiff':
-+            return self.__parse_udiff()
- 
--        # parse all diff lines here, construct a Diff object for diff lines of
--        # one file one time
--        #
--        diff_lines = self.__all_diff_lines
--        diffs.append(Diff(diff_lines))
-+    def __parse_udiff(self):
-+        """parse all diff lines here, construct a list of Udiff objects"""
-+        diffs = []
-+        patch = []
-+        saw_diff = False
-+
-+        while self.__patch_set:
-+            line = self.__patch_set[0]
-+            if re.match('^[+@ -]', line):
-+                # see a diff line
-+                saw_diff = True
-+                patch.append(self.__patch_set.pop(0))
-+            else:
-+                # see a header line
-+                if saw_diff:
-+                    # a header line for new file
-+                    diffs.append(Udiff(patch))
-+                    patch = []
-+                    saw_diff = False
-+                else:
-+                    # still header line for current file
-+                    patch.append(self.__patch_set.pop(0))
-+
-+        # the last patch
-+        if patch:
-+            diffs.append(Udiff(patch))
- 
-         return diffs
+     def _markup_new_mix(self, line):
+-        return self._markup_mix(line, 'green')
++        return self._markup_mix(line, 'lightcyan', 'lightred', 'lightgreen',
++                'lightyellow')
  
  
- class DiffViewer(object):
+ class Udiff(Diff):
+@@ -278,21 +270,7 @@ class DiffParser(object):
+                     hunks.append(hunk)
+                     hunk = None
+                 else:
+-                    # @@ -3,7 +3,6 @@
+-                    hunk_header = stream.pop(0)
+-
+-                    addr_info = hunk_header.split()[1]
+-                    assert addr_info.startswith('-')
+-                    old_addr = addr_info.split(',')[0]
+-                    old_offset = addr_info.split(',')[1]
+-
+-                    addr_info = hunk_header.split()[2]
+-                    assert addr_info.startswith('+')
+-                    new_addr = addr_info.split(',')[0]
+-                    new_offset = addr_info.split(',')[1]
+-
+-                    hunk = Hunk(hunk_header, old_addr, old_offset, new_addr,
+-                            new_offset)
++                    hunk = Hunk(stream.pop(0))
  
--    def __init__(self, all_diff_lines):
--        self.__diffs = DiffParser(all_diff_lines).parse()
-+    def __init__(self, patch_set):
-+        self.__diffs = DiffParser(patch_set).parse()
- 
-     def view(self, show_color=True, show_number=False, width=0, traditional=False):
-         if traditional:
-@@ -130,11 +168,11 @@ if __name__ == '__main__':
-     else:
-         diff_hdl = sys.stdin
- 
--    all_diff_lines = diff_hdl.readlines()
-+    patch_set = diff_hdl.readlines()
-     if diff_hdl != sys.stdin:
-         diff_hdl.close()
- 
--    diffviewer = DiffViewer(all_diff_lines)
-+    diffviewer = DiffViewer(patch_set)
-     diffviewer.view(show_color=show_color, show_number=opts.number,
-             width=opts.width, traditional=opts.traditional)
- 
+             elif Udiff.is_old(stream[0]) or Udiff.is_new(stream[0]) or \
+                     Udiff.is_common(stream[0]):
