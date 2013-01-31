@@ -330,7 +330,11 @@ class DiffParser(object):
         hunk = None
 
         while stream:
-            if Udiff.is_header(stream[0]):
+            # 'common' line occurs before 'old_path' is considered as header
+            # too, this happens with `git log -p` and `git show <commit>`
+            #
+            if Udiff.is_header(stream[0]) or \
+                    (Udiff.is_common(stream[0]) and old_path is None):
                 if headers and old_path:
                     # Encounter a new header
                     assert new_path is not None
