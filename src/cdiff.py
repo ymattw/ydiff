@@ -139,20 +139,23 @@ class Diff(object):
             """
             out = []
             count = 0
+            ansi_color_regex = r'\x1b\[(1;)?\d{1,2}m'
+            patt = re.compile('^(%s)(.*)' % ansi_color_regex)
+            repl = re.compile(ansi_color_regex)
+
             while markup and count < width:
-                patt = re.compile('^(\x1b\[(1;)?\d{1,2}m)(.*)')
                 if patt.match(markup):
-                    out.append(patt.sub(r'\1', markup, count=1))
-                    markup = patt.sub(r'\3', markup, count=1)
+                    out.append(patt.sub(r'\1', markup))
+                    markup = patt.sub(r'\3', markup)
                 else:
+                    # FIXME: utf-8 char broken here
                     out.append(markup[0])
                     markup = markup[1:]
                     count += 1
 
-            if count == width and patt.sub('', markup):
+            if count == width and repl.sub('', markup):
                 # stripped: output fulfil and still have ascii in markup
-                #out[-1] = ansi_code('reset') + colorize('☞', 'lightmagenta')
-                out[-1] = ansi_code('reset') + colorize('↵', 'lightmagenta')
+                out[-1] = ansi_code('reset') + colorize('>', 'lightmagenta')
             elif count < width and pad:
                 pad_len = width - count
                 out.append('%*s' % (pad_len, ''))
