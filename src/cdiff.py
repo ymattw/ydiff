@@ -8,6 +8,8 @@ import difflib
 
 COLORS = {
     'reset'         : '\x1b[0m',
+    'underline'     : '\x1b[4m',
+    'reverse'       : '\x1b[7m',
     'red'           : '\x1b[31m',
     'green'         : '\x1b[32m',
     'yellow'        : '\x1b[33m',
@@ -87,73 +89,87 @@ class Diff(object):
         self._hunks = hunks
 
     def markup_traditional(self):
-        out = []
-
+        """Returns a generator"""
         for line in self._headers:
-            out.append(self._markup_header(line))
+            yield self._markup_header(line)
 
-        out.append(self._markup_old_path(self._old_path))
-        out.append(self._markup_new_path(self._new_path))
+        yield self._markup_old_path(self._old_path)
+        yield self._markup_new_path(self._new_path)
 
         for hunk in self._hunks:
-            out.append(self._markup_hunk_header(hunk.get_header()))
+            yield self._markup_hunk_header(hunk.get_header())
             for old, new, changed in hunk.mdiff():
                 if changed:
                     if not old[0]:
                         # The '+' char after \x00 is kept
+                        # DEBUG: yield 'NEW: %s %s\n' % (old, new)
                         line = new[1].strip('\x00\x01')
-                        out.append(self._markup_new(line))
+                        yield self._markup_new(line)
                     elif not new[0]:
                         # The '-' char after \x00 is kept
+                        # DEBUG: yield 'OLD: %s %s\n' % (old, new)
                         line = old[1].strip('\x00\x01')
-                        out.append(self._markup_old(line))
+                        yield self._markup_old(line)
                     else:
-                        out.append(self._markup_old('-') +
-                            self._markup_old_mix(old[1]))
-                        out.append(self._markup_new('+') +
-                            self._markup_new_mix(new[1]))
+                        # DEBUG: yield 'CHG: %s %s\n' % (old, new)
+                        yield self._markup_old('-') + \
+                            self._markup_old_mix(old[1])
+                        yield self._markup_new('+') + \
+                            self._markup_new_mix(new[1])
                 else:
-                    out.append(self._markup_common(' ' + old[1]))
-        return ''.join(out)
+                    yield self._markup_common(' ' + old[1])
 
     def markup_side_by_side(self, show_number, width):
-        """width of 0 means infinite width, None means auto detect"""
+        """width of 0 means infinite width, None means auto detect. Returns a
+        generator
+        """
         def _normalize(line):
             return line.replace('\t', ' ' * 8).replace('\n', '')
 
+        def _fit_width(markup, width):
+            """str len does not count correctly if left column contains ansi
+            color code
+            """
+            line = re.sub(r'\x1b\[(1;)?\d{1,2}m', '', markup)
+            if len(line) < width:
+                pad = width - len(line)
+                return '%s%*s' % (markup, pad, '')
+            else:
+                # TODO
+                return markup
+
         width = 80
-        line_fmt = '%%-%ds | %%-%ds\n' % (width, width)
-        out = []
+        line_fmt = '%%s %s %%s\n' % colorize('|', 'lightyellow')
 
         for line in self._headers:
-            out.append(self._markup_header(line))
+            yield self._markup_header(line)
 
-        out.append(self._markup_old_path(self._old_path))
-        out.append(self._markup_new_path(self._new_path))
+        yield self._markup_old_path(self._old_path)
+        yield self._markup_new_path(self._new_path)
 
         for hunk in self._hunks:
-            out.append(self._markup_hunk_header(hunk.get_header()))
+            yield self._markup_hunk_header(hunk.get_header())
             for old, new, changed in hunk.mdiff():
                 left = _normalize(old[1])
                 right = _normalize(new[1])
                 if changed:
                     if not old[0]:
+                        left = '%*s' % (width, '')
                         right = right.lstrip('\x00+').rstrip('\x01')
-                        out.append(line_fmt % (' ', self._markup_new(right)))
+                        right = _fit_width(self._markup_new(right), width)
+                        yield line_fmt % (left, right)
                     elif not new[0]:
                         left = left.lstrip('\x00-').rstrip('\x01')
-                        out.append(line_fmt % (self._markup_old(left), ' '))
+                        left = _fit_width(self._markup_old(left), width)
+                        yield line_fmt % (left, '')
                     else:
-                        out.append(line_fmt % (
-                            self._markup_old_mix(left),
-                            self._markup_new_mix(right)
-                            ))
+                        left = _fit_width(self._markup_old_mix(left), width)
+                        right = _fit_width(self._markup_new_mix(right), width)
+                        yield line_fmt % (left, right)
                 else:
-                    out.append(line_fmt % (
-                        self._markup_common(left),
-                        self._markup_common(right)
-                        ))
-        return ''.join(out)
+                    left = _fit_width(self._markup_common(left), width)
+                    right = _fit_width(self._markup_common(right), width)
+                    yield line_fmt % (left, right)
 
     def _markup_header(self, line):
         return colorize(line, 'cyan')
@@ -176,20 +192,22 @@ class Diff(object):
     def _markup_new(self, line):
         return colorize(line, 'lightgreen')
 
-    def _markup_mix(self, line, base_color, del_color, add_color, chg_color):
-        line = line.replace('\x00-', ansi_code(del_color))
-        line = line.replace('\x00+', ansi_code(add_color))
-        line = line.replace('\x00^', ansi_code(chg_color))
-        line = line.replace('\x01', ansi_code(base_color))
+    def _markup_mix(self, line, base_color):
+        del_code = ansi_code('reverse') + ansi_code(base_color)
+        add_code = ansi_code('reverse') + ansi_code(base_color)
+        chg_code = ansi_code('underline') + ansi_code(base_color)
+        rst_code = ansi_code('reset') + ansi_code(base_color)
+        line = line.replace('\x00-', del_code)
+        line = line.replace('\x00+', add_code)
+        line = line.replace('\x00^', chg_code)
+        line = line.replace('\x01', rst_code)
         return colorize(line, base_color)
 
     def _markup_old_mix(self, line):
-        return self._markup_mix(line, 'cyan', 'lightred', 'lightgreen',
-                'yellow')
+        return self._markup_mix(line, 'red')
 
     def _markup_new_mix(self, line):
-        return self._markup_mix(line, 'lightcyan', 'lightred', 'lightgreen',
-                'lightyellow')
+        return self._markup_mix(line, 'green')
 
 
 class Udiff(Diff):
@@ -344,22 +362,21 @@ class DiffMarkup(object):
         self._diffs = DiffParser(stream).get_diffs()
 
     def markup(self, side_by_side=False, show_number=False, width=0):
+        """Returns a generator"""
         if side_by_side:
             return self._markup_side_by_side(show_number, width)
         else:
             return self._markup_traditional()
 
     def _markup_traditional(self):
-        out = []
         for diff in self._diffs:
-            out.append(diff.markup_traditional())
-        return out
+            for line in diff.markup_traditional():
+                yield line
 
     def _markup_side_by_side(self, show_number, width):
-        out = []
         for diff in self._diffs:
-            out.append(diff.markup_side_by_side(show_number, width))
-        return out
+            for line in diff.markup_side_by_side(show_number, width):
+                yield line
 
 
 if __name__ == '__main__':
@@ -392,6 +409,7 @@ if __name__ == '__main__':
     else:
         diff_hdl = sys.stdin
 
+    # FIXME: can't use generator for now due to current implementation in parser
     stream = diff_hdl.readlines()
     if diff_hdl is not sys.stdin:
         diff_hdl.close()
@@ -404,7 +422,9 @@ if __name__ == '__main__':
         # args stolen fron git source: github.com/git/git/blob/master/pager.c
         pager = subprocess.Popen(['less', '-FRSXK'],
                 stdin=subprocess.PIPE, stdout=sys.stdout)
-        pager.stdin.write(''.join(color_diff))
+        for line in color_diff:
+            pager.stdin.write(line)
+
         pager.stdin.close()
         pager.wait()
     else:
