@@ -33,12 +33,20 @@ def colorize(text, start_color, end_color='reset'):
 
 class Hunk(object):
 
-    def __init__(self, hunk_header):
+    def __init__(self, hunk_header, old_addr, new_addr):
         self._hunk_header = hunk_header
-        self._hunk_list = []   # 2-element group (attr, line)
+        self._old_addr = old_addr   # tuple (start, offset)
+        self._new_addr = new_addr   # tuple group (start, offset)
+        self._hunk_list = []        # list of tuple (attr, line)
 
     def get_header(self):
         return self._hunk_header
+
+    def get_old_addr(self):
+        return self._old_addr
+
+    def get_new_addr(self):
+        return self._new_addr
 
     def append(self, attr, line):
         """attr: '-': old, '+': new, ' ': common"""
@@ -119,57 +127,81 @@ class Diff(object):
                 else:
                     yield self._markup_common(' ' + old[1])
 
-    def markup_side_by_side(self, show_number, width):
+    def markup_side_by_side(self, width):
         """width of 0 means infinite width, None means auto detect. Returns a
         generator
         """
         def _normalize(line):
             return line.replace('\t', ' ' * 8).replace('\n', '')
 
-        def _fit_width(markup, width):
+        def _fit_width(markup, width, pad=False):
             """str len does not count correctly if left column contains ansi
-            color code
+            color code.  Only left side need to set `pad`
             """
             line = re.sub(r'\x1b\[(1;)?\d{1,2}m', '', markup)
-            if len(line) < width:
-                pad = width - len(line)
-                return '%s%*s' % (markup, pad, '')
+            if pad and len(line) < width:
+                pad_len = width - len(line)
+                return '%s%*s' % (markup, pad_len, '')
             else:
                 # TODO
                 return markup
 
-        width = 80
-        line_fmt = '%%s %s %%s\n' % colorize('|', 'lightyellow')
+        # Setup line width and number width
+        if not width: width = 80
+        (start, offset) = self._hunks[-1].get_old_addr()
+        max1 = start + offset - 1
+        (start, offset) = self._hunks[-1].get_new_addr()
+        max2 = start + offset - 1
+        num_width = max(len(str(max1)), len(str(max2)))
+        left_num_fmt = colorize('%%(left_num)%ds' % num_width, 'yellow')
+        right_num_fmt = colorize('%%(right_num)%ds' % num_width, 'yellow')
+        line_fmt = left_num_fmt + ' %(left)s ' + right_num_fmt + \
+                ' %(right)s\n'
 
+        # yield header, old path and new path
         for line in self._headers:
             yield self._markup_header(line)
-
         yield self._markup_old_path(self._old_path)
         yield self._markup_new_path(self._new_path)
 
+        # yield hunks
         for hunk in self._hunks:
             yield self._markup_hunk_header(hunk.get_header())
             for old, new, changed in hunk.mdiff():
+                if old[0]:
+                    left_num = str(hunk.get_old_addr()[0] + int(old[0]) - 1)
+                else:
+                    left_num = ' '
+
+                if new[0]:
+                    right_num = str(hunk.get_new_addr()[0] + int(new[0]) - 1)
+                else:
+                    right_num = ' '
+
                 left = _normalize(old[1])
                 right = _normalize(new[1])
+
                 if changed:
                     if not old[0]:
-                        left = '%*s' % (width, '')
+                        left = '%*s' % (width, ' ')
                         right = right.lstrip('\x00+').rstrip('\x01')
                         right = _fit_width(self._markup_new(right), width)
-                        yield line_fmt % (left, right)
                     elif not new[0]:
                         left = left.lstrip('\x00-').rstrip('\x01')
                         left = _fit_width(self._markup_old(left), width)
-                        yield line_fmt % (left, '')
+                        right = ''
                     else:
-                        left = _fit_width(self._markup_old_mix(left), width)
+                        left = _fit_width(self._markup_old_mix(left), width, 1)
                         right = _fit_width(self._markup_new_mix(right), width)
-                        yield line_fmt % (left, right)
                 else:
-                    left = _fit_width(self._markup_common(left), width)
+                    left = _fit_width(self._markup_common(left), width, 1)
                     right = _fit_width(self._markup_common(right), width)
-                    yield line_fmt % (left, right)
+                yield line_fmt % {
+                    'left_num': left_num,
+                    'left': left,
+                    'right_num': right_num,
+                    'right': right
+                }
 
     def _markup_header(self, line):
         return colorize(line, 'cyan')
@@ -324,7 +356,13 @@ class DiffParser(object):
                     hunks.append(hunk)
                     hunk = None
                 else:
-                    hunk = Hunk(stream.pop(0))
+                    # @@ -3,7 +3,6 @@
+                    hunk_header = stream.pop(0)
+                    a = hunk_header.split()[1].split(',')   # -3 7
+                    old_addr = (int(a[0][1:]), int(a[1]))
+                    b = hunk_header.split()[2].split(',')   # +3 6
+                    new_addr = (int(b[0][1:]), int(b[1]))
+                    hunk = Hunk(hunk_header, old_addr, new_addr)
 
             elif Udiff.is_old(stream[0]) or Udiff.is_new(stream[0]) or \
                     Udiff.is_common(stream[0]):
@@ -361,10 +399,10 @@ class DiffMarkup(object):
     def __init__(self, stream):
         self._diffs = DiffParser(stream).get_diffs()
 
-    def markup(self, side_by_side=False, show_number=False, width=0):
+    def markup(self, side_by_side=False, width=0):
         """Returns a generator"""
         if side_by_side:
-            return self._markup_side_by_side(show_number, width)
+            return self._markup_side_by_side(width)
         else:
             return self._markup_traditional()
 
@@ -373,9 +411,9 @@ class DiffMarkup(object):
             for line in diff.markup_traditional():
                 yield line
 
-    def _markup_side_by_side(self, show_number, width):
+    def _markup_side_by_side(self, width):
         for diff in self._diffs:
-            for line in diff.markup_side_by_side(show_number, width):
+            for line in diff.markup_side_by_side(width):
                 yield line
 
 
@@ -392,8 +430,6 @@ if __name__ == '__main__':
     parser = optparse.OptionParser(usage)
     parser.add_option('-s', '--side-by-side', action='store_true',
             help=('show in side-by-side mode'))
-    parser.add_option('-n', '--number', action='store_true',
-            help='show line number')
     parser.add_option('-w', '--width', type='int', default=None,
             help='set line width (side-by-side mode only)')
     opts, args = parser.parse_args()
@@ -417,7 +453,7 @@ if __name__ == '__main__':
     if sys.stdout.isatty():
         markup = DiffMarkup(stream)
         color_diff = markup.markup(side_by_side=opts.side_by_side,
-                show_number=opts.number, width=opts.width)
+                width=opts.width)
 
         # args stolen fron git source: github.com/git/git/blob/master/pager.c
         pager = subprocess.Popen(['less', '-FRSXK'],
