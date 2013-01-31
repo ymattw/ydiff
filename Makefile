@@ -5,6 +5,7 @@
 dogfood:
 	git diff | src/cdiff.py
 	git diff | src/cdiff.py -s
+	git diff | src/cdiff.py -s -w 60
 	git diff | src/cdiff.py -s -w 100
 
 test: single-udiff multi-udiff

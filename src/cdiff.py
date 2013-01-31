@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 import os
@@ -136,13 +137,27 @@ class Diff(object):
             """str len does not count correctly if left column contains ansi
             color code.  Only left side need to set `pad`
             """
-            line = re.sub(r'\x1b\[(1;)?\d{1,2}m', '', markup)
-            if pad and len(line) < width:
-                pad_len = width - len(line)
-                return '%s%*s' % (markup, pad_len, '')
-            else:
-                # TODO
-                return markup
+            out = []
+            count = 0
+            while markup and count < width:
+                patt = re.compile('^(\x1b\[(1;)?\d{1,2}m)(.*)')
+                if patt.match(markup):
+                    out.append(patt.sub(r'\1', markup, count=1))
+                    markup = patt.sub(r'\3', markup, count=1)
+                else:
+                    out.append(markup[0])
+                    markup = markup[1:]
+                    count += 1
+
+            if count == width and patt.sub('', markup):
+                # stripped: output fulfil and still have ascii in markup
+                #out[-1] = ansi_code('reset') + colorize('☞', 'lightmagenta')
+                out[-1] = ansi_code('reset') + colorize('↵', 'lightmagenta')
+            elif count < width and pad:
+                pad_len = width - count
+                out.append('%*s' % (pad_len, ''))
+
+            return ''.join(out)
 
         # Setup line width and number width
         if width <= 0:
@@ -154,8 +169,8 @@ class Diff(object):
         num_width = max(len(str(max1)), len(str(max2)))
         left_num_fmt = colorize('%%(left_num)%ds' % num_width, 'yellow')
         right_num_fmt = colorize('%%(right_num)%ds' % num_width, 'yellow')
-        line_fmt = left_num_fmt + ' %(left)s ' + right_num_fmt + \
-                ' %(right)s\n'
+        line_fmt = left_num_fmt + ' %(left)s ' + ansi_code('reset') + \
+                right_num_fmt + ' %(right)s\n'
 
         # yield header, old path and new path
         for line in self._headers:
@@ -443,6 +458,10 @@ if __name__ == '__main__':
 
     # FIXME: can't use generator for now due to current implementation in parser
     stream = diff_hdl.readlines()
+    # Don't let empty diff pass thru
+    if not stream:
+        sys.exit(0)
+
     if diff_hdl is not sys.stdin:
         diff_hdl.close()
 
