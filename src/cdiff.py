@@ -9,6 +9,11 @@ See demo at homepage: https://github.com/ymattw/cdiff
 """
 
 import sys
+
+if sys.hexversion < 0x02050000:
+    sys.stderr.write("ERROR: requires python >= 2.5.0\n")
+    sys.exit(1)
+
 import os
 import re
 import difflib
