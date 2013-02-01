@@ -3,8 +3,8 @@
 View **colored** diff in unified-diff format or **side-by-side** mode with
 **auto pager**.  Requires Python (>= 2.5.0) and `less`.
 
-![Default](img/default.png)
-![Side-by-side](img/side-by-side.png)
+![Default](http://ymattw.github.com/cdiff/img/default.png)
+![Side-by-side](http://ymattw.github.com/cdiff/img/side-by-side.png)
 
 ## Installation
 
