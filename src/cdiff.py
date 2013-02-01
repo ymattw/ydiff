@@ -310,7 +310,7 @@ class Udiff(Diff):
 class DiffParser(object):
 
     def __init__(self, stream):
-        for line in stream[:10]:
+        for line in stream[:20]:
             if line.startswith('+++ '):
                 self._type = 'udiff'
                 break
