@@ -131,7 +131,7 @@ class Diff(object):
     def markup_side_by_side(self, width):
         """Returns a generator"""
         def _normalize(line):
-            return line.replace('\t', ' ' * 8).replace('\n', '')
+            return line.replace('\t', ' '*8).replace('\n', '').replace('\r', '')
 
         def _fit_width(markup, width, pad=False):
             """str len does not count correctly if left column contains ansi

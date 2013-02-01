@@ -1,6 +1,8 @@
 # Makefile for testing
 
-.PHONY: dogfood test git svn
+TESTS = git svn crlf
+
+.PHONY: dogfood test $(TESTS)
 
 dogfood:
 	git diff | src/cdiff.py
@@ -8,9 +10,9 @@ dogfood:
 	git diff | src/cdiff.py -s -w 60
 	git diff | src/cdiff.py -s -w 90
 
-test: git svn
+test: $(TESTS)
 
-git svn:
+$(TESTS):
 	src/cdiff.py tests/$@.diff
 	src/cdiff.py tests/$@.diff -s
 	src/cdiff.py tests/$@.diff | diff -u tests/$@.diff -

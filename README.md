@@ -18,8 +18,8 @@ whatever directory which is in your `$PATH`, for example, `$HOME/bin` is in my
 ## Usage
     
 Just give it a diff (patch) file or pipe a diff to it.  Use option `-s` for
-side-by-side view, and option `-w` to use text width other than default `80`.
-See examples below
+side-by-side view, and option `-w <N>` to use text width other than default
+`80`.  See examples below
 
 View a diff (patch) file:
 
