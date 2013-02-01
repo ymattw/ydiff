@@ -1,21 +1,18 @@
 # Makefile for testing
 
-.PHONY: dogfood test single-udiff multi-udiff
+.PHONY: dogfood test git svn
 
 dogfood:
 	git diff | src/cdiff.py
 	git diff | src/cdiff.py -s
 	git diff | src/cdiff.py -s -w 60
-	git diff | src/cdiff.py -s -w 100
+	git diff | src/cdiff.py -s -w 90
 
-test: single-udiff multi-udiff
+test: git svn
 
-single-udiff:
-	src/cdiff.py tests/single.udiff
-	src/cdiff.py tests/single.udiff | diff -u tests/single.udiff -
-
-multi-udiff:
-	src/cdiff.py tests/multi.udiff
-	src/cdiff.py tests/multi.udiff | diff -u tests/multi.udiff -
+git svn:
+	src/cdiff.py tests/$@.diff
+	src/cdiff.py tests/$@.diff -s
+	src/cdiff.py tests/$@.diff | diff -u tests/$@.diff -
 
 # vim:set noet ts=8 sw=8:

@@ -1,0 +1,31 @@
+Index: README.md
+===================================================================
+--- README.md	(revision 41)
++++ README.md	(working copy)
+@@ -3,7 +3,6 @@
+ ## About
+ 
+ Coderev is a toolkit generates static side-by-side html pages for code review.
+-Typical use case is to generate diff pages for local modification in svn/cvs
+ workspace and send page link to teammates for code review.
+ 
+ See [joyus.org/pub/coderev-demo](http://joyus.org/pub/coderev-demo) for a demo.
+@@ -18,9 +17,10 @@
+ 
+ ## Usage of coderev.sh
+ 
+-Just type `./coderev.sh -h` to see the usage.
++Just type `./coderev.sh --help` to see the usage.
+ 
+     Usage:
++
+         coderev.sh [-r revision] [-w width] [-o outdir] [-y] [-d name] \
+                 [-F comment-file | -m 'comment...'] [file...]
+ 
+@@ -145,3 +145,5 @@
+                             specify column number where lines are broken and
+                             wrapped for sdiff, default is no line wrapping
+     -y, --yes             do not prompt for overwriting
++
++# EOF
+\ No newline at end of file

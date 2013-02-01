@@ -1,19 +1,33 @@
 ## About
 
-Diff viewer, side-by-side, auto pager with `less`.
+View **colored** diff in unified-diff format or **side-by-side** with **auto
+pager**.  Requires Python (>= 2.5.0) and `less`.
+
+![Default](img/default.png)
+![Side-by-side](img/side-by-side.png)
 
 ## Install
 
-Just download the `src/cdiff.py` and save to whatever directory which in your
-`$PATH`, for example, `$HOME/bin` is in my `$PATH`, so I save the script there
-and name as `cdiff`.
+Save [src/cdiff.py](https://raw.github.com/ymattw/cdiff/master/src/cdiff.py) to
+whatever directory which is in your `$PATH`, for example, `$HOME/bin` is in my
+`$PATH`, so I save the script there and name as `cdiff`.
 
     curl -ksS https://raw.github.com/ymattw/cdiff/master/src/cdiff.py > ~/bin/cdiff
+    chmod +x ~/bin/cdiff
     
 ## Usage
     
-Read diff from svn, use option `-s` for side-by-side view, use option `-w` to
-use text width other than default `80`.  You don't need `less`, it's automatic:
+Just give it a diff (patch) file or pipe a diff to it.  Use option `-s` for
+side-by-side view, and option `-w` to use text width other than default `80`.
+See examples below
+
+View a diff (patch) file:
+
+    cdiff foo.patch           # view colored udiff
+    cdiff foo.patch -s        # side-by-side
+    cdiff foo.patch -s -w 90  # use text width 90 other than default 80
+    
+Read diff from svn:
 
     svn diff | cdiff
     svn diff | cdiff -s
@@ -25,12 +39,11 @@ Read diff from git:
     git log -p -2 | cdiff -s
     git show <commit> | cdiff -s
 
-View a diff (patch) file:
-
-    cdiff foo.patch
-    cdiff foo.patch -s
-    cdiff foo.patch -s -w 90
-
 Redirect output to another patch file is safe:
 
     svn diff | cdiff -s > my.patch
+
+## Known issue
+
+- Only support unified format for input diff
+- Side-by-side mode has alignment problem for wide chars
