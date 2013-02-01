@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+View colored diff in unified-diff format or side-by-side mode with auto pager.
+Requires Python (>= 2.5.0) and less.
+
+See demo at homepage: https://github.com/ymattw/cdiff
+"""
+
 import sys
 import os
 import re

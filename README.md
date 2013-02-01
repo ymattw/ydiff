@@ -1,12 +1,12 @@
 ## About
 
-View **colored** diff in unified-diff format or **side-by-side** with **auto
-pager**.  Requires Python (>= 2.5.0) and `less`.
+View **colored** diff in unified-diff format or **side-by-side** mode with
+**auto pager**.  Requires Python (>= 2.5.0) and `less`.
 
 ![Default](img/default.png)
 ![Side-by-side](img/side-by-side.png)
 
-## Install
+## Installation
 
 Save [src/cdiff.py](https://raw.github.com/ymattw/cdiff/master/src/cdiff.py) to
 whatever directory which is in your `$PATH`, for example, `$HOME/bin` is in my
