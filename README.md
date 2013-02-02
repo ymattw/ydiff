@@ -1,4 +1,4 @@
-## About
+## About 
 
 View **incremental**, **colored** diff in unified format or in **side by side**
 mode with **auto pager**.  Requires python (>= 2.5.0) and `less`.

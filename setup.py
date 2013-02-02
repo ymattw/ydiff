@@ -22,3 +22,4 @@ setup(
     long_description=read('README.md'),
     install_requires = ['python>= 2.5.0'],
 )
+ 
