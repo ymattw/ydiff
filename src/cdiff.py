@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-View colored diff in unified-diff format or side-by-side mode with auto pager.
-Requires Python (>= 2.5.0) and less.
+View incremental, colored diff in unified format or in side by side mode with
+auto pager.  Requires Python (>= 2.5.0) and less.
 
 See demo at homepage: https://github.com/ymattw/cdiff
 """
@@ -13,7 +13,7 @@ import sys
 if sys.hexversion < 0x02050000:
     sys.stderr.write("ERROR: requires python >= 2.5.0\n")
     sys.exit(1)
-_is_py3 = sys.hexversion >= 0x03000000
+IS_PY3 = sys.hexversion >= 0x03000000
 
 import os
 import re
@@ -475,27 +475,26 @@ if __name__ == '__main__':
     import optparse
     import subprocess
 
-    usage = '''
-    %(prog)s [options] [diff]
+    usage = '''%s [options] [diff]''' % os.path.basename(sys.argv[0])
+    description= ('''View incremental, colored diff in unified format or '''
+                  '''in side by side mode with auto pager, read stdin if '''
+                  '''diff (patch) file is not given''')
 
-    View diff (patch) file if given, otherwise read stdin''' % \
-            {'prog': os.path.basename(sys.argv[0])}
-
-    parser = optparse.OptionParser(usage)
+    parser = optparse.OptionParser(usage=usage, description=description)
     parser.add_option('-s', '--side-by-side', action='store_true',
             help=('show in side-by-side mode'))
-    parser.add_option('-w', '--width', type='int', default=80,
-            help='set line width (side-by-side mode only), default is 80')
+    parser.add_option('-w', '--width', type='int', default=80, metavar='N',
+            help='set text width (side-by-side mode only), default is 80')
     opts, args = parser.parse_args()
 
     if len(args) >= 1:
-        if _is_py3:
+        if IS_PY3:
             # Python3 needs the newline='' to keep '\r' (DOS format)
             diff_hdl = open(args[0], mode='rt', newline='')
         else:
             diff_hdl = open(args[0], mode='rt')
     elif sys.stdin.isatty():
-        sys.stderr.write('Try --help option for usage\n')
+        parser.print_help()
         sys.exit(1)
     else:
         diff_hdl = sys.stdin

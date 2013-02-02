@@ -1,10 +1,10 @@
 ## About
 
-View **colored** diff in unified-diff format or **side-by-side** mode with
-**auto pager**.  Requires Python (>= 2.5.0) and `less`.
+View **incremental**, **colored** diff in unified format or in **side by side**
+mode with **auto pager**.  Requires python (>= 2.5.0) and `less`.
 
 ![Default](http://ymattw.github.com/cdiff/img/default.png)
-![Side-by-side](http://ymattw.github.com/cdiff/img/side-by-side.png)
+![Side by side](http://ymattw.github.com/cdiff/img/side-by-side.png)
 
 ## Installation
 
@@ -18,14 +18,14 @@ whatever directory which is in your `$PATH`, for example, `$HOME/bin` is in my
 ## Usage
     
 Just give it a diff (patch) file or pipe a diff to it.  Use option `-s` for
-side-by-side view, and option `-w <N>` to use text width other than default
+side-by-side view, and option `-w N` to set a text width other than default
 `80`.  See examples below
 
 View a diff (patch) file:
 
-    cdiff foo.patch           # view colored udiff
-    cdiff foo.patch -s        # side-by-side
-    cdiff foo.patch -s -w 90  # use text width 90 other than default 80
+    cdiff foo.patch             # view incremental, colored udiff
+    cdiff foo.patch -s          # view in side by side mode
+    cdiff foo.patch -s -w 90    # use text width 90 other than default 80
     
 Read diff from svn:
 
@@ -46,4 +46,4 @@ Redirect output to another patch file is safe:
 ## Known issue
 
 - Only support unified format for input diff
-- Side-by-side mode has alignment problem for wide chars
+- Side by side mode has alignment problem for wide chars
