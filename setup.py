@@ -19,6 +19,7 @@ setup(
     keywords = "diff",
     url = "https://github.com/ymattw/cdiff",
     scripts = ['src/cdiff.py'],
+    packages=['src'],
     long_description=read('README.md'),
     install_requires = ['python>= 2.5.0'],
 )
