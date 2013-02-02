@@ -474,8 +474,11 @@ def markup_to_pager(stream):
 
 def check_command_status(arguments):
     """Return True if command returns 0."""
-    return subprocess.call(
-        arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+    try:
+        return subprocess.call(
+            arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+    except OSError:
+        return False
 
 
 def revision_control_diff(path):
@@ -484,6 +487,8 @@ def revision_control_diff(path):
         return subprocess.Popen(['git', 'diff'], stdout=subprocess.PIPE).stdout
     elif check_command_status(['svn', 'info']):
         return subprocess.Popen(['svn', 'diff'], stdout=subprocess.PIPE).stdout
+    elif check_command_status(['hg', 'summary']):
+        return subprocess.Popen(['hg', 'diff'], stdout=subprocess.PIPE).stdout
 
 
 def decode(line):
