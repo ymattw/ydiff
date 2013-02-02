@@ -472,10 +472,18 @@ def markup_to_pager(stream):
     pager.wait()
 
 
+def check_command_status(arguments):
+    """Return True if command returns 0."""
+    return subprocess.call(
+        arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+
+
 def revision_control_diff(path):
     """Return diff from revision control system."""
-    if subprocess.call(['git', 'rev-parse'], stderr=subprocess.PIPE) == 0:
+    if check_command_status(['git', 'rev-parse']):
         return subprocess.Popen(['git', 'diff'], stdout=subprocess.PIPE).stdout
+    elif check_command_status(['svn', 'info']):
+        return subprocess.Popen(['svn', 'diff'], stdout=subprocess.PIPE).stdout
 
 
 def decode(line):
