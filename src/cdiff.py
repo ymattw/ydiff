@@ -17,6 +17,7 @@ _is_py3 = sys.hexversion >= 0x03000000
 
 import os
 import re
+import errno
 import difflib
 
 
@@ -451,6 +452,21 @@ class DiffMarkup(object):
                 yield line
 
 
+def markup_to_pager(stream):
+    markup = DiffMarkup(stream)
+    color_diff = markup.markup(side_by_side=opts.side_by_side,
+            width=opts.width)
+
+    # args stolen fron git source: github.com/git/git/blob/master/pager.c
+    pager = subprocess.Popen(['less', '-FRSXK'],
+            stdin=subprocess.PIPE, stdout=sys.stdout)
+    for line in color_diff:
+        pager.stdin.write(line.encode('utf-8'))
+
+    pager.stdin.close()
+    pager.wait()
+
+
 if __name__ == '__main__':
     import optparse
     import subprocess
@@ -491,18 +507,12 @@ if __name__ == '__main__':
         diff_hdl.close()
 
     if sys.stdout.isatty():
-        markup = DiffMarkup(stream)
-        color_diff = markup.markup(side_by_side=opts.side_by_side,
-                width=opts.width)
-
-        # args stolen fron git source: github.com/git/git/blob/master/pager.c
-        pager = subprocess.Popen(['less', '-FRSXK'],
-                stdin=subprocess.PIPE, stdout=sys.stdout)
-        for line in color_diff:
-            pager.stdin.write(line.encode('utf-8'))
-
-        pager.stdin.close()
-        pager.wait()
+        try:
+            markup_to_pager(stream)
+        except IOError:
+            e = sys.exc_info()[1]
+            if e.errno == errno.EPIPE:
+                pass
     else:
         # pipe out stream untouched to make sure it is still a patch
         sys.stdout.write(''.join(stream))
