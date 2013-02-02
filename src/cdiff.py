@@ -16,7 +16,6 @@ if sys.hexversion < 0x02050000:
 
 import os
 import re
-import errno
 import difflib
 
 
@@ -493,12 +492,8 @@ if __name__ == '__main__':
         # args stolen fron git source: github.com/git/git/blob/master/pager.c
         pager = subprocess.Popen(['less', '-FRSXK'],
                 stdin=subprocess.PIPE, stdout=sys.stdout)
-        try:
-            for line in color_diff:
-                pager.stdin.write(line)
-        except IOError as e:
-            if e.errno == errno.EPIPE:
-                pass
+        for line in color_diff:
+            pager.stdin.write(line)
 
         pager.stdin.close()
         pager.wait()
