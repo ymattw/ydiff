@@ -490,16 +490,11 @@ def check_command_status(arguments):
         return False
 
 
-def command_pipe(arguments):
-    """Return stdout pipe after starting subprocess."""
-    return subprocess.Popen(arguments, stdout=subprocess.PIPE).stdout
-
-
 def revision_control_diff(path):
     """Return diff from revision control system."""
     for check, diff in REVISION_CONTROL:
         if check_command_status(check):
-            return command_pipe(diff)
+            return subprocess.Popen(diff, stdout=subprocess.PIPE).stdout
 
 
 def decode(line):
