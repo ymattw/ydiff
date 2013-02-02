@@ -13,6 +13,7 @@ import sys
 if sys.hexversion < 0x02050000:
     sys.stderr.write("ERROR: requires python >= 2.5.0\n")
     sys.exit(1)
+_is_py3 = sys.hexversion >= 0x03000000
 
 import os
 import re
@@ -160,7 +161,7 @@ class Diff(object):
                     out.append(patt.sub(r'\1', markup))
                     markup = patt.sub(r'\3', markup)
                 else:
-                    # FIXME: utf-8 char broken here
+                    # FIXME: utf-8 wchar broken here
                     out.append(markup[0])
                     markup = markup[1:]
                     count += 1
@@ -468,7 +469,11 @@ if __name__ == '__main__':
     opts, args = parser.parse_args()
 
     if len(args) >= 1:
-        diff_hdl = open(args[0], 'r')
+        if _is_py3:
+            # Python3 needs the newline='' to keep '\r' (DOS format)
+            diff_hdl = open(args[0], mode='rt', newline='')
+        else:
+            diff_hdl = open(args[0], mode='rt')
     elif sys.stdin.isatty():
         sys.stderr.write('Try --help option for usage\n')
         sys.exit(1)
@@ -477,6 +482,7 @@ if __name__ == '__main__':
 
     # FIXME: can't use generator for now due to current implementation in parser
     stream = diff_hdl.readlines()
+
     # Don't let empty diff pass thru
     if not stream:
         sys.exit(0)
