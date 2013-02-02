@@ -493,7 +493,7 @@ if __name__ == '__main__':
         pager = subprocess.Popen(['less', '-FRSXK'],
                 stdin=subprocess.PIPE, stdout=sys.stdout)
         for line in color_diff:
-            pager.stdin.write(line)
+            pager.stdin.write(line.encode('utf-8'))
 
         pager.stdin.close()
         pager.wait()
