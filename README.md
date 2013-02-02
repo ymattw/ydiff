@@ -8,12 +8,8 @@ mode with **auto pager**.  Requires python (>= 2.5.0) and `less`.
 
 ## Installation
 
-Save [src/cdiff.py](https://raw.github.com/ymattw/cdiff/master/src/cdiff.py) to
-whatever directory which is in your `$PATH`, for example, `$HOME/bin` is in my
-`$PATH`, so I save the script there and name as `cdiff`.
-
-    curl -ksS https://raw.github.com/ymattw/cdiff/master/src/cdiff.py > ~/bin/cdiff
-    chmod +x ~/bin/cdiff
+    git clone https://github.com/ymattw/cdiff.git
+    sudo python setup.py install
     
 ## Usage
     

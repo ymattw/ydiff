@@ -1,7 +1,6 @@
 #! /usr/bin/env python
-#install script for cdiff by Shimon Tolts
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
@@ -14,6 +13,7 @@ setup(
     name = "cdiff",
     version = "0.0.1",
     author = "Matthew Wang",
+    licence = "GPL2",
     description = ("View incremental, colored diff in unified format or in side"
     				"							by side mode with auto pager"),
     keywords = "diff",
