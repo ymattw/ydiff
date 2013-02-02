@@ -15,7 +15,7 @@ setup(
     author = "Matthew Wang",
     licence = "GPL2",
     description = ("View incremental, colored diff in unified format or in side"
-    				"							by side mode with auto pager"),
+    											"by side mode with auto pager"),
     keywords = "diff",
     url = "https://github.com/ymattw/cdiff",
     scripts = ['src/cdiff.py'],
