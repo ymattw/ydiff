@@ -51,7 +51,7 @@ class Hunk(object):
     def __init__(self, hunk_header, old_addr, new_addr):
         self._hunk_header = hunk_header
         self._old_addr = old_addr   # tuple (start, offset)
-        self._new_addr = new_addr   # tuple group (start, offset)
+        self._new_addr = new_addr   # tuple (start, offset)
         self._hunk_list = []        # list of tuple (attr, line)
 
     def get_header(self):
@@ -396,7 +396,11 @@ class DiffParser(object):
                     a = hunk_header.split()[1].split(',')   # -3 7
                     old_addr = (int(a[0][1:]), int(a[1]))
                     b = hunk_header.split()[2].split(',')   # +3 6
-                    new_addr = (int(b[0][1:]), int(b[1]))
+                    if len(b) > 1:
+                        new_addr = (int(b[0][1:]), int(b[1]))
+                    else:
+                        # @@ -0,0 +1 @@
+                        new_addr = (int(b[0][1:]), 0)
                     hunk = Hunk(hunk_header, old_addr, new_addr)
 
             elif Udiff.is_old(stream[0]) or Udiff.is_new(stream[0]) or \

@@ -1,0 +1,13 @@
+commit 57263369bd810ba3a2c2dfd32a905f1e7d59cc6d
+Author: Matthew Wang <XXXXXXX@gmail.com>
+Date:   Sun Jan 6 21:56:54 2013 +0800
+
+    simplify with seperate node.py
+
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..0d20b64
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1 @@
++*.pyc

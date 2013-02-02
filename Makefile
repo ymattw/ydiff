@@ -1,6 +1,6 @@
 # Makefile for testing
 
-TESTS = git svn crlf
+TESTS = git svn crlf strange
 
 .PHONY: dogfood test $(TESTS)
 
