@@ -490,7 +490,7 @@ def check_command_status(arguments):
         return False
 
 
-def revision_control_diff(path):
+def revision_control_diff():
     """Return diff from revision control system."""
     for check, diff in REVISION_CONTROL:
         if check_command_status(check):
@@ -527,7 +527,7 @@ if __name__ == '__main__':
         else:
             diff_hdl = open(args[0], mode='rt')
     elif sys.stdin.isatty():
-        diff_hdl = revision_control_diff(os.getcwd())
+        diff_hdl = revision_control_diff()
         if not diff_hdl:
             parser.print_help()
             sys.exit(1)
