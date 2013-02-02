@@ -17,6 +17,7 @@ IS_PY3 = sys.hexversion >= 0x03000000
 
 import os
 import re
+import subprocess
 import errno
 import difflib
 
@@ -471,9 +472,22 @@ def markup_to_pager(stream):
     pager.wait()
 
 
+def revision_control_diff(path):
+    """Return diff from revision control system."""
+    if subprocess.call(['git', 'rev-parse'], stderr=subprocess.PIPE) == 0:
+        return subprocess.Popen(['git', 'diff'], stdout=subprocess.PIPE).stdout
+
+
+def decode(line):
+    """Decode UTF-8 if necessary."""
+    try:
+        return line.decode('utf-8')
+    except AttributeError:
+        return line
+
+
 if __name__ == '__main__':
     import optparse
-    import subprocess
 
     usage = '''%s [options] [diff]''' % os.path.basename(sys.argv[0])
     description= ('''View incremental, colored diff in unified format or '''
@@ -494,13 +508,15 @@ if __name__ == '__main__':
         else:
             diff_hdl = open(args[0], mode='rt')
     elif sys.stdin.isatty():
-        parser.print_help()
-        sys.exit(1)
+        diff_hdl = revision_control_diff(os.getcwd())
+        if not diff_hdl:
+            parser.print_help()
+            sys.exit(1)
     else:
         diff_hdl = sys.stdin
 
     # FIXME: can't use generator for now due to current implementation in parser
-    stream = diff_hdl.readlines()
+    stream = [decode(l) for l in diff_hdl.readlines()]
 
     # Don't let empty diff pass thru
     if not stream:
