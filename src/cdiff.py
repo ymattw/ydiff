@@ -17,6 +17,7 @@ IS_PY3 = sys.hexversion >= 0x03000000
 
 import os
 import re
+import subprocess
 import errno
 import difflib
 
@@ -38,6 +39,15 @@ COLORS = {
     'lightmagenta'  : '\x1b[1;35m',
     'lightcyan'     : '\x1b[1;36m',
 }
+
+
+# Keys for checking and values for diffing.
+REVISION_CONTROL = (
+    (['git', 'rev-parse'], ['git', 'diff']),
+    (['svn', 'info'], ['svn', 'diff']),
+    (['hg', 'summary'], ['hg', 'diff'])
+)
+
 
 def ansi_code(color):
     return COLORS.get(color, '')
@@ -68,7 +78,7 @@ class Hunk(object):
         self._hunk_list.append((attr, line))
 
     def mdiff(self):
-        """The difflib._mdiff() function returns an interator which returns a
+        r"""The difflib._mdiff() function returns an interator which returns a
         tuple: (from line tuple, to line tuple, boolean flag)
 
         from/to line tuple -- (line num, line text)
@@ -471,9 +481,32 @@ def markup_to_pager(stream):
     pager.wait()
 
 
+def check_command_status(arguments):
+    """Return True if command returns 0."""
+    try:
+        return subprocess.call(
+            arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+    except OSError:
+        return False
+
+
+def revision_control_diff():
+    """Return diff from revision control system."""
+    for check, diff in REVISION_CONTROL:
+        if check_command_status(check):
+            return subprocess.Popen(diff, stdout=subprocess.PIPE).stdout
+
+
+def decode(line):
+    """Decode UTF-8 if necessary."""
+    try:
+        return line.decode('utf-8')
+    except AttributeError:
+        return line
+
+
 if __name__ == '__main__':
     import optparse
-    import subprocess
 
     usage = '''%s [options] [diff]''' % os.path.basename(sys.argv[0])
     description= ('''View incremental, colored diff in unified format or '''
@@ -494,13 +527,14 @@ if __name__ == '__main__':
         else:
             diff_hdl = open(args[0], mode='rt')
     elif sys.stdin.isatty():
-        parser.print_help()
-        sys.exit(1)
+        diff_hdl = revision_control_diff()
+        if not diff_hdl:
+            sys.exit(0)
     else:
         diff_hdl = sys.stdin
 
     # FIXME: can't use generator for now due to current implementation in parser
-    stream = diff_hdl.readlines()
+    stream = [decode(line) for line in diff_hdl.readlines()]
 
     # Don't let empty diff pass thru
     if not stream:
