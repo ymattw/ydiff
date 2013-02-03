@@ -535,7 +535,7 @@ if __name__ == '__main__':
         diff_hdl = sys.stdin
 
     # FIXME: can't use generator for now due to current implementation in parser
-    stream = [decode(l) for l in diff_hdl.readlines()]
+    stream = [decode(line) for line in diff_hdl.readlines()]
 
     # Don't let empty diff pass thru
     if not stream:
