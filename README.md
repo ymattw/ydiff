@@ -1,12 +1,17 @@
 ## About
 
-View **incremental**, **colored** diff in unified format or in **side by side**
-mode with **auto pager**.  Requires python (>= 2.5.0) and `less`.
+View **incremental**, **colored** diff in unified format or **side by side**
+with **auto pager**.  Requires python (>= 2.5.0) and `less`.
 
 ![Default](http://ymattw.github.com/cdiff/img/default.png)
 ![Side by side](http://ymattw.github.com/cdiff/img/side-by-side.png)
 
 ## Installation
+
+Cdiff is not in PyPI yet, so far you could download the script directly or use
+the `setup.py` to install.
+ 
+**Download directly**
 
 Save [src/cdiff.py](https://raw.github.com/ymattw/cdiff/master/src/cdiff.py) to
 whatever directory which is in your `$PATH`, for example, `$HOME/bin` is in my
@@ -14,6 +19,17 @@ whatever directory which is in your `$PATH`, for example, `$HOME/bin` is in my
 
     curl -ksS https://raw.github.com/ymattw/cdiff/master/src/cdiff.py > ~/bin/cdiff
     chmod +x ~/bin/cdiff
+
+**Install with the setup.py**
+
+You can run the setup.py from the source to install `cdiff` to system wide
+directory.
+
+    git clone https://github.com/ymattw/cdiff.git
+    cd cdiff
+    sudo ./setup.py install
+
+This usually installs it as `/usr/local/bin/cdiff`.
 
 ## Usage
 
@@ -29,7 +45,7 @@ Show usage:
 View a diff (patch) file:
 
     cdiff foo.patch             # view incremental, colored udiff
-    cdiff foo.patch -s          # view in side by side mode
+    cdiff foo.patch -s          # view side by side
     cdiff foo.patch -s -w 90    # use text width 90 other than default 80
 
 Read diff from local modification in a svn, git, or hg workspace:
