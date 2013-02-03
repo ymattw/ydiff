@@ -471,7 +471,7 @@ class DiffMarkup(object):
                 yield line
 
 
-def markup_to_pager(stream):
+def markup_to_pager(stream, opts):
     markup = DiffMarkup(stream)
     color_diff = markup.markup(side_by_side=opts.side_by_side,
             width=opts.width)
@@ -510,7 +510,7 @@ def decode(line):
         return line
 
 
-if __name__ == '__main__':
+def main():
     import optparse
 
     supported_vcs = [check[0] for check, _ in REVISION_CONTROL]
@@ -550,14 +550,14 @@ if __name__ == '__main__':
 
     # Don't let empty diff pass thru
     if not stream:
-        sys.exit(0)
+        return
 
     if diff_hdl is not sys.stdin:
         diff_hdl.close()
 
     if sys.stdout.isatty():
         try:
-            markup_to_pager(stream)
+            markup_to_pager(stream, opts)
         except IOError:
             e = sys.exc_info()[1]
             if e.errno == errno.EPIPE:
@@ -566,6 +566,8 @@ if __name__ == '__main__':
         # pipe out stream untouched to make sure it is still a patch
         sys.stdout.write(''.join(stream))
 
-    sys.exit(0)
+
+if __name__ == '__main__':
+    main()
 
 # vim:set et sts=4 sw=4 tw=80:
