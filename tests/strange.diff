@@ -11,3 +11,10 @@ index 0000000..0d20b64
 +++ b/.gitignore
 @@ -0,0 +1 @@
 +*.pyc
+diff --git a/README b/README
+index 7e70850..b5eb369 100644
+--- a/README
++++ b/README
+@@ -1 +1,2 @@
+ Sun Feb  3 13:57:05 CST 2013
++Sun Feb  3 13:57:15 CST 2013

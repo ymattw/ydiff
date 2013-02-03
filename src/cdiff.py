@@ -11,7 +11,7 @@ See demo at homepage: https://github.com/ymattw/cdiff
 import sys
 
 if sys.hexversion < 0x02050000:
-    sys.stderr.write("ERROR: requires python >= 2.5.0\n")
+    sys.stderr.write("*** Requires python >= 2.5.0\n")
     sys.exit(1)
 IS_PY3 = sys.hexversion >= 0x03000000
 
@@ -404,7 +404,12 @@ class DiffParser(object):
                     # @@ -3,7 +3,6 @@
                     hunk_header = stream.pop(0)
                     a = hunk_header.split()[1].split(',')   # -3 7
-                    old_addr = (int(a[0][1:]), int(a[1]))
+                    if len(a) > 1:
+                        old_addr = (int(a[0][1:]), int(a[1]))
+                    else:
+                        # @@ -1 +1,2 @@
+                        old_addr = (int(a[0][1:]), 0)
+
                     b = hunk_header.split()[2].split(',')   # +3 6
                     if len(b) > 1:
                         new_addr = (int(b[0][1:]), int(b[1]))
@@ -508,10 +513,14 @@ def decode(line):
 if __name__ == '__main__':
     import optparse
 
-    usage = '''%s [options] [diff]''' % os.path.basename(sys.argv[0])
-    description= ('''View incremental, colored diff in unified format or '''
-                  '''in side by side mode with auto pager, read stdin if '''
-                  '''diff (patch) file is not given''')
+    supported_vcs = [check[0] for check, _ in REVISION_CONTROL]
+
+    usage = '%s [options] [diff]' % os.path.basename(sys.argv[0])
+    description= ('View incremental, colored diff in unified format or '
+                  'side by side with auto pager.  Read diff from diff '
+                  '(patch) file if given, or stdin if redirected, or '
+                  'diff produced by revision tool if in a %s workspace') \
+            % '/'.join(supported_vcs)
 
     parser = optparse.OptionParser(usage=usage, description=description)
     parser.add_option('-s', '--side-by-side', action='store_true',
@@ -529,6 +538,8 @@ if __name__ == '__main__':
     elif sys.stdin.isatty():
         diff_hdl = revision_control_diff()
         if not diff_hdl:
+            sys.stderr.write(('*** Not in a supported workspace, supported '
+                              'are: %s\n\n') % ', '.join(supported_vcs))
             parser.print_help()
             sys.exit(1)
     else:

@@ -5,6 +5,7 @@ TESTS = git svn crlf strange
 .PHONY: dogfood test $(TESTS)
 
 dogfood:
+	src/cdiff.py -s
 	git diff | src/cdiff.py
 	git diff | src/cdiff.py -s
 
