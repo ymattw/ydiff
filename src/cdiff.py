@@ -78,7 +78,7 @@ class Hunk(object):
         self._hunk_list.append((attr, line))
 
     def mdiff(self):
-        """The difflib._mdiff() function returns an interator which returns a
+        r"""The difflib._mdiff() function returns an interator which returns a
         tuple: (from line tuple, to line tuple, boolean flag)
 
         from/to line tuple -- (line num, line text)
