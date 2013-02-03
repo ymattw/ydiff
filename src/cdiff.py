@@ -529,8 +529,7 @@ if __name__ == '__main__':
     elif sys.stdin.isatty():
         diff_hdl = revision_control_diff()
         if not diff_hdl:
-            parser.print_help()
-            sys.exit(1)
+            sys.exit(0)
     else:
         diff_hdl = sys.stdin
 
