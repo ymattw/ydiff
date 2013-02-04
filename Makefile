@@ -3,7 +3,7 @@
 TESTS = git svn crlf strange
 TESTPYPI = http://testpypi.python.org/pypi
 
-.PHONY: dogfood test $(TESTS) clean dist
+.PHONY: dogfood test $(TESTS) clean dist-test dist
 
 dogfood:
 	src/cdiff.py -s
@@ -21,13 +21,10 @@ $(TESTS):
 	python3 src/cdiff.py tests/$@.diff | diff -u tests/$@.diff -
 
 clean:
-	rm -rf MANIFEST build/ cdiff.egg-info/ dist/
+	rm -rf src/cdiff MANIFEST build/ cdiff.egg-info/ dist/
 
 dist-test:
 	./setup.py build sdist upload -r $(TESTPYPI)
-
-install-test:
-	pip install -r $(TESTPYPI)
 
 dist:
 	./setup.py build sdist upload

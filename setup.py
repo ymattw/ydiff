@@ -2,13 +2,20 @@
 
 from __future__ import with_statement
 from distutils.core import setup
+import os
+
+# Create symlink so that to use 'scripts' w/o '.py'
+link_name = 'src/cdiff'
+if os.path.exists(link_name):
+    os.unlink(link_name)
+os.symlink('cdiff.py', 'src/cdiff')
 
 with open('README.rst') as doc:
     long_description = doc.read()
 
 setup(
     name = 'cdiff',
-    version = '0.0.1',
+    version = '0.0.2',
     author = 'Matthew Wang',
     author_email = 'mattwyl@gmail.com',
     license = 'BSD-3',

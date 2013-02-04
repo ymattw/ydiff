@@ -16,32 +16,37 @@ with **auto pager**.  Requires python (>= 2.5.0) and ``less``.
 Installation
 ------------
 
-Cdiff is not in PyPI yet, so far you could download the script directly or use
-the ``setup.py`` to install.
+**Install with pip**
+
+Cdiff is already listed on `PyPI <http://pypi.python.org/pypi/cdiff>`, you can
+install with ``pip`` if you have the tool.
+
+.. code:: sh
  
-**Download directly**
+    sudo pip install cdiff
 
-Save `src/cdiff.py <https://raw.github.com/ymattw/cdiff/master/src/cdiff.py>` to
-whatever directory which is in your ``$PATH``, for example, ``$HOME/bin`` is in
-my ``$PATH``, so I save the script there and name as ``cdiff``.
+**Install with setup.py**
 
-.. code:: shell
+You can also run the setup.py from the source if you don't have ``pip``.
 
-    curl -ksS https://raw.github.com/ymattw/cdiff/master/src/cdiff.py > ~/bin/cdiff
-    chmod +x ~/bin/cdiff
-
-**Install with the setup.py**
-
-You can run the setup.py from the source to install ``cdiff`` to system wide
-directory.
-
-.. code:: shell
+.. code:: sh
 
     git clone https://github.com/ymattw/cdiff.git
     cd cdiff
     sudo ./setup.py install
 
-This usually installs it as ``/usr/local/bin/cdiff``.
+**Download directly**
+
+Both ``pip`` and ``setup.py`` installs cdiff to system wide directory, if you
+want a minimal tool without the boring external dependencies (like me), just
+save `src/cdiff.py <https://raw.github.com/ymattw/cdiff/master/src/cdiff.py>` to
+whatever directory which is in your ``$PATH``, for example, ``$HOME/bin`` is
+in my ``$PATH``, so I save the script there and name as ``cdiff``.
+
+.. code:: sh
+
+    curl -ksS https://raw.github.com/ymattw/cdiff/master/src/cdiff.py > ~/bin/cdiff
+    chmod +x ~/bin/cdiff
 
 Usage
 -----
@@ -57,7 +62,7 @@ Show usage::
 
 View a diff (patch) file:
 
-.. code:: shell
+.. code:: sh
 
     cdiff foo.patch             # view colored incremental udiff
     cdiff foo.patch -s          # view side by side
@@ -65,7 +70,7 @@ View a diff (patch) file:
 
 Read diff from local modification in a svn, git, or hg workspace:
 
-.. code:: shell
+.. code:: sh
 
     cd proj-workspace
     cdiff
@@ -74,15 +79,15 @@ Read diff from local modification in a svn, git, or hg workspace:
 
 Pipe in a diff:
 
-.. code:: shell
+.. code:: sh
 
-    svn diff -r PREV | cdiff -s
     git log -p -2 | cdiff -s
-    git show <commit> | cdiff -s
+    git show 15bfa56 | cdiff -s
+    svn diff -r PREV | cdiff -s
 
 Redirect output to another patch file is safe:
 
-.. code:: shell
+.. code:: sh
 
     svn diff | cdiff -s > my.patch
 
