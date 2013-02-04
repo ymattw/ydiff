@@ -28,8 +28,10 @@ setup(
         'Operating System :: Unix',
         'Programming Language :: Python',
     ],
-    packages = [],
-    scripts = ['src/cdiff.py'],
+    package_dir = {'': 'src'},
+    packages = [''],
+    py_modules = ['cdiff'],
+    scripts = [],
     entry_points = {
         'console_scripts': [
             'cdiff = cdiff:main',
