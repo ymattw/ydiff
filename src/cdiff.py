@@ -172,10 +172,14 @@ class Diff(object):
                     out.append(patt.sub(r'\1', markup))
                     markup = patt.sub(r'\3', markup)
                 else:
-                    # FIXME: utf-8 wchar broken here
+                    # FIXME: utf-8 wchar might break the rule here, e.g.
+                    # u'\u554a' takes double width of a single letter, also this
+                    # depends on your terminal font.  I guess audience of this
+                    # tool never put that kind of symbol in their code :-)
+                    #
                     out.append(markup[0])
-                    markup = markup[1:]
                     count += 1
+                    markup = markup[1:]
 
             if count == width and repl.sub('', markup):
                 # stripped: output fulfil and still have ascii in markup
