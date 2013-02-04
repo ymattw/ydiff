@@ -3,7 +3,7 @@
 from __future__ import with_statement
 from distutils.core import setup
 
-with open('README.md') as doc:
+with open('README.rst') as doc:
     long_description = doc.read()
 
 setup(
