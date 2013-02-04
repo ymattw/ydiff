@@ -1,3 +1,4 @@
+include CHANGES
 include LICENSE
 include Makefile
 include README.rst

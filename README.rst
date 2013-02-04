@@ -1,8 +1,8 @@
 Cdiff
 =====
 
-View **colored**, **incremental** diff in unified format or **side by side**
-with **auto pager**.  Requires python (>= 2.5.0) and ``less``.
+Term based tool to view **colored**, **incremental** diff in unified format or
+**side by side** with **auto pager**.  Requires python (>= 2.5.0) and ``less``.
 
 .. image:: http://ymattw.github.com/cdiff/img/default.png
    :alt: default
@@ -97,5 +97,15 @@ Redirect output to another patch file is safe:
 Known issue
 -----------
 
-- Only support unified format for input diff
+- Only support unified diff for input format
 - Side by side mode has alignment problem for wide chars
+
+See also
+--------
+
+I have another tool `coderev <https://github.com/ymattw/coderev>`_ which
+generates side-by-side diff pages for code review from two given files or
+directories, I found it's not easy to extend to support git so invented
+`cdiff`.  Idea of ansi color markup is also from project `colordiff
+<https://github.com/daveewart/colordiff>`_.
+
