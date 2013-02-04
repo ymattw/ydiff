@@ -21,7 +21,8 @@ $(TESTS):
 	python3 src/cdiff.py tests/$@.diff | diff -u tests/$@.diff -
 
 clean:
-	rm -rf src/cdiff MANIFEST build/ cdiff.egg-info/ dist/
+	rm -f cdiff MANIFEST
+	rm -rf build/ cdiff.egg-info/ dist/
 
 dist-test:
 	./setup.py build sdist upload -r $(TESTPYPI)

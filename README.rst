@@ -16,16 +16,18 @@ with **auto pager**.  Requires python (>= 2.5.0) and ``less``.
 Installation
 ------------
 
-**Install with pip**
+Install with pip
+~~~~~~~~~~~~~~~~
 
-Cdiff is already listed on `PyPI <http://pypi.python.org/pypi/cdiff>`, you can
+Cdiff is already listed on `PyPI <http://pypi.python.org/pypi/cdiff>`_, you can
 install with ``pip`` if you have the tool.
 
 .. code:: sh
  
     sudo pip install cdiff
 
-**Install with setup.py**
+Install with setup.py
+~~~~~~~~~~~~~~~~~~~~~
 
 You can also run the setup.py from the source if you don't have ``pip``.
 
@@ -35,12 +37,13 @@ You can also run the setup.py from the source if you don't have ``pip``.
     cd cdiff
     sudo ./setup.py install
 
-**Download directly**
+Download directly
+~~~~~~~~~~~~~~~~~
 
 Both ``pip`` and ``setup.py`` installs cdiff to system wide directory, if you
 want a minimal tool without the boring external dependencies (like me), just
-save `src/cdiff.py <https://raw.github.com/ymattw/cdiff/master/src/cdiff.py>` to
-whatever directory which is in your ``$PATH``, for example, ``$HOME/bin`` is
+save `src/cdiff.py <https://raw.github.com/ymattw/cdiff/master/src/cdiff.py>`_
+to whatever directory which is in your ``$PATH``, for example, ``$HOME/bin`` is
 in my ``$PATH``, so I save the script there and name as ``cdiff``.
 
 .. code:: sh

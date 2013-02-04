@@ -1,6 +1,7 @@
 *.pyc
 *~
-MANIFEST
-build/
-cdiff.egg-info/
-dist/
+/MANIFEST
+/cdiff
+/build/
+/cdiff.egg-info/
+/dist/
