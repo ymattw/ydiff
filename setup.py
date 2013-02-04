@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import with_statement
-from setuptools import setup
+from distutils.core import setup
 
 with open('README.md') as doc:
     long_description = doc.read()
@@ -31,10 +31,5 @@ setup(
     package_dir = {'': 'src'},
     packages = [''],
     py_modules = ['cdiff'],
-    scripts = [],
-    entry_points = {
-        'console_scripts': [
-            'cdiff = cdiff:main',
-        ],
-    },
+    scripts = ['src/cdiff'],
 )
