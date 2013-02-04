@@ -1,8 +1,9 @@
 # Makefile for testing
 
 TESTS = git svn crlf strange
+TESTPYPI = http://testpypi.python.org/pypi
 
-.PHONY: dogfood test $(TESTS) clean sdist
+.PHONY: dogfood test $(TESTS) clean dist
 
 dogfood:
 	src/cdiff.py -s
@@ -20,9 +21,15 @@ $(TESTS):
 	python3 src/cdiff.py tests/$@.diff | diff -u tests/$@.diff -
 
 clean:
-	rm -rf build/ cdiff.egg-info/ dist/
+	rm -rf MANIFEST build/ cdiff.egg-info/ dist/
 
-sdist:
-	./setup.py sdist
+dist-test:
+	./setup.py build sdist upload -r $(TESTPYPI)
+
+install-test:
+	pip install -r $(TESTPYPI)
+
+dist:
+	./setup.py build sdist upload
 
 # vim:set noet ts=8 sw=8:

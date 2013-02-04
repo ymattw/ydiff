@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-View incremental, colored diff in unified format or in side by side mode with
+View colored, incremental diff in unified format or in side by side mode with
 auto pager.  Requires Python (>= 2.5.0) and less.
 
 See demo at homepage: https://github.com/ymattw/cdiff
@@ -516,7 +516,7 @@ def main():
     supported_vcs = [check[0] for check, _ in REVISION_CONTROL]
 
     usage = '%s [options] [diff]' % os.path.basename(sys.argv[0])
-    description= ('View incremental, colored diff in unified format or '
+    description= ('View colored, incremental diff in unified format or '
                   'side by side with auto pager.  Read diff from diff '
                   '(patch) file if given, or stdin if redirected, or '
                   'diff produced by revision tool if in a %s workspace') \

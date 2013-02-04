@@ -12,10 +12,10 @@ setup(
     author = 'Matthew Wang',
     author_email = 'mattwyl@gmail.com',
     license = 'BSD-3',
-    description = ('View incremental, colored diff in unified format or side '
+    description = ('View colored, incremental diff in unified format or side '
                    'by side with auto pager'),
     long_description = long_description,
-    keywords = 'incremental colored side-by-side diff',
+    keywords = 'colored incremental side-by-side diff',
     url = 'https://github.com/ymattw/cdiff',
     classifiers = [
         'Development Status :: 3 - Alpha',
