@@ -541,7 +541,7 @@ def main():
             sys.stderr.write(('*** Not in a supported workspace, supported '
                               'are: %s\n\n') % ', '.join(supported_vcs))
             parser.print_help()
-            sys.exit(1)
+            return 1
     else:
         diff_hdl = sys.stdin
 
@@ -550,7 +550,7 @@ def main():
 
     # Don't let empty diff pass thru
     if not stream:
-        return
+        return 0
 
     if diff_hdl is not sys.stdin:
         diff_hdl.close()
@@ -566,8 +566,10 @@ def main():
         # pipe out stream untouched to make sure it is still a patch
         sys.stdout.write(''.join(stream))
 
+    return 0
+
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
 
 # vim:set et sts=4 sw=4 tw=80:
