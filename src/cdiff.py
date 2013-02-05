@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Term based tool to view colored, incremental diff in unified format or side by
-side with auto pager.  Requires Python (>= 2.5.0) and less.
+Term based tool to view **colored**, **incremental** diff in *git/svn/hg*
+workspace, or diff from given file or stdin, with **side by side** and **auto
+pager** support.  Requires python (>= 2.5.0) and ``less``.
 
 AUTHOR  : Matthew Wang <mattwyl(@)gmail(.)com>
 LICENSE : BSD-3
@@ -126,6 +127,38 @@ class Diff(object):
         self._old_path = old_path
         self._new_path = new_path
         self._hunks = hunks
+
+    # Follow detector and the parse_hunk_header() are suppose to be overwritten
+    # by derived class
+    #
+    def is_old_path(self, line):
+        return False
+
+    def is_new_path(self, line):
+        return False
+
+    def is_hunk_header(self, line):
+        return False
+
+    def parse_hunk_header(self, line):
+        """Returns a 2-eliment tuple, each of them is a tuple in form of (start,
+        offset)"""
+        return False
+
+    def is_old(self, line):
+        return False
+
+    def is_new(self, line):
+        return False
+
+    def is_common(self, line):
+        return False
+
+    def is_eof(self, line):
+        return False
+
+    def is_header(self, line):
+        return False
 
     def markup_traditional(self):
         """Returns a generator"""
@@ -295,47 +328,64 @@ class Diff(object):
 
 class Udiff(Diff):
 
-    @staticmethod
-    def is_old_path(line):
+    def is_old_path(self, line):
         return line.startswith('--- ')
 
-    @staticmethod
-    def is_new_path(line):
+    def is_new_path(self, line):
         return line.startswith('+++ ')
 
-    @staticmethod
-    def is_hunk_header(line):
+    def is_hunk_header(self, line):
         return line.startswith('@@ -')
 
-    @staticmethod
-    def is_old(line):
-        return line.startswith('-') and not Udiff.is_old_path(line)
+    def parse_hunk_header(self, hunk_header):
+        # @@ -3,7 +3,6 @@
+        a = hunk_header.split()[1].split(',')   # -3 7
+        if len(a) > 1:
+            old_addr = (int(a[0][1:]), int(a[1]))
+        else:
+            # @@ -1 +1,2 @@
+            old_addr = (int(a[0][1:]), 0)
 
-    @staticmethod
-    def is_new(line):
-        return line.startswith('+') and not Udiff.is_new_path(line)
+        b = hunk_header.split()[2].split(',')   # +3 6
+        if len(b) > 1:
+            new_addr = (int(b[0][1:]), int(b[1]))
+        else:
+            # @@ -0,0 +1 @@
+            new_addr = (int(b[0][1:]), 0)
 
-    @staticmethod
-    def is_common(line):
+        return (old_addr, new_addr)
+
+    def is_old(self, line):
+        return line.startswith('-') and not self.is_old_path(line)
+
+    def is_new(self, line):
+        return line.startswith('+') and not self.is_new_path(line)
+
+    def is_common(self, line):
         return line.startswith(' ')
 
-    @staticmethod
-    def is_eof(line):
+    def is_eof(self, line):
         # \ No newline at end of file
         return line.startswith('\\')
 
-    @staticmethod
-    def is_header(line):
+    def is_header(self, line):
         return re.match(r'^[^+@\\ -]', line)
 
 
 class DiffParser(object):
 
     def __init__(self, stream):
+        """Detect Udiff with 3 conditions"""
+        flag = 0
         for line in stream[:20]:
-            if line.startswith('+++ '):
-                self._type = 'udiff'
-                break
+            if line.startswith('--- '):
+                flag |= 1
+            elif line.startswith('+++ '):
+                flag |= 2
+            elif line.startswith('@@ '):
+                flag |= 4
+        if flag & 7:
+            self._type = 'udiff'
         else:
             raise RuntimeError('unknown diff type')
 
@@ -344,18 +394,16 @@ class DiffParser(object):
         except (AssertionError, IndexError):
             raise RuntimeError('invalid patch format')
 
-
     def get_diffs(self):
         return self._diffs
 
     def _parse(self, stream):
+        """parse all diff lines, construct a list of Diff objects"""
         if self._type == 'udiff':
-            return self._parse_udiff(stream)
+            difflet = Udiff(None, None, None, None)
         else:
             raise RuntimeError('unsupported diff format')
 
-    def _parse_udiff(self, stream):
-        """parse all diff lines here, construct a list of Udiff objects"""
         out_diffs = []
         headers = []
         old_path = None
@@ -367,8 +415,8 @@ class DiffParser(object):
             # 'common' line occurs before 'old_path' is considered as header
             # too, this happens with `git log -p` and `git show <commit>`
             #
-            if Udiff.is_header(stream[0]) or \
-                    (Udiff.is_common(stream[0]) and old_path is None):
+            if difflet.is_header(stream[0]) or \
+                    (difflet.is_common(stream[0]) and old_path is None):
                 if headers and old_path:
                     # Encounter a new header
                     assert new_path is not None
@@ -383,7 +431,7 @@ class DiffParser(object):
                 else:
                     headers.append(stream.pop(0))
 
-            elif Udiff.is_old_path(stream[0]):
+            elif difflet.is_old_path(stream[0]):
                 if old_path:
                     # Encounter a new patch set
                     assert new_path is not None
@@ -398,12 +446,12 @@ class DiffParser(object):
                 else:
                     old_path = stream.pop(0)
 
-            elif Udiff.is_new_path(stream[0]):
+            elif difflet.is_new_path(stream[0]):
                 assert old_path is not None
                 assert new_path is None
                 new_path = stream.pop(0)
 
-            elif Udiff.is_hunk_header(stream[0]):
+            elif difflet.is_hunk_header(stream[0]):
                 assert old_path is not None
                 assert new_path is not None
                 if hunk:
@@ -411,32 +459,19 @@ class DiffParser(object):
                     hunks.append(hunk)
                     hunk = None
                 else:
-                    # @@ -3,7 +3,6 @@
                     hunk_header = stream.pop(0)
-                    a = hunk_header.split()[1].split(',')   # -3 7
-                    if len(a) > 1:
-                        old_addr = (int(a[0][1:]), int(a[1]))
-                    else:
-                        # @@ -1 +1,2 @@
-                        old_addr = (int(a[0][1:]), 0)
-
-                    b = hunk_header.split()[2].split(',')   # +3 6
-                    if len(b) > 1:
-                        new_addr = (int(b[0][1:]), int(b[1]))
-                    else:
-                        # @@ -0,0 +1 @@
-                        new_addr = (int(b[0][1:]), 0)
+                    old_addr, new_addr = difflet.parse_hunk_header(hunk_header)
                     hunk = Hunk(hunk_header, old_addr, new_addr)
 
-            elif Udiff.is_old(stream[0]) or Udiff.is_new(stream[0]) or \
-                    Udiff.is_common(stream[0]):
+            elif difflet.is_old(stream[0]) or difflet.is_new(stream[0]) or \
+                    difflet.is_common(stream[0]):
                 assert old_path is not None
                 assert new_path is not None
                 assert hunk is not None
                 hunk_line = stream.pop(0)
                 hunk.append(hunk_line[0], hunk_line[1:])
 
-            elif Udiff.is_eof(stream[0]):
+            elif difflet.is_eof(stream[0]):
                 # ignore
                 stream.pop(0)
 
@@ -526,11 +561,9 @@ def main():
     supported_vcs = [check[0] for check, _ in REVISION_CONTROL]
 
     usage = '%prog [options] [diff]'
-    description= ('View colored, incremental diff in unified format or '
-                  'side by side with auto pager.  Read diff from diff '
-                  '(patch) file if given, or stdin if redirected, or '
-                  'diff produced by revision tool if in a %s workspace') \
-            % '/'.join(supported_vcs)
+    description= ('View colored, incremental diff in %s workspace, or diff '
+                  'from given file or stdin, with side by side and auto '
+                  'pager support') % '/'.join(supported_vcs)
 
     parser = optparse.OptionParser(usage=usage, description=description,
             version='%%prog %s' % __version__)

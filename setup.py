@@ -31,8 +31,8 @@ setup(
     author = 'Matthew Wang',
     author_email = 'mattwyl(@)gmail(.)com',
     license = 'BSD-3',
-    description = ('Term based tool to view colored, incremental diff in '
-                   'unified format or side by side with auto pager'),
+    description = ('View colored, incremental diff in workspace, or given '
+                   'file from stdin, with side by side and auto pager support'),
     long_description = long_description,
     keywords = 'colored incremental side-by-side diff',
     url = 'https://github.com/ymattw/cdiff',

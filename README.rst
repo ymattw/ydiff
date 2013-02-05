@@ -1,8 +1,9 @@
 Cdiff
 =====
 
-Term based tool to view **colored**, **incremental** diff in unified format or
-**side by side** with **auto pager**.  Requires python (>= 2.5.0) and ``less``.
+Term based tool to view **colored**, **incremental** diff in *git/svn/hg*
+workspace, or diff from given file or stdin, with **side by side** and **auto
+pager** support.  Requires python (>= 2.5.0) and ``less``.
 
 .. image:: http://ymattw.github.com/cdiff/img/default.png
    :alt: default
