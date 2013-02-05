@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-View colored, incremental diff in unified format or in side by side mode with
-auto pager.  Requires Python (>= 2.5.0) and less.
+Term based tool to view colored, incremental diff in unified format or side by
+side with auto pager.  Requires Python (>= 2.5.0) and less.
 
-See demo at homepage: https://github.com/ymattw/cdiff
+AUTHOR  : Matthew Wang <mattwyl(@)gmail(.)com>
+LICENSE : BSD-3
+HOMEPAGE: https://github.com/ymattw/cdiff
 """
 
 import sys
@@ -20,6 +22,10 @@ import re
 import subprocess
 import errno
 import difflib
+
+
+# REMEMBER UPDATE ``CHANGES``
+__version__ = '0.1'
 
 
 COLORS = {
@@ -519,14 +525,15 @@ def main():
 
     supported_vcs = [check[0] for check, _ in REVISION_CONTROL]
 
-    usage = '%s [options] [diff]' % os.path.basename(sys.argv[0])
+    usage = '%prog [options] [diff]'
     description= ('View colored, incremental diff in unified format or '
                   'side by side with auto pager.  Read diff from diff '
                   '(patch) file if given, or stdin if redirected, or '
                   'diff produced by revision tool if in a %s workspace') \
             % '/'.join(supported_vcs)
 
-    parser = optparse.OptionParser(usage=usage, description=description)
+    parser = optparse.OptionParser(usage=usage, description=description,
+            version='%%prog %s' % __version__)
     parser.add_option('-s', '--side-by-side', action='store_true',
             help=('show in side-by-side mode'))
     parser.add_option('-w', '--width', type='int', default=80, metavar='N',

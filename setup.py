@@ -10,23 +10,29 @@ if os.path.exists(link_name):
     os.unlink(link_name)
 os.symlink('src/cdiff.py', link_name)
 
-with open('CHANGES') as changes:
-    for change in changes:
-        if change.startswith('Version '):
-            version = change.split()[1]
+# This awfulness is all in aid of grabbing the version number out
+# of the source code, rather than having to repeat it here.  Basically,
+# we parse out firt line starts with "__version__" and execute it
+#
+with open('cdiff') as script:
+    for line in script:
+        if line.startswith('__version__ = '):
+            exec(line)
             break
-    changes.seek(0)
-    with open('README.rst') as doc:
-        long_description = doc.read() + changes.read()
+
+with open('README.rst') as doc:
+    long_description = doc.read()
+with open('CHANGES') as changes:
+    long_description += changes.read()
 
 setup(
     name = 'cdiff',
-    version = version,
+    version = __version__,
     author = 'Matthew Wang',
-    author_email = 'mattwyl@gmail.com',
+    author_email = 'mattwyl(@)gmail(.)com',
     license = 'BSD-3',
     description = ('Term based tool to view colored, incremental diff in '
-                   'unified format or side ' 'by side with auto pager'),
+                   'unified format or side by side with auto pager'),
     long_description = long_description,
     keywords = 'colored incremental side-by-side diff',
     url = 'https://github.com/ymattw/cdiff',

@@ -2,6 +2,11 @@
 Change log
 ==========
 
+Version 0.1 (2013-02-05)
+
+    - New --version option
+    - setup.py now read version from source code
+
 Version 0.0.4 (2013-02-04)
 
   - Add CHANGES for history track and better versioning

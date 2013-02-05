@@ -87,6 +87,7 @@ Pipe in a diff:
     git log -p -2 | cdiff -s
     git show 15bfa56 | cdiff -s
     svn diff -r PREV | cdiff -s
+    diff -u foo foo.new | cdiff -s
 
 Redirect output to another patch file is safe:
 
