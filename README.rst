@@ -43,13 +43,13 @@ Download directly
 
 Both ``pip`` and ``setup.py`` installs cdiff to system wide directory, if you
 want a minimal tool without the boring external dependencies (like me), just
-save `src/cdiff.py <https://raw.github.com/ymattw/cdiff/master/src/cdiff.py>`_
-to whatever directory which is in your ``$PATH``, for example, ``$HOME/bin`` is
-in my ``$PATH``, so I save the script there and name as ``cdiff``.
+save `cdiff.py <https://raw.github.com/ymattw/cdiff/master/cdiff.py>`_ to
+whatever directory which is in your ``$PATH``, for example, ``$HOME/bin`` is in
+my ``$PATH``, so I save the script there and name as ``cdiff``.
 
 .. code:: sh
 
-    curl -ksS https://raw.github.com/ymattw/cdiff/master/src/cdiff.py > ~/bin/cdiff
+    curl -ksS https://raw.github.com/ymattw/cdiff/master/cdiff.py > ~/bin/cdiff
     chmod +x ~/bin/cdiff
 
 Usage

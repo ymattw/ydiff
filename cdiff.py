@@ -3,13 +3,20 @@
 
 """
 Term based tool to view **colored**, **incremental** diff in *git/svn/hg*
-workspace, or diff from given file or stdin, with **side by side** and **auto
-pager** support.  Requires python (>= 2.5.0) and ``less``.
-
-AUTHOR  : Matthew Wang <mattwyl(@)gmail(.)com>
-LICENSE : BSD-3
-HOMEPAGE: https://github.com/ymattw/cdiff
+workspace, given file or stdin, with **side by side** and **auto pager**
+support.  Requires python (>= 2.5.0) and ``less``.
 """
+
+META_INFO = {
+    'version'     : '0.2',
+    'license'     : 'BSD-3',
+    'author'      : 'Matthew Wang',
+    'email'       : 'mattwyl(@)gmail(.)com',
+    'url'         : 'https://github.com/ymattw/cdiff',
+    'keywords'    : 'colored incremental side-by-side diff',
+    'description' : ('View colored, incremental diff in workspace, given file '
+                     'or from stdin, with side by side and auto pager support')
+}
 
 import sys
 
@@ -24,9 +31,6 @@ import subprocess
 import errno
 import difflib
 
-
-# REMEMBER UPDATE ``CHANGES``
-__version__ = '0.1'
 
 
 COLORS = {
@@ -566,7 +570,7 @@ def main():
                   'pager support') % '/'.join(supported_vcs)
 
     parser = optparse.OptionParser(usage=usage, description=description,
-            version='%%prog %s' % __version__)
+            version='%%prog %s' % META_INFO['version'])
     parser.add_option('-s', '--side-by-side', action='store_true',
             help=('show in side-by-side mode'))
     parser.add_option('-w', '--width', type='int', default=80, metavar='N',

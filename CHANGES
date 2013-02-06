@@ -2,10 +2,14 @@
 Change log
 ==========
 
+Version 0.2 (2013-02-06)
+
+  - Move cdiff.py to top dir for better meta info management
+
 Version 0.1 (2013-02-05)
 
-    - New --version option
-    - setup.py now read version from source code
+  - New --version option
+  - setup.py now read version from source code
 
 Version 0.0.4 (2013-02-04)
 
