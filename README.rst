@@ -64,22 +64,14 @@ Show usage::
 
     cdiff -h
 
-View a diff (patch) file:
-
-.. code:: sh
-
-    cdiff foo.patch             # view colored incremental udiff
-    cdiff foo.patch -s          # view side by side
-    cdiff foo.patch -s -w 90    # use text width 90 other than default 80
-
 Read diff from local modification in a svn, git, or hg workspace:
 
 .. code:: sh
 
     cd proj-workspace
-    cdiff
-    cdiff -s
-    cdiff -s -w 90
+    cdiff                   # view colored incremental udiff
+    cdiff -s                # view side by side
+    cdiff -s -w 90          # use text width 90 other than default 80
 
 Pipe in a diff:
 
@@ -90,17 +82,34 @@ Pipe in a diff:
     svn diff -r PREV | cdiff -s
     diff -u foo foo.new | cdiff -s
 
+View a diff (patch) file:
+
+.. code:: sh
+
+    cdiff foo.patch
+    cdiff foo.patch -s
+    cdiff foo.patch -s -w 90
+
 Redirect output to another patch file is safe:
 
 .. code:: sh
 
     svn diff | cdiff -s > my.patch
 
-Known issue
------------
+Notes
+-----
 
-- Only support unified diff for input format
+- Works with python >= 2.5.0 (subprocess.Popen seems not working with PIPE in
+  2.4.3, maybe you can fix it)
+- Only takes unified diff for input
 - Side by side mode has alignment problem for wide chars
+
+Pull request is very welcome, make sure run ``make test`` to verify.  It only
+has minimal verification today and that depends on human eyes too (`issue #7
+<https://github.com/ymattw/cdiff/issues/7>`_).  Single commit in pull request
+would make it easier for review, for example to collapse last 3 commits into 1
+before *push*, use ``git rebase -i HEAD~3``, *pick* the first and *squash* the
+other two.
 
 See also
 --------
