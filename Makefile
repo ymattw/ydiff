@@ -13,9 +13,9 @@ dogfood:
 test: $(TESTS)
 
 $(TESTS):
-	python2 ./cdiff.py tests/$@.diff
-	python2 ./cdiff.py tests/$@.diff -s
-	python2 ./cdiff.py tests/$@.diff | diff -u tests/$@.diff -
+	./cdiff.py tests/$@.diff
+	./cdiff.py tests/$@.diff -s
+	./cdiff.py tests/$@.diff | diff -u tests/$@.diff -
 	python3 ./cdiff.py tests/$@.diff
 	python3 ./cdiff.py tests/$@.diff -s
 	python3 ./cdiff.py tests/$@.diff | diff -u tests/$@.diff -
