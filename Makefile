@@ -22,7 +22,10 @@ $(TESTS):
 
 clean:
 	rm -f cdiff MANIFEST
-	rm -rf build/ cdiff.egg-info/ dist/
+	rm -rf build/ cdiff.egg-info/ dist/ __pycache__/
+
+build:
+	./setup.py build sdist
 
 dist-test:
 	./setup.py build sdist upload -r $(TESTPYPI)
