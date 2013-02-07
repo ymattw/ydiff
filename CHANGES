@@ -2,6 +2,10 @@
 Change log
 ==========
 
+Version 0.3 (2013-02-07)
+
+  - Support compare two files (wrapper of diff)
+
 Version 0.2 (2013-02-06)
 
   - Move cdiff.py to top dir for better meta info management

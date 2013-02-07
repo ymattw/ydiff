@@ -2,8 +2,8 @@ Cdiff
 =====
 
 Term based tool to view **colored**, **incremental** diff in *git/svn/hg*
-workspace, or diff from given file or stdin, with **side by side** and **auto
-pager** support.  Requires python (>= 2.5.0) and ``less``.
+workspace, given patch or two files, or from stdin, with **side by side** and
+**auto pager** support.  Requires python (>= 2.5.0) and ``less``.
 
 .. image:: http://ymattw.github.com/cdiff/img/default.png
    :alt: default
@@ -78,9 +78,8 @@ Pipe in a diff:
 .. code:: sh
 
     git log -p -2 | cdiff -s
-    git show 15bfa56 | cdiff -s
+    git show 15bfa5 | cdiff -s
     svn diff -r PREV | cdiff -s
-    diff -u foo foo.new | cdiff -s
 
 View a diff (patch) file:
 
@@ -89,6 +88,11 @@ View a diff (patch) file:
     cdiff foo.patch
     cdiff foo.patch -s
     cdiff foo.patch -s -w 90
+
+View diff between two files (wrapper of ``diff``)::
+
+    cdiff foo foo.new       # equivalent to diff -u foo foo.new | cdiff
+    cdiff foo foo.new -s
 
 Redirect output to another patch file is safe:
 
