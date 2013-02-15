@@ -1,0 +1,43 @@
+[36mcommit 15bfa564b9db08fb277a343a3d0a01d377800606
+[0m[36mAuthor: Matthew Wang <XXXXXXX@gmail.com>
+[0m[36mDate:   Thu Jan 31 15:27:17 2013 +0800
+[0m[36m
+[0m[36m    Default width is now 80
+[0m[36m
+[0m[36mdiff --git a/src/cdiff.py b/src/cdiff.py
+[0m[36mindex 13f725f..bf15ef1 100755
+[0m[33m--- a/src/cdiff.py
+[0m[33m+++ b/src/cdiff.py
+[0m[1;34m@@ -128,9 +128,7 @@ class Diff(object):
+[0m[33m128[0m [0m                    yield self._markup_common(' ' + old[1])[0m                      [0m[33m128[0m [0m                    yield self._markup_common(' ' + old[1])[0m
+[33m129[0m [0m[0m                                                                                 [0m[33m129[0m [0m[0m
+[33m130[0m [0m    def markup_side_by_side(self, width):[0m                                        [0m[33m130[0m [0m    def markup_side_by_side(self, width):[0m
+[33m131[0m [31m[7m[31m        """width of 0 means infinite width, None means auto detect. Returns a[0m[31m[0m    [0m[33m131[0m [32m[7m[32m        """Returns a generator"""[0m[32m[0m
+[33m132[0m [1;31m        generator[0m [0m[33m   [0m 
+[33m133[0m [1;31m        """[0m [0m[33m   [0m 
+[33m134[0m [0m        def _normalize(line):[0m                                                    [0m[33m132[0m [0m        def _normalize(line):[0m
+[33m135[0m [0m            return line.replace('\t', ' ' * 8).replace('\n', '')[0m                 [0m[33m133[0m [0m            return line.replace('\t', ' ' * 8).replace('\n', '')[0m
+[33m136[0m [0m[0m                                                                                 [0m[33m134[0m [0m[0m
+[1;34m@@ -147,7 +145,8 @@ class Diff(object):
+[0m[33m147[0m [0m                return markup[0m                                                    [0m[33m145[0m [0m                return markup[0m
+[33m148[0m [0m[0m                                                                                 [0m[33m146[0m [0m[0m
+[33m149[0m [0m        # Setup line width and number width[0m                                      [0m[33m147[0m [0m        # Setup line width and number width[0m
+[33m150[0m [31m[7m[31m        if not width: width = 80[0m[31m[0m                                                 [0m[33m148[0m [32m[7m[32m        if width <= 0:[0m[32m[0m
+[33m   [0m                                                                                  [0m[33m149[0m [1;32m            width = 80[0m
+[33m151[0m [0m        (start, offset) = self._hunks[-1].get_old_addr()[0m                         [0m[33m150[0m [0m        (start, offset) = self._hunks[-1].get_old_addr()[0m
+[33m152[0m [0m        max1 = start + offset - 1[0m                                                [0m[33m151[0m [0m        max1 = start + offset - 1[0m
+[33m153[0m [0m        (start, offset) = self._hunks[-1].get_new_addr()[0m                         [0m[33m152[0m [0m        (start, offset) = self._hunks[-1].get_new_addr()[0m
+[1;34m@@ -430,13 +429,10 @@ if __name__ == '__main__':
+[0m[33m430[0m [0m    parser = optparse.OptionParser(usage)[0m                                        [0m[33m429[0m [0m    parser = optparse.OptionParser(usage)[0m
+[33m431[0m [0m    parser.add_option('-s', '--side-by-side', action='store_true',[0m               [0m[33m430[0m [0m    parser.add_option('-s', '--side-by-side', action='store_true',[0m
+[33m432[0m [0m            help=('show in side-by-side mode'))[0m                                  [0m[33m431[0m [0m            help=('show in side-by-side mode'))[0m
+[33m433[0m [31m    parser.add_option('-w', '--width', type='int', default=[4m[31mNone[0m[31m,[0m                 [0m[33m432[0m [32m    parser.add_option('-w', '--width', type='int', default=[4m[32m80[0m[32m,[0m
+[33m434[0m [31m            help='set line width (side-by-side mode only)')[0m                      [0m[33m433[0m [32m            help='set line width (side-by-side mode only)[7m[32m, default is 80[0m[32m')[0m
+[33m435[0m [0m    opts, args = parser.parse_args()[0m                                             [0m[33m434[0m [0m    opts, args = parser.parse_args()[0m
+[33m436[0m [1;31m[0m [0m[33m   [0m 
+[33m437[0m [1;31m    if opts.width and opts.width < 0:[0m [0m[33m   [0m 
+[33m438[0m [1;31m        opts.width = 0[0m [0m[33m   [0m 
+[33m439[0m [0m[0m                                                                                 [0m[33m435[0m [0m[0m
+[33m440[0m [0m    if len(args) >= 1:[0m                                                           [0m[33m436[0m [0m    if len(args) >= 1:[0m
+[33m441[0m [0m        diff_hdl = open(args[0], 'r')[0m                                            [0m[33m437[0m [0m        diff_hdl = open(args[0], 'r')[0m
+[33m442[0m [0m    elif sys.stdin.isatty():[0m                                                     [0m[33m438[0m [0m    elif sys.stdin.isatty():[0m

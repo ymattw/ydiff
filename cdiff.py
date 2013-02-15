@@ -571,8 +571,10 @@ def main():
     parser = optparse.OptionParser(usage=usage,
             description=META_INFO['description'],
             version='%%prog %s' % META_INFO['version'])
+    parser.add_option('-c', '--color', default='auto', metavar='WHEN',
+            help='colorize mode "auto" (default), "always", or "never"')
     parser.add_option('-s', '--side-by-side', action='store_true',
-            help=('show in side-by-side mode'))
+            help='show in side-by-side mode')
     parser.add_option('-w', '--width', type='int', default=80, metavar='N',
             help='set text width (side-by-side mode only), default is 80')
     opts, args = parser.parse_args()
@@ -609,7 +611,7 @@ def main():
     if not stream:
         return 0
 
-    if sys.stdout.isatty():
+    if opts.color == 'always' or (opts.color == 'auto' and sys.stdout.isatty()):
         try:
             markup_to_pager(stream, opts)
         except IOError:
