@@ -13,7 +13,7 @@ test:
 	tests/regression.sh
 
 clean:
-	rm -f cdiff MANIFEST
+	rm -f MANIFEST
 	rm -rf build/ cdiff.egg-info/ dist/ __pycache__/
 
 build:

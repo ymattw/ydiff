@@ -2,6 +2,11 @@
 Change log
 ==========
 
+Version 0.4 (2013-02-16)
+
+  - New option *-c WHEN* (*--color WHEN*) to support auto test
+  - Auto regression test now on Travis
+
 Version 0.3 (2013-02-07)
 
   - Support compare two files (wrapper of diff)

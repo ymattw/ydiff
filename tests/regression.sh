@@ -3,7 +3,7 @@
 set -o errexit
 
 SELF_DIR=$(cd $(dirname $0) && pwd) || exit 1
-CDIFF=$SELF_DIR/../cdiff.py
+CDIFF=$SELF_DIR/../cdiff
 
 function pass()
 {

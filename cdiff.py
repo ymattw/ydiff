@@ -8,7 +8,7 @@ workspace, given patch or two files, or from stdin, with **side by side** and
 """
 
 META_INFO = {
-    'version'     : '0.3',
+    'version'     : '0.4',
     'license'     : 'BSD-3',
     'author'      : 'Matthew Wang',
     'email'       : 'mattwyl(@)gmail(.)com',
@@ -22,8 +22,7 @@ META_INFO = {
 import sys
 
 if sys.hexversion < 0x02050000:
-    sys.stderr.write("*** Requires python >= 2.5.0\n")
-    sys.exit(1)
+    raise SystemExit("*** Requires python >= 2.5.0")
 IS_PY3 = sys.hexversion >= 0x03000000
 
 import os

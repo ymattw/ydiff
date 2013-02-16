@@ -1,15 +1,14 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from __future__ import with_statement
 from distutils.core import setup
 import os
 from cdiff import META_INFO as _meta
 
-# Create symlink so that to use 'scripts' w/o '.py'
-link_name = 'cdiff'
-if os.path.exists(link_name):
-    os.unlink(link_name)
-os.symlink('cdiff.py', link_name)
+import sys
+if sys.hexversion < 0x02050000:
+    raise SystemExit("*** Requires python >= 2.5.0")
 
 with open('README.rst') as doc:
     long_description = doc.read()
@@ -37,7 +36,8 @@ setup(
         'Operating System :: Unix',
         'Programming Language :: Python',
     ],
-    packages = [],
     py_modules = ['cdiff'],
-    scripts = [link_name],
+    scripts = ['cdiff'],
 )
+
+# vim:set et sts=4 sw=4 tw=80:

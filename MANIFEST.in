@@ -4,4 +4,3 @@ include Makefile
 include README.rst
 include tests/*
 include tests/*/*
-exclude cdiff

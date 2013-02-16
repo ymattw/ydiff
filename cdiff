@@ -1,0 +1,12 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+import cdiff
+
+try:
+    sys.exit(cdiff.main())
+except:
+    sys.exit(1)
+
+# vim:set et sts=4 sw=4 tw=80:

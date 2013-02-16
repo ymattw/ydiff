@@ -29,7 +29,7 @@ install with ``pip`` if you have the tool.
 
 .. code:: sh
  
-    sudo pip install cdiff
+    pip install --upgrade cdiff
 
 Install with setup.py
 ~~~~~~~~~~~~~~~~~~~~~
@@ -40,7 +40,7 @@ You can also run the setup.py from the source if you don't have ``pip``.
 
     git clone https://github.com/ymattw/cdiff.git
     cd cdiff
-    sudo ./setup.py install
+    ./setup.py install
 
 Download directly
 ~~~~~~~~~~~~~~~~~
@@ -102,7 +102,7 @@ Redirect output to another patch file is safe:
 
 .. code:: sh
 
-    svn diff | cdiff -s > my.patch
+    svn diff -r PREV | cdiff -s > my.patch
 
 Notes
 -----
