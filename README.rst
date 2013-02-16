@@ -1,6 +1,10 @@
 Cdiff
 =====
 
+.. image:: https://travis-ci.org/ymattw/cdiff.png?branch=master
+   :target: https://travis-ci.org/ymattw/cdiff
+   :alt: Build status
+
 Term based tool to view **colored**, **incremental** diff in *git/svn/hg*
 workspace, given patch or two files, or from stdin, with **side by side** and
 **auto pager** support.  Requires python (>= 2.5.0) and ``less``.
@@ -108,12 +112,10 @@ Notes
 - Only takes unified diff for input
 - Side by side mode has alignment problem for wide chars
 
-Pull request is very welcome, make sure run ``make test`` to verify.  It only
-has minimal verification today and that depends on human eyes too (`issue #7
-<https://github.com/ymattw/cdiff/issues/7>`_).  Single commit in pull request
-would make it easier for review, for example to collapse last 3 commits into 1
-before *push*, use ``git rebase -i HEAD~3``, *pick* the first and *squash* the
-other two.
+Pull request is very welcome, make sure run ``make test`` to verify.  Single
+commit in pull request would make it easier for review, for example to collapse
+last 3 commits into 1 before *push*, use ``git rebase -i HEAD~3``, *pick* the
+first and *squash* the other two.
 
 See also
 --------
