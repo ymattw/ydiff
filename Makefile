@@ -2,7 +2,7 @@
 
 TESTPYPI = http://testpypi.python.org/pypi
 
-.PHONY: dogfood test clean dist-test dist
+.PHONY: dogfood test clean build dist-test dist
 
 dogfood:
 	./cdiff.py -s
@@ -10,8 +10,7 @@ dogfood:
 	git diff | ./cdiff.py -s
 
 test:
-	PYTHON=python ./tests/tests.sh
-	PYTHON=python3 ./tests/tests.sh
+	tests/regression.sh
 
 clean:
 	rm -f cdiff MANIFEST

@@ -5,9 +5,6 @@ set -o errexit
 SELF_DIR=$(cd $(dirname $0) && pwd) || exit 1
 CDIFF=$SELF_DIR/../cdiff.py
 
-# Override this to test with python3
-PYTHON=${PYTHON:-python}
-
 function pass()
 {
     if [[ -t 1 ]]; then
@@ -33,8 +30,7 @@ function cmpOutput()
     local cdiff_opt=${3:-""}
 
     echo -n "Test option '$cdiff_opt' with input '$input' ... "
-    if $PYTHON $CDIFF $cdiff_opt $input | diff -ub $expected_out - >& /dev/null
-    then
+    if $CDIFF $cdiff_opt $input | diff -ubq $expected_out - >& /dev/null; then
         pass
         return 0
     else
