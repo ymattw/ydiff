@@ -12,4 +12,4 @@ install:
     - python setup.py install
 
 script:
-    ./tests/tests.sh
+    - ./tests/tests.sh
