@@ -72,12 +72,14 @@ Read diff from local modification in a *svn*, *git*, or *hg* workspace:
     cdiff -s                    # view side by side
     cdiff -s -w 90              # use text width 90 other than default 80
 
-Read the log (e.g. ``git log -p``) in a svn, git, or hg workspace:
+Read the log (e.g. ``git log -p``) in a *svn*, *git*, or *hg* workspace:
 
 .. code:: sh
 
     cd proj-workspace
     cdiff -l
+    cdiff -ls                   # equivalent to ``cdiff -l -s``
+    cdiff -ls -w90
 
 Pipe in a diff:
 
@@ -115,11 +117,7 @@ Notes
   2.4.3, maybe you can fix it)
 - Only takes unified diff for input
 - Side by side mode has alignment problem for wide chars
-
-Pull request is very welcome, make sure run ``make test`` and ``make test3`` to
-verify.  Single commit in pull request would make it easier for review, for
-example to collapse last 3 commits into 1 before *push*, use ``git rebase -i
-HEAD~3``, *pick* the first and *squash* the other two.
+- Pull requests are very welcome (please run ``make test test3`` to verify)
 
 See also
 --------

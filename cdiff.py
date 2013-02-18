@@ -593,7 +593,7 @@ def main():
     parser.add_option('-w', '--width', type='int', default=80, metavar='N',
             help='set text width (side-by-side mode only), default is 80')
     parser.add_option('-l', '--log', action='store_true',
-                      help='show log from revision control (git, svn, hg)')
+            help='show diff log from revision control')
     opts, args = parser.parse_args()
 
     if opts.log:
