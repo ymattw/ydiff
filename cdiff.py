@@ -536,8 +536,11 @@ def markup_to_pager(stream, opts):
     # args stolen fron git source: github.com/git/git/blob/master/pager.c
     pager = subprocess.Popen(['less', '-FRSX'],
             stdin=subprocess.PIPE, stdout=sys.stdout)
-    for line in color_diff:
-        pager.stdin.write(line.encode('utf-8'))
+    try:
+        for line in color_diff:
+            pager.stdin.write(line.encode('utf-8'))
+    except KeyboardInterrupt:
+        pass
 
     pager.stdin.close()
     pager.wait()
@@ -600,8 +603,7 @@ def main():
         diff_hdl = revision_control_log()
         if not diff_hdl:
             sys.stderr.write(('*** Not in a supported workspace, supported '
-                              'are: %s\n\n') % ', '.join(supported_vcs))
-            parser.print_help()
+                              'are: %s\n') % ', '.join(supported_vcs))
             return 1
     elif len(args) > 2:
         parser.print_help()
@@ -640,7 +642,8 @@ def main():
                 pass
     else:
         # pipe out stream untouched to make sure it is still a patch
-        sys.stdout.write(''.join(stream))
+        for line in stream:
+            sys.stdout.write(decode(line))
 
     if diff_hdl is not sys.stdin:
         diff_hdl.close()
