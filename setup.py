@@ -3,7 +3,6 @@
 
 from __future__ import with_statement
 from distutils.core import setup
-import os
 from cdiff import META_INFO as _meta
 
 import sys
