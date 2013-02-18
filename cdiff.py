@@ -384,14 +384,53 @@ class Udiff(Diff):
         return line.startswith(r'\ No newline at end of')
 
 
+class PatchStream(object):
+
+    def __init__(self, diff_hdl):
+        self._diff_hdl = diff_hdl
+        self._header_chunk_size = 0
+        self._header_chunk = []
+
+        # Test whether stream is empty by read 1 line
+        line = self._diff_hdl.readline()
+        if line is None:
+            self._is_empty = True
+        else:
+            self._header_chunk.append(line)
+            self._header_chunk_size += 1
+            self._is_empty = False
+
+    def is_empty(self):
+        return self._is_empty
+
+    def read_header_chunks(self, header_chunk_size):
+        """Returns a small chunk for patch type detect, suppose to call once"""
+        for i in range(1, header_chunk_size):
+            line = self._diff_hdl.readline()
+            if line is None:
+                break
+            self._header_chunk.append(line)
+            self._header_chunk_size += 1
+            yield line
+
+    def __iter__(self):
+        for line in self._header_chunk:
+            yield line
+        for line in self._diff_hdl:
+            yield line
+
+
 class DiffParser(object):
 
     def __init__(self, stream):
         """Detect Udiff with 3 conditions, '## ' uaually indicates svn property
         changes in output from `svn log --diff`
         """
+        self._stream = stream
+
         flag = 0
-        for line in stream[:100]:
+        for line in self._stream.read_header_chunks(100):
+            line = decode(line)
             if line.startswith('--- '):
                 flag |= 1
             elif line.startswith('+++ '):
@@ -404,74 +443,73 @@ class DiffParser(object):
         else:
             raise RuntimeError('unknown diff type')
 
+    def get_diff_generator(self):
         try:
-            self._diffs = self._parse(stream)
+            return self._parse()
         except (AssertionError, IndexError):
             raise RuntimeError('invalid patch format')
 
-    def get_diffs(self):
-        return self._diffs
-
-    def _parse(self, stream):
+    def _parse(self):
         """parse all diff lines, construct a list of Diff objects"""
         if self._type == 'udiff':
             difflet = Udiff(None, None, None, None)
         else:
             raise RuntimeError('unsupported diff format')
 
-        out_diffs = []
+        diff = Diff([], None, None, [])
         headers = []
 
-        while stream:
-            if difflet.is_old_path(stream[0]):
-                old_path = stream.pop(0)
-                out_diffs.append(Diff(headers, old_path, None, []))
+        for line in self._stream:
+            line = decode(line)
+
+            if difflet.is_old_path(line):
+                if diff._old_path and diff._new_path and len(diff._hunks) > 0:
+                    # One diff constructed
+                    yield diff
+                    diff = Diff([], None, None, [])
+                diff = Diff(headers, line, None, [])
                 headers = []
 
-            elif difflet.is_new_path(stream[0]):
-                new_path = stream.pop(0)
-                out_diffs[-1]._new_path = new_path
+            elif difflet.is_new_path(line):
+                diff._new_path = line
 
-            elif difflet.is_hunk_meta(stream[0]):
-                hunk_meta = stream.pop(0)
+            elif difflet.is_hunk_meta(line):
+                hunk_meta = line
                 old_addr, new_addr = difflet.parse_hunk_meta(hunk_meta)
                 hunk = Hunk(headers, hunk_meta, old_addr, new_addr)
                 headers = []
-                out_diffs[-1]._hunks.append(hunk)
+                diff._hunks.append(hunk)
 
-            elif out_diffs and out_diffs[-1]._hunks and \
-                    (difflet.is_old(stream[0]) or difflet.is_new(stream[0]) or \
-                    difflet.is_common(stream[0])):
-                hunk_line = stream.pop(0)
-                out_diffs[-1]._hunks[-1].append(hunk_line[0], hunk_line[1:])
+            elif len(diff._hunks) > 0 and (difflet.is_old(line) or \
+                    difflet.is_new(line) or difflet.is_common(line)):
+                hunk_line = line
+                diff._hunks[-1].append(hunk_line[0], hunk_line[1:])
 
-            elif difflet.is_eof(stream[0]):
+            elif difflet.is_eof(line):
                 # ignore
-                stream.pop(0)
+                pass
 
             else:
                 # All other non-recognized lines are considered as headers or
                 # hunk headers respectively
                 #
-                headers.append(stream.pop(0))
+                headers.append(line)
 
         if headers:
             raise RuntimeError('dangling header(s):\n%s' % ''.join(headers))
 
-        # Validate the last patch set
-        if out_diffs:
-            assert out_diffs[-1]._old_path is not None
-            assert out_diffs[-1]._new_path is not None
-            assert len(out_diffs[-1]._hunks) > 0
-            assert len(out_diffs[-1]._hunks[-1]._hunk_meta) > 0
-
-        return out_diffs
+        # Validate and yield the last patch set
+        assert diff._old_path is not None
+        assert diff._new_path is not None
+        assert len(diff._hunks) > 0
+        assert len(diff._hunks[-1]._hunk_meta) > 0
+        yield diff
 
 
 class DiffMarkup(object):
 
     def __init__(self, stream):
-        self._diffs = DiffParser(stream).get_diffs()
+        self._diffs = DiffParser(stream).get_diff_generator()
 
     def markup(self, side_by_side=False, width=0):
         """Returns a generator"""
@@ -572,14 +610,10 @@ def main():
     else:
         diff_hdl = sys.stdin
 
-    # FIXME: can't use generator for now due to current implementation in parser
-    stream = [decode(line) for line in diff_hdl.readlines()]
-
-    if diff_hdl is not sys.stdin:
-        diff_hdl.close()
+    stream = PatchStream(diff_hdl)
 
     # Don't let empty diff pass thru
-    if not stream:
+    if stream.is_empty():
         return 0
 
     if opts.color == 'always' or (opts.color == 'auto' and sys.stdout.isatty()):
@@ -592,6 +626,9 @@ def main():
     else:
         # pipe out stream untouched to make sure it is still a patch
         sys.stdout.write(''.join(stream))
+
+    if diff_hdl is not sys.stdin:
+        diff_hdl.close()
 
     return 0
 
