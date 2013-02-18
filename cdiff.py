@@ -497,7 +497,7 @@ def markup_to_pager(stream, opts):
             width=opts.width)
 
     # args stolen fron git source: github.com/git/git/blob/master/pager.c
-    pager = subprocess.Popen(['less', '-FRSXK'],
+    pager = subprocess.Popen(['less', '-FRSX'],
             stdin=subprocess.PIPE, stdout=sys.stdout)
     for line in color_diff:
         pager.stdin.write(line.encode('utf-8'))
