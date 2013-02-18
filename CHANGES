@@ -2,6 +2,11 @@
 Change log
 ==========
 
+Version 0.5 (2013-02-18)
+
+  - Support read output from ``svn diff --log`` and ``hg log -p``
+  - Streamline reading large patch set
+
 Version 0.4 (2013-02-16)
 
   - New option *-c WHEN* (*--color WHEN*) to support auto test

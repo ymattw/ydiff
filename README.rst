@@ -45,9 +45,7 @@ You can also run the setup.py from the source if you don't have ``pip``.
 Download directly
 ~~~~~~~~~~~~~~~~~
 
-Both ``pip`` and ``setup.py`` installs cdiff to system wide directory, if you
-want a minimal tool without the boring external dependencies (like me), just
-save `cdiff.py <https://raw.github.com/ymattw/cdiff/master/cdiff.py>`_ to
+Just save `cdiff.py <https://raw.github.com/ymattw/cdiff/master/cdiff.py>`_ to
 whatever directory which is in your ``$PATH``, for example, ``$HOME/bin`` is in
 my ``$PATH``, so I save the script there and name as ``cdiff``.
 
@@ -59,23 +57,20 @@ my ``$PATH``, so I save the script there and name as ``cdiff``.
 Usage
 -----
 
-Cdiff reads diff from diff (patch) file if given, or stdin if redirected, or
-diff produced by revision tool if in a git/svn/hg workspace.  Use option ``-s``
-to enable side by side view, and option ``-w N`` to set a text width other than
-default ``80``.  See examples below.
+Show usage:
 
-Show usage::
+.. code:: sh
 
     cdiff -h
 
-Read diff from local modification in a svn, git, or hg workspace:
+Read diff from local modification in a *svn*, *git*, or *hg* workspace:
 
 .. code:: sh
 
     cd proj-workspace
-    cdiff                   # view colored incremental udiff
-    cdiff -s                # view side by side
-    cdiff -s -w 90          # use text width 90 other than default 80
+    cdiff                       # view colored incremental udiff
+    cdiff -s                    # view side by side
+    cdiff -s -w 90              # use text width 90 other than default 80
 
 Pipe in a diff:
 
@@ -93,9 +88,11 @@ View a diff (patch) file:
     cdiff foo.patch -s
     cdiff foo.patch -s -w 90
 
-View diff between two files (wrapper of ``diff``)::
+View diff between two files (wrapper of ``diff``):
 
-    cdiff foo foo.new       # equivalent to diff -u foo foo.new | cdiff
+.. code:: sh
+
+    cdiff foo foo.new           # equivalent to diff -u foo foo.new | cdiff
     cdiff foo foo.new -s
 
 Redirect output to another patch file is safe:
@@ -112,10 +109,10 @@ Notes
 - Only takes unified diff for input
 - Side by side mode has alignment problem for wide chars
 
-Pull request is very welcome, make sure run ``make test`` to verify.  Single
-commit in pull request would make it easier for review, for example to collapse
-last 3 commits into 1 before *push*, use ``git rebase -i HEAD~3``, *pick* the
-first and *squash* the other two.
+Pull request is very welcome, make sure run ``make test`` and ``make test3`` to
+verify.  Single commit in pull request would make it easier for review, for
+example to collapse last 3 commits into 1 before *push*, use ``git rebase -i
+HEAD~3``, *pick* the first and *squash* the other two.
 
 See also
 --------
