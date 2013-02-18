@@ -600,8 +600,7 @@ def main():
         diff_hdl = revision_control_log()
         if not diff_hdl:
             sys.stderr.write(('*** Not in a supported workspace, supported '
-                              'are: %s\n\n') % ', '.join(supported_vcs))
-            parser.print_help()
+                              'are: %s\n') % ', '.join(supported_vcs))
             return 1
     elif len(args) > 2:
         parser.print_help()
