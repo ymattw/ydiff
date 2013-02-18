@@ -52,9 +52,9 @@ COLORS = {
 
 # Keys for checking and values for diffing.
 REVISION_CONTROL = (
-    (['git', 'rev-parse'], ['git', 'diff']),
-    (['svn', 'info'], ['svn', 'diff']),
-    (['hg', 'summary'], ['hg', 'diff'])
+    (['git', 'rev-parse'], ['git', 'diff'], ['git', 'log', '--patch']),
+    (['svn', 'info'],      ['svn', 'diff'], ['svn', 'log', '--diff']),
+    (['hg',  'summary'],   ['hg',  'diff'], ['hg',  'log', '--patch'])
 )
 
 
@@ -516,9 +516,16 @@ def check_command_status(arguments):
 
 def revision_control_diff():
     """Return diff from revision control system."""
-    for check, diff in REVISION_CONTROL:
+    for check, diff, _ in REVISION_CONTROL:
         if check_command_status(check):
             return subprocess.Popen(diff, stdout=subprocess.PIPE).stdout
+
+
+def revision_control_log():
+    """Return log from revision control system."""
+    for check, _, log in REVISION_CONTROL:
+        if check_command_status(check):
+            return subprocess.Popen(log, stdout=subprocess.PIPE).stdout
 
 
 def decode(line):
@@ -532,7 +539,7 @@ def decode(line):
 def main():
     import optparse
 
-    supported_vcs = [check[0] for check, _ in REVISION_CONTROL]
+    supported_vcs = [check[0][0] for check in REVISION_CONTROL]
 
     usage = """
   %prog [options]
@@ -547,9 +554,18 @@ def main():
             help='show in side-by-side mode')
     parser.add_option('-w', '--width', type='int', default=80, metavar='N',
             help='set text width (side-by-side mode only), default is 80')
+    parser.add_option('-l', '--log', action='store_true',
+                      help='show log from revision control (git, svn, hg)')
     opts, args = parser.parse_args()
 
-    if len(args) > 2:
+    if opts.log:
+        diff_hdl = revision_control_log()
+        if not diff_hdl:
+            sys.stderr.write(('*** Not in a supported workspace, supported '
+                              'are: %s\n\n') % ', '.join(supported_vcs))
+            parser.print_help()
+            return 1
+    elif len(args) > 2:
         parser.print_help()
         return 1
     elif len(args) == 2:
