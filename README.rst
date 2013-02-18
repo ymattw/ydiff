@@ -72,6 +72,13 @@ Read diff from local modification in a *svn*, *git*, or *hg* workspace:
     cdiff -s                    # view side by side
     cdiff -s -w 90              # use text width 90 other than default 80
 
+Read the log (e.g. ``git log -p``) in a svn, git, or hg workspace:
+
+.. code:: sh
+
+    cd proj-workspace
+    cdiff -l
+
 Pipe in a diff:
 
 .. code:: sh
