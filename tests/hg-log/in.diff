@@ -1,0 +1,53 @@
+# HG changeset patch
+# User Dan Kenigsberg <danken@redhat.com>
+# Date 1317492169 -10800
+# Node ID a9a87f0e7c509ec6768379c08a0cf56f43d71b4a
+# Parent  b0ef6a5a6dccab0089d287bf6b9bcb8132bdbd0d
+xml.dom.minidom toprettyxml: omit whitespace for Text nodes
+
+http://bugs.python.org/issue4147
+
+This patch was very lightly tested, but I think it is nicer than the former one,
+as Text.writexml() should better know not to wrap its data with whitespace.
+Ever.
+
+diff -r b0ef6a5a6dcc -r a9a87f0e7c50 Lib/test/test_minidom.py
+--- a/Lib/test/test_minidom.py	Fri Sep 30 08:46:25 2011 +0300
++++ b/Lib/test/test_minidom.py	Sat Oct 01 21:02:49 2011 +0300
+@@ -467,6 +467,13 @@
+         dom.unlink()
+         self.confirm(domstr == str.replace("\n", "\r\n"))
+ 
++    def testPrettyTextNode(self):
++        str = '<A>B</A>'
++        dom = parseString(str)
++        dom2 = parseString(dom.toprettyxml())
++        self.confirm(dom.childNodes[0].childNodes[0].toxml()==
++                     dom2.childNodes[0].childNodes[0].toxml())
++
+     def testProcessingInstruction(self):
+         dom = parseString('<e><?mypi \t\n data \t\n ?></e>')
+         pi = dom.documentElement.firstChild
+diff -r b0ef6a5a6dcc -r a9a87f0e7c50 Lib/xml/dom/minidom.py
+--- a/Lib/xml/dom/minidom.py	Fri Sep 30 08:46:25 2011 +0300
++++ b/Lib/xml/dom/minidom.py	Sat Oct 01 21:02:49 2011 +0300
+@@ -836,7 +836,9 @@
+             _write_data(writer, attrs[a_name].value)
+             writer.write("\"")
+         if self.childNodes:
+-            writer.write(">%s"%(newl))
++            writer.write(">")
++            if self.childNodes[0].nodeType != Node.TEXT_NODE:
++                writer.write(newl)
+             for node in self.childNodes:
+                 node.writexml(writer,indent+addindent,addindent,newl)
+             writer.write("%s</%s>%s" % (indent,self.tagName,newl))
+@@ -1061,7 +1063,7 @@
+         return newText
+ 
+     def writexml(self, writer, indent="", addindent="", newl=""):
+-        _write_data(writer, "%s%s%s"%(indent, self.data, newl))
++        _write_data(writer, self.data)
+ 
+     # DOM Level 3 (WD 9 April 2002)
+ 
