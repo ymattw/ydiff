@@ -640,7 +640,8 @@ def main():
                 pass
     else:
         # pipe out stream untouched to make sure it is still a patch
-        sys.stdout.write(''.join(stream))
+        for line in stream:
+            sys.stdout.write(decode(line))
 
     if diff_hdl is not sys.stdin:
         diff_hdl.close()
