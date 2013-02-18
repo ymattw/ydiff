@@ -5,8 +5,7 @@ TESTPYPI = http://testpypi.python.org/pypi
 .PHONY: dogfood test clean build dist-test dist
 
 dogfood:
-	./cdiff.py -s
-	git diff | ./cdiff.py
+	./cdiff.py
 	git diff | ./cdiff.py -s
 
 test:

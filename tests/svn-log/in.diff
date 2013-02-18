@@ -1,0 +1,53 @@
+------------------------------------------------------------------------
+r1235 | ymattw | 2011-09-01 17:00:02 +0800 (Thu, 01 Sep 2011) | 3 lines
+
+Interpreter fix
+
+
+Index: src/share/example.sh
+===================================================================
+--- src/share/example.sh	(revision 1234)
++++ src/share/example.sh	(revision 1235)
+@@ -1,3 +1,3 @@
+-#!/bin/sh
++#!/bin/bash
+ #
+ # Test program, also try run me as yroot (sudo ./example.sh)
+
+------------------------------------------------------------------------
+r1234 | ymattw | 2011-09-01 16:00:02 +0800 (Thu, 01 Sep 2011) | 3 lines
+
+Implement common tool to run command as headless account
+
+
+Index: ChangeLog
+===================================================================
+--- ChangeLog	(revision 1233)
++++ ChangeLog	(revision 1234)
+@@ -1,3 +1,6 @@
++Version 0.0.4
++    * Add prototype of perl module
++
+ Version 0.0.3
+     * Implement '-d' option
+     * Add configfile to set global debug flag
+Index: src/share/example.sh
+===================================================================
+--- src/share/example.sh	(revision 0)
++++ src/share/example.sh	(revision 1234)
+@@ -0,0 +1,4 @@
++#!/bin/sh
++#
++# Test program, also try run me as yroot (sudo ./example.sh)
++#
+
+Property changes on: src/share/example.sh
+___________________________________________________________________
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:keywords
+## -0,0 +1 ##
++Id
+\ No newline at end of property

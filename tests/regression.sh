@@ -30,7 +30,8 @@ function cmpOutput()
     local cdiff_opt=${3:-""}
 
     echo -n "Test option '$cdiff_opt' with input '$input' ... "
-    if $CDIFF $cdiff_opt $input | diff -ubq $expected_out - >& /dev/null; then
+    if $CDIFF $cdiff_opt $input 2>/dev/null \
+            | diff -ubq $expected_out - >& /dev/null; then
         pass
         return 0
     else

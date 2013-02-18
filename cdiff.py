@@ -68,14 +68,18 @@ def colorize(text, start_color, end_color='reset'):
 
 class Hunk(object):
 
-    def __init__(self, hunk_header, old_addr, new_addr):
-        self._hunk_header = hunk_header
+    def __init__(self, hunk_headers, hunk_meta, old_addr, new_addr):
+        self._hunk_headers = hunk_headers
+        self._hunk_meta = hunk_meta
         self._old_addr = old_addr   # tuple (start, offset)
         self._new_addr = new_addr   # tuple (start, offset)
         self._hunk_list = []        # list of tuple (attr, line)
 
-    def get_header(self):
-        return self._hunk_header
+    def get_hunk_headers(self):
+        return self._hunk_headers
+
+    def get_hunk_meta(self):
+        return self._hunk_meta
 
     def get_old_addr(self):
         return self._old_addr
@@ -131,8 +135,9 @@ class Diff(object):
         self._new_path = new_path
         self._hunks = hunks
 
-    # Follow detector and the parse_hunk_header() are suppose to be overwritten
-    # by derived class
+    # Follow detector and the parse_hunk_meta() are suppose to be overwritten
+    # by derived class.  No is_header() anymore, all non-recognized lines are
+    # considered as headers
     #
     def is_old_path(self, line):
         return False
@@ -140,10 +145,10 @@ class Diff(object):
     def is_new_path(self, line):
         return False
 
-    def is_hunk_header(self, line):
+    def is_hunk_meta(self, line):
         return False
 
-    def parse_hunk_header(self, line):
+    def parse_hunk_meta(self, line):
         """Returns a 2-eliment tuple, each of them is a tuple in form of (start,
         offset)"""
         return False
@@ -160,9 +165,6 @@ class Diff(object):
     def is_eof(self, line):
         return False
 
-    def is_header(self, line):
-        return False
-
     def markup_traditional(self):
         """Returns a generator"""
         for line in self._headers:
@@ -172,7 +174,9 @@ class Diff(object):
         yield self._markup_new_path(self._new_path)
 
         for hunk in self._hunks:
-            yield self._markup_hunk_header(hunk.get_header())
+            for hunk_header in hunk.get_hunk_headers():
+                yield self._markup_hunk_header(hunk_header)
+            yield self._markup_hunk_meta(hunk.get_hunk_meta())
             for old, new, changed in hunk.mdiff():
                 if changed:
                     if not old[0]:
@@ -253,7 +257,9 @@ class Diff(object):
 
         # yield hunks
         for hunk in self._hunks:
-            yield self._markup_hunk_header(hunk.get_header())
+            for hunk_header in hunk.get_hunk_headers():
+                yield self._markup_hunk_header(hunk_header)
+            yield self._markup_hunk_meta(hunk.get_hunk_meta())
             for old, new, changed in hunk.mdiff():
                 if old[0]:
                     left_num = str(hunk.get_old_addr()[0] + int(old[0]) - 1)
@@ -300,6 +306,9 @@ class Diff(object):
         return colorize(line, 'yellow')
 
     def _markup_hunk_header(self, line):
+        return colorize(line, 'lightcyan')
+
+    def _markup_hunk_meta(self, line):
         return colorize(line, 'lightblue')
 
     def _markup_common(self, line):
@@ -337,19 +346,19 @@ class Udiff(Diff):
     def is_new_path(self, line):
         return line.startswith('+++ ')
 
-    def is_hunk_header(self, line):
-        return line.startswith('@@ -')
+    def is_hunk_meta(self, line):
+        return line.startswith('@@ -') or line.startswith('## -')
 
-    def parse_hunk_header(self, hunk_header):
+    def parse_hunk_meta(self, hunk_meta):
         # @@ -3,7 +3,6 @@
-        a = hunk_header.split()[1].split(',')   # -3 7
+        a = hunk_meta.split()[1].split(',')   # -3 7
         if len(a) > 1:
             old_addr = (int(a[0][1:]), int(a[1]))
         else:
             # @@ -1 +1,2 @@
             old_addr = (int(a[0][1:]), 0)
 
-        b = hunk_header.split()[2].split(',')   # +3 6
+        b = hunk_meta.split()[2].split(',')   # +3 6
         if len(b) > 1:
             new_addr = (int(b[0][1:]), int(b[1]))
         else:
@@ -359,7 +368,9 @@ class Udiff(Diff):
         return (old_addr, new_addr)
 
     def is_old(self, line):
-        return line.startswith('-') and not self.is_old_path(line)
+        """Exclude header line from svn log --diff output"""
+        return line.startswith('-') and not self.is_old_path(line) and \
+                not re.match(r'^-{4,}$', line.rstrip())
 
     def is_new(self, line):
         return line.startswith('+') and not self.is_new_path(line)
@@ -369,26 +380,27 @@ class Udiff(Diff):
 
     def is_eof(self, line):
         # \ No newline at end of file
-        return line.startswith('\\')
-
-    def is_header(self, line):
-        return re.match(r'^[^+@\\ -]', line)
+        # \ No newline at end of property
+        return line.startswith(r'\ No newline at end of')
 
 
 class DiffParser(object):
 
     def __init__(self, stream):
-        """Detect Udiff with 3 conditions"""
+        """Detect Udiff with 3 conditions, '## ' uaually indicates svn property
+        changes in output from `svn log --diff`
+        """
         flag = 0
-        for line in stream[:20]:
+        for line in stream[:100]:
             if line.startswith('--- '):
                 flag |= 1
             elif line.startswith('+++ '):
                 flag |= 2
-            elif line.startswith('@@ '):
+            elif line.startswith('@@ ') or line.startswith('## '):
                 flag |= 4
-        if flag & 7:
-            self._type = 'udiff'
+            if flag & 7:
+                self._type = 'udiff'
+                break
         else:
             raise RuntimeError('unknown diff type')
 
@@ -409,89 +421,49 @@ class DiffParser(object):
 
         out_diffs = []
         headers = []
-        old_path = None
-        new_path = None
-        hunks = []
-        hunk = None
 
         while stream:
-            # 'common' line occurs before 'old_path' is considered as header
-            # too, this happens with `git log -p` and `git show <commit>`
-            #
-            if difflet.is_header(stream[0]) or \
-                    (difflet.is_common(stream[0]) and old_path is None):
-                if headers and old_path:
-                    # Encounter a new header
-                    assert new_path is not None
-                    assert hunk is not None
-                    hunks.append(hunk)
-                    out_diffs.append(Diff(headers, old_path, new_path, hunks))
-                    headers = []
-                    old_path = None
-                    new_path = None
-                    hunks = []
-                    hunk = None
-                else:
-                    headers.append(stream.pop(0))
-
-            elif difflet.is_old_path(stream[0]):
-                if old_path:
-                    # Encounter a new patch set
-                    assert new_path is not None
-                    assert hunk is not None
-                    hunks.append(hunk)
-                    out_diffs.append(Diff(headers, old_path, new_path, hunks))
-                    headers = []
-                    old_path = None
-                    new_path = None
-                    hunks = []
-                    hunk = None
-                else:
-                    old_path = stream.pop(0)
+            if difflet.is_old_path(stream[0]):
+                old_path = stream.pop(0)
+                out_diffs.append(Diff(headers, old_path, None, []))
+                headers = []
 
             elif difflet.is_new_path(stream[0]):
-                assert old_path is not None
-                assert new_path is None
                 new_path = stream.pop(0)
+                out_diffs[-1]._new_path = new_path
 
-            elif difflet.is_hunk_header(stream[0]):
-                assert old_path is not None
-                assert new_path is not None
-                if hunk:
-                    # Encounter a new hunk header
-                    hunks.append(hunk)
-                    hunk = None
-                else:
-                    hunk_header = stream.pop(0)
-                    old_addr, new_addr = difflet.parse_hunk_header(hunk_header)
-                    hunk = Hunk(hunk_header, old_addr, new_addr)
+            elif difflet.is_hunk_meta(stream[0]):
+                hunk_meta = stream.pop(0)
+                old_addr, new_addr = difflet.parse_hunk_meta(hunk_meta)
+                hunk = Hunk(headers, hunk_meta, old_addr, new_addr)
+                headers = []
+                out_diffs[-1]._hunks.append(hunk)
 
-            elif difflet.is_old(stream[0]) or difflet.is_new(stream[0]) or \
-                    difflet.is_common(stream[0]):
-                assert old_path is not None
-                assert new_path is not None
-                assert hunk is not None
+            elif out_diffs and out_diffs[-1]._hunks and \
+                    (difflet.is_old(stream[0]) or difflet.is_new(stream[0]) or \
+                    difflet.is_common(stream[0])):
                 hunk_line = stream.pop(0)
-                hunk.append(hunk_line[0], hunk_line[1:])
+                out_diffs[-1]._hunks[-1].append(hunk_line[0], hunk_line[1:])
 
             elif difflet.is_eof(stream[0]):
                 # ignore
                 stream.pop(0)
 
             else:
-                raise RuntimeError('unknown patch format: %s' % stream[0])
+                # All other non-recognized lines are considered as headers or
+                # hunk headers respectively
+                #
+                headers.append(stream.pop(0))
 
-        # The last patch
-        if hunk:
-            hunks.append(hunk)
-        if old_path:
-            if new_path:
-                out_diffs.append(Diff(headers, old_path, new_path, hunks))
-            else:
-                raise RuntimeError('unknown patch format after "%s"' % old_path)
-        elif headers:
-            raise RuntimeError('unknown patch format: %s' % \
-                    ('\n'.join(headers)))
+        if headers:
+            raise RuntimeError('dangling header(s):\n%s' % ''.join(headers))
+
+        # Validate the last patch set
+        if out_diffs:
+            assert out_diffs[-1]._old_path is not None
+            assert out_diffs[-1]._new_path is not None
+            assert len(out_diffs[-1]._hunks) > 0
+            assert len(out_diffs[-1]._hunks[-1]._hunk_meta) > 0
 
         return out_diffs
 
