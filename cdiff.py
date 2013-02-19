@@ -70,11 +70,8 @@ VCS_INFO = {
 }
 
 
-def ansi_code(color):
-    return COLORS.get(color, '')
-
 def colorize(text, start_color, end_color='reset'):
-    return ansi_code(start_color) + text + ansi_code(end_color)
+    return COLORS[start_color] + text + COLORS[end_color]
 
 
 class Hunk(object):
@@ -217,27 +214,38 @@ class Diff(object):
 
     def markup_side_by_side(self, width):
         """Returns a generator"""
+        wrap_char = colorize('>', 'lightmagenta')
         def _normalize(line):
             return line.replace('\t', ' '*8).replace('\n', '').replace('\r', '')
 
-        def _fit_width(markup, width, pad=False):
+        def _fit_with_marker(text, markup_fn, width, pad=False):
+            """Wrap or pad input pure text, then markup"""
+            if len(text) > width:
+                return markup_fn(text[:width-1]) + wrap_char
+            elif pad:
+                pad_len = width - len(text)
+                return '%s%*s' % (markup_fn(text), pad_len, '')
+            else:
+                return markup_fn(text)
+
+        def _fit_markup(markup, width, pad=False):
             """Fit input markup to given width, pad or wrap accordingly, str len
-            does not count correctly if line contains ansi color code.  Only
+            does not count correctly if string contains ansi color code.  Only
             left side need to set `pad`
             """
             out = []
             count = 0
             ansi_color_regex = r'\x1b\[(1;)?\d{1,2}m'
-            patt = re.compile('^(%s)(.*)' % ansi_color_regex)
+            patt = re.compile('^((%s)+)(.*)' % ansi_color_regex)
             repl = re.compile(ansi_color_regex)
 
             while markup and count < width:
                 if patt.match(markup):
-                    # Extract the ansi color code seq to target output and
-                    # remove the seq from input markup, no update on counter 
+                    # Extract longest ansi color code seq to target output and
+                    # remove the seq from input markup, no update on counter
                     #
                     out.append(patt.sub(r'\1', markup))
-                    markup = patt.sub(r'\3', markup)
+                    markup = patt.sub(r'\4', markup)
                 else:
                     # FIXME: utf-8 wchar might break the rule here, e.g.
                     # u'\u554a' takes double width of a single letter, also this
@@ -250,7 +258,7 @@ class Diff(object):
 
             if count == width and repl.sub('', markup):
                 # Was stripped: output fulfil and still has ascii in markup
-                out[-1] = ansi_code('reset') + colorize('>', 'lightmagenta')
+                out[-1] = COLORS['reset'] + wrap_char
             elif count < width and pad:
                 pad_len = width - count
                 out.append('%*s' % (pad_len, ''))
@@ -260,6 +268,7 @@ class Diff(object):
         # Setup line width and number width
         if width <= 0:
             width = 80
+
         (start, offset) = self._hunks[-1].get_old_addr()
         max1 = start + offset - 1
         (start, offset) = self._hunks[-1].get_new_addr()
@@ -267,7 +276,7 @@ class Diff(object):
         num_width = max(len(str(max1)), len(str(max2)))
         left_num_fmt = colorize('%%(left_num)%ds' % num_width, 'yellow')
         right_num_fmt = colorize('%%(right_num)%ds' % num_width, 'yellow')
-        line_fmt = left_num_fmt + ' %(left)s ' + ansi_code('reset') + \
+        line_fmt = left_num_fmt + ' %(left)s ' + COLORS['reset'] + \
                 right_num_fmt + ' %(right)s\n'
 
         # yield header, old path and new path
@@ -299,17 +308,17 @@ class Diff(object):
                     if not old[0]:
                         left = '%*s' % (width, ' ')
                         right = right.lstrip('\x00+').rstrip('\x01')
-                        right = _fit_width(self._markup_new(right), width)
+                        right = _fit_with_marker(right, self._markup_new, width)
                     elif not new[0]:
                         left = left.lstrip('\x00-').rstrip('\x01')
-                        left = _fit_width(self._markup_old(left), width)
+                        left = _fit_with_marker(left, self._markup_old, width)
                         right = ''
                     else:
-                        left = _fit_width(self._markup_old_mix(left), width, 1)
-                        right = _fit_width(self._markup_new_mix(right), width)
+                        left = _fit_markup(self._markup_old_mix(left), width, 1)
+                        right = _fit_markup(self._markup_new_mix(right), width)
                 else:
-                    left = _fit_width(self._markup_common(left), width, 1)
-                    right = _fit_width(self._markup_common(right), width)
+                    left = _fit_with_marker(left, self._markup_common, width, 1)
+                    right = _fit_with_marker(right, self._markup_common, width)
                 yield line_fmt % {
                     'left_num': left_num,
                     'left': left,
@@ -342,10 +351,10 @@ class Diff(object):
         return colorize(line, 'lightgreen')
 
     def _markup_mix(self, line, base_color):
-        del_code = ansi_code('reverse') + ansi_code(base_color)
-        add_code = ansi_code('reverse') + ansi_code(base_color)
-        chg_code = ansi_code('underline') + ansi_code(base_color)
-        rst_code = ansi_code('reset') + ansi_code(base_color)
+        del_code = COLORS['reverse'] + COLORS[base_color]
+        add_code = COLORS['reverse'] + COLORS[base_color]
+        chg_code = COLORS['underline'] + COLORS[base_color]
+        rst_code = COLORS['reset'] + COLORS[base_color]
         line = line.replace('\x00-', del_code)
         line = line.replace('\x00+', add_code)
         line = line.replace('\x00^', chg_code)
