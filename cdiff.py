@@ -206,15 +206,16 @@ class Diff(object):
                     else:
                         # DEBUG: yield 'CHG: %s %s\n' % (old, new)
                         yield self._markup_old('-') + \
-                            self._markup_old_mix(old[1])
+                            self._markup_mix(old[1], 'red')
                         yield self._markup_new('+') + \
-                            self._markup_new_mix(new[1])
+                            self._markup_mix(new[1], 'green')
                 else:
                     yield self._markup_common(' ' + old[1])
 
     def markup_side_by_side(self, width):
         """Returns a generator"""
         wrap_char = colorize('>', 'lightmagenta')
+
         def _normalize(line):
             return line.replace('\t', ' '*8).replace('\n', '').replace('\r', '')
 
@@ -228,40 +229,45 @@ class Diff(object):
             else:
                 return markup_fn(text)
 
-        def _fit_markup(markup, width, pad=False):
-            """Fit input markup to given width, pad or wrap accordingly, str len
-            does not count correctly if string contains ansi color code.  Only
-            left side need to set `pad`
-            """
-            out = []
+        def _fit_with_marker_mix(text, base_color, width, pad=False):
+            """Wrap or pad input text which contains mdiff tags, markup at the
+            meantime with the markup_fix_fn, note only left side need to set
+            `pad`"""
+            out = [COLORS[base_color]]
             count = 0
-            ansi_color_regex = r'\x1b\[(1;)?\d{1,2}m'
-            patt = re.compile('^((%s)+)(.*)' % ansi_color_regex)
-            repl = re.compile(ansi_color_regex)
+            tag_re = re.compile(r'\x00[+^-]|\x01')
 
-            while markup and count < width:
-                if patt.match(markup):
-                    # Extract longest ansi color code seq to target output and
-                    # remove the seq from input markup, no update on counter
-                    #
-                    out.append(patt.sub(r'\1', markup))
-                    markup = patt.sub(r'\4', markup)
+            while text and count < width:
+                if text.startswith('\x00-'):    # del
+                    out.append(COLORS['reverse'] + COLORS[base_color])
+                    text = text[2:]
+                elif text.startswith('\x00+'):  # add
+                    out.append(COLORS['reverse'] + COLORS[base_color])
+                    text = text[2:]
+                elif text.startswith('\x00^'):  # change
+                    out.append(COLORS['underline'] + COLORS[base_color])
+                    text = text[2:]
+                elif text.startswith('\x01'):   # reset
+                    out.append(COLORS['reset'] + COLORS[base_color])
+                    text = text[1:]
                 else:
                     # FIXME: utf-8 wchar might break the rule here, e.g.
                     # u'\u554a' takes double width of a single letter, also this
                     # depends on your terminal font.  I guess audience of this
                     # tool never put that kind of symbol in their code :-)
                     #
-                    out.append(markup[0])
+                    out.append(text[0])
                     count += 1
-                    markup = markup[1:]
+                    text = text[1:]
 
-            if count == width and repl.sub('', markup):
-                # Was stripped: output fulfil and still has ascii in markup
+            if count == width and tag_re.sub('', text):
+                # Was stripped: output fulfil and still has normal char in text
                 out[-1] = COLORS['reset'] + wrap_char
             elif count < width and pad:
                 pad_len = width - count
-                out.append('%*s' % (pad_len, ''))
+                out.append('%s%*s' % (COLORS['reset'], pad_len, ''))
+            else:
+                out.append(COLORS['reset'])
 
             return ''.join(out)
 
@@ -314,8 +320,8 @@ class Diff(object):
                         left = _fit_with_marker(left, self._markup_old, width)
                         right = ''
                     else:
-                        left = _fit_markup(self._markup_old_mix(left), width, 1)
-                        right = _fit_markup(self._markup_new_mix(right), width)
+                        left = _fit_with_marker_mix(left, 'red', width, 1)
+                        right = _fit_with_marker_mix(right, 'green', width)
                 else:
                     left = _fit_with_marker(left, self._markup_common, width, 1)
                     right = _fit_with_marker(right, self._markup_common, width)
@@ -360,12 +366,6 @@ class Diff(object):
         line = line.replace('\x00^', chg_code)
         line = line.replace('\x01', rst_code)
         return colorize(line, base_color)
-
-    def _markup_old_mix(self, line):
-        return self._markup_mix(line, 'red')
-
-    def _markup_new_mix(self, line):
-        return self._markup_mix(line, 'green')
 
 
 class Udiff(Diff):
