@@ -5,7 +5,7 @@ Cdiff
    :target: https://travis-ci.org/ymattw/cdiff
    :alt: Build status
 
-Term based tool to view **colored**, **incremental** diff in *git/svn/hg*
+Term based tool to view **colored**, **incremental** diff in *Git/Mercurial/Svn*
 workspace, given patch or two files, or from stdin, with **side by side** and
 **auto pager** support.  Requires python (>= 2.5.0) and ``less``.
 
@@ -63,7 +63,7 @@ Show usage:
 
     cdiff -h
 
-Read diff from local modification in a *svn*, *git*, or *hg* workspace:
+Read diff from local modification in a *Git/Mercurial/Svn* workspace:
 
 .. code:: sh
 
@@ -72,7 +72,7 @@ Read diff from local modification in a *svn*, *git*, or *hg* workspace:
     cdiff -s                    # view side by side
     cdiff -s -w 90              # use text width 90 other than default 80
 
-Read the log (e.g. ``git log -p``) in a *svn*, *git*, or *hg* workspace:
+Read the log (e.g. ``git log -p``) in a *Git/Mercurial/Svn* workspace:
 
 .. code:: sh
 

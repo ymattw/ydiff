@@ -2,6 +2,13 @@
 Change log
 ==========
 
+Version 0.5.1 (2013-02-19)
+
+  - Fixed incorrect yield on diff missing eof
+  - Fixed a bug in diff format probe
+  - Handle keyboard interrupt and large diffs in non-color mode
+  - Code clean up
+
 Version 0.5 (2013-02-18)
 
   - Support read output from ``svn diff --log`` and ``hg log -p``

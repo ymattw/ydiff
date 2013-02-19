@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
-Term based tool to view **colored**, **incremental** diff in *git/svn/hg*
+Term based tool to view **colored**, **incremental** diff in Git/Mercurial/Svn
 workspace, given patch or two files, or from stdin, with **side by side** and
 **auto pager** support.  Requires python (>= 2.5.0) and ``less``.
 """
 
 META_INFO = {
-    'version'     : '0.5',
+    'version'     : '0.5.1',
     'license'     : 'BSD-3',
     'author'      : 'Matthew Wang',
     'email'       : 'mattwyl(@)gmail(.)com',
@@ -50,12 +50,24 @@ COLORS = {
 }
 
 
-# Keys for checking and values for diffing.
-REVISION_CONTROL = (
-    (['git', 'rev-parse'], ['git', 'diff'], ['git', 'log', '--patch']),
-    (['svn', 'info'],      ['svn', 'diff'], ['svn', 'log', '--diff']),
-    (['hg',  'summary'],   ['hg',  'diff'], ['hg',  'log', '--patch'])
-)
+# Keys for revision control probe, diff and log with diff
+VCS_INFO = {
+    'Git': {
+        'probe' : ['git', 'rev-parse'],
+        'diff'  : ['git', 'diff'],
+        'log'   : ['git', 'log', '--patch'],
+    },
+    'Mercurial': {
+        'probe' : ['hg', 'summary'],
+        'diff'  : ['hg', 'diff'],
+        'log'   : ['hg', 'log', '--patch'],
+    },
+    'Svn': {
+        'probe' : ['svn', 'info'],
+        'diff'  : ['svn', 'diff'],
+        'log'   : ['svn', 'log', '--diff'],
+    },
+}
 
 
 def ansi_code(color):
@@ -86,9 +98,10 @@ class Hunk(object):
     def get_new_addr(self):
         return self._new_addr
 
-    def append(self, attr, line):
-        """attr: '-': old, '+': new, ' ': common"""
-        self._hunk_list.append((attr, line))
+    def append(self, hunk_line):
+        """hunk_line is a 2-element tuple: (attr, text), where attris : '-':
+        old, '+': new, ' ': common"""
+        self._hunk_list.append(hunk_line)
 
     def mdiff(self):
         r"""The difflib._mdiff() function returns an interator which returns a
@@ -134,9 +147,9 @@ class Diff(object):
         self._new_path = new_path
         self._hunks = hunks
 
-    # Follow detector and the parse_hunk_meta() are suppose to be overwritten
-    # by derived class.  No is_header() anymore, all non-recognized lines are
-    # considered as headers
+    # Following detectors, parse_hunk_meta() and parse_hunk_line() are suppose
+    # to be overwritten by derived class.  No is_header() anymore, all
+    # non-recognized lines are considered as headers
     #
     def is_old_path(self, line):
         return False
@@ -148,9 +161,14 @@ class Diff(object):
         return False
 
     def parse_hunk_meta(self, line):
-        """Returns a 2-eliment tuple, each of them is a tuple in form of (start,
+        """Returns a 2-element tuple, each of them is a tuple in form of (start,
         offset)"""
-        return False
+        return None
+
+    def parse_hunk_line(self, line):
+        """Returns a 2-element tuple: (attr, text), where attr is: '-': old,
+        '+': new, ' ': common"""
+        return None
 
     def is_old(self, line):
         return False
@@ -203,8 +221,9 @@ class Diff(object):
             return line.replace('\t', ' '*8).replace('\n', '').replace('\r', '')
 
         def _fit_width(markup, width, pad=False):
-            """str len does not count correctly if left column contains ansi
-            color code.  Only left side need to set `pad`
+            """Fit input markup to given width, pad or wrap accordingly, str len
+            does not count correctly if line contains ansi color code.  Only
+            left side need to set `pad`
             """
             out = []
             count = 0
@@ -214,6 +233,9 @@ class Diff(object):
 
             while markup and count < width:
                 if patt.match(markup):
+                    # Extract the ansi color code seq to target output and
+                    # remove the seq from input markup, no update on counter 
+                    #
                     out.append(patt.sub(r'\1', markup))
                     markup = patt.sub(r'\3', markup)
                 else:
@@ -227,7 +249,7 @@ class Diff(object):
                     markup = markup[1:]
 
             if count == width and repl.sub('', markup):
-                # stripped: output fulfil and still have ascii in markup
+                # Was stripped: output fulfil and still has ascii in markup
                 out[-1] = ansi_code('reset') + colorize('>', 'lightmagenta')
             elif count < width and pad:
                 pad_len = width - count
@@ -366,6 +388,9 @@ class Udiff(Diff):
 
         return (old_addr, new_addr)
 
+    def parse_hunk_line(self, line):
+        return (line[0], line[1:])
+
     def is_old(self, line):
         """Exclude header line from svn log --diff output"""
         return line.startswith('-') and not self.is_old_path(line) and \
@@ -387,33 +412,33 @@ class PatchStream(object):
 
     def __init__(self, diff_hdl):
         self._diff_hdl = diff_hdl
-        self._header_chunk_size = 0
-        self._header_chunk = []
+        self._stream_header_size = 0
+        self._stream_header = []
 
         # Test whether stream is empty by read 1 line
         line = self._diff_hdl.readline()
-        if line is None:
+        if not line:
             self._is_empty = True
         else:
-            self._header_chunk.append(line)
-            self._header_chunk_size += 1
+            self._stream_header.append(line)
+            self._stream_header_size += 1
             self._is_empty = False
 
     def is_empty(self):
         return self._is_empty
 
-    def read_header_chunks(self, header_chunk_size):
+    def read_stream_header(self, stream_header_size):
         """Returns a small chunk for patch type detect, suppose to call once"""
-        for i in range(1, header_chunk_size):
+        for i in range(1, stream_header_size):
             line = self._diff_hdl.readline()
-            if line is None:
+            if not line:
                 break
-            self._header_chunk.append(line)
-            self._header_chunk_size += 1
-            yield line
+            self._stream_header.append(line)
+            self._stream_header_size += 1
+        return self._stream_header
 
     def __iter__(self):
-        for line in self._header_chunk:
+        for line in self._stream_header:
             yield line
         for line in self._diff_hdl:
             yield line
@@ -428,7 +453,7 @@ class DiffParser(object):
         self._stream = stream
 
         flag = 0
-        for line in self._stream.read_header_chunks(100):
+        for line in self._stream.read_stream_header(100):
             line = decode(line)
             if line.startswith('--- '):
                 flag |= 1
@@ -436,7 +461,7 @@ class DiffParser(object):
                 flag |= 2
             elif line.startswith('@@ ') or line.startswith('## '):
                 flag |= 4
-            if flag & 7:
+            if (flag & 7) == 7:
                 self._type = 'udiff'
                 break
         else:
@@ -481,8 +506,7 @@ class DiffParser(object):
 
             elif len(diff._hunks) > 0 and (difflet.is_old(line) or \
                     difflet.is_new(line) or difflet.is_common(line)):
-                hunk_line = line
-                diff._hunks[-1].append(hunk_line[0], hunk_line[1:])
+                diff._hunks[-1].append(difflet.parse_hunk_line(line))
 
             elif difflet.is_eof(line):
                 # ignore
@@ -557,16 +581,16 @@ def check_command_status(arguments):
 
 def revision_control_diff():
     """Return diff from revision control system."""
-    for check, diff, _ in REVISION_CONTROL:
-        if check_command_status(check):
-            return subprocess.Popen(diff, stdout=subprocess.PIPE).stdout
+    for _, ops in VCS_INFO.items():
+        if check_command_status(ops['probe']):
+            return subprocess.Popen(ops['diff'], stdout=subprocess.PIPE).stdout
 
 
 def revision_control_log():
     """Return log from revision control system."""
-    for check, _, log in REVISION_CONTROL:
-        if check_command_status(check):
-            return subprocess.Popen(log, stdout=subprocess.PIPE).stdout
+    for _, ops in VCS_INFO.items():
+        if check_command_status(ops['probe']):
+            return subprocess.Popen(ops['log'], stdout=subprocess.PIPE).stdout
 
 
 def decode(line):
@@ -580,7 +604,7 @@ def decode(line):
 def main():
     import optparse
 
-    supported_vcs = [check[0][0] for check in REVISION_CONTROL]
+    supported_vcs = sorted(VCS_INFO.keys())
 
     usage = """
   %prog [options]
@@ -589,14 +613,14 @@ def main():
     parser = optparse.OptionParser(usage=usage,
             description=META_INFO['description'],
             version='%%prog %s' % META_INFO['version'])
-    parser.add_option('-c', '--color', default='auto', metavar='WHEN',
-            help='colorize mode "auto" (default), "always", or "never"')
     parser.add_option('-s', '--side-by-side', action='store_true',
             help='show in side-by-side mode')
     parser.add_option('-w', '--width', type='int', default=80, metavar='N',
             help='set text width (side-by-side mode only), default is 80')
     parser.add_option('-l', '--log', action='store_true',
             help='show diff log from revision control')
+    parser.add_option('-c', '--color', default='auto', metavar='X',
+            help='colorize mode "auto" (default), "always", or "never"')
     opts, args = parser.parse_args()
 
     if opts.log:
