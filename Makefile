@@ -1,6 +1,7 @@
 # Makefile for testing
 
-TESTPYPI = http://testpypi.python.org/pypi
+TESTPYPI = https://testpypi.python.org/pypi
+PYPI = https://pypi.python.org/pypi
 
 .PHONY: dogfood test test3 clean build dist-test dist
 
@@ -22,9 +23,9 @@ build:
 	./setup.py build sdist
 
 dist-test:
-	./setup.py build sdist upload -r $(TESTPYPI)
+	./setup.py build sdist register upload -r $(TESTPYPI)
 
 dist:
-	./setup.py build sdist upload
+	./setup.py build sdist register upload -r $(PYPI)
 
 # vim:set noet ts=8 sw=8:
