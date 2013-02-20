@@ -2,19 +2,28 @@
 
 TESTPYPI = https://testpypi.python.org/pypi
 PYPI = https://pypi.python.org/pypi
-LONG_PATCH_CMD = for i in {1..100}; do cat tests/svn/in.diff; done
-PROFILE_ARGS = -m cProfile -s time cdiff.py -c always -s -w 60
 
-.PHONY: dogfood test test3 profile profile3 clean build dist-test dist
+.PHONY: dogfood clean build dist-test dist \
+	test test3 unit unit3 reg reg3 profile profile3
 
 dogfood:
 	./cdiff.py
 	git diff | ./cdiff.py -s
 
-test:
+test: unit reg
+
+test3: unit3 reg3
+
+unit:
+	tests/test_cdiff.py
+
+unit3:
+	python3 tests/test_cdiff.py
+
+reg:
 	tests/regression.sh
 
-test3:
+reg3:
 	PYTHON=python3 tests/regression.sh
 
 profile:
