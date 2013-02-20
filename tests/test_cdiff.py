@@ -49,9 +49,7 @@ class TestPatchStream(unittest.TestCase):
 
     def test_read_stream_header(self):
         stream = cdiff.PatchStream(Sequential([]))
-        self.assertEqual(
-                stream.read_stream_header(1),
-                [])
+        self.assertEqual(stream.read_stream_header(1), [])
 
         items = ['hello', 'world', 'again']
 
@@ -79,18 +77,14 @@ class TestHunk(unittest.TestCase):
         hunk.append(('-', 'foo\n'))
         hunk.append(('+', 'bar\n'))
         hunk.append((' ', 'common\n'))
-        self.assertEqual(
-                hunk._get_old_text(),
-                ['foo\n', 'common\n'])
+        self.assertEqual(hunk._get_old_text(), ['foo\n', 'common\n'])
 
     def test_get_new_text(self):
         hunk = cdiff.Hunk([], '@@ -1,2 +1,2 @@', (1,2), (1,2))
         hunk.append(('-', 'foo\n'))
         hunk.append(('+', 'bar\n'))
         hunk.append((' ', 'common\n'))
-        self.assertEqual(
-                hunk._get_new_text(),
-                ['bar\n', 'common\n'])
+        self.assertEqual(hunk._get_new_text(), ['bar\n', 'common\n'])
 
 
 class TestDiff(unittest.TestCase):

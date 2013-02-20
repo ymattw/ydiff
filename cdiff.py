@@ -8,7 +8,7 @@ workspace, given patch or two files, or from stdin, with **side by side** and
 """
 
 META_INFO = {
-    'version'     : '0.5.1',
+    'version'     : '0.6',
     'license'     : 'BSD-3',
     'author'      : 'Matthew Wang',
     'email'       : 'mattwyl(@)gmail(.)com',

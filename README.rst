@@ -117,7 +117,7 @@ Notes
   2.4.3, maybe you can fix it)
 - Only takes unified diff for input
 - Side by side mode has alignment problem for wide chars
-- Pull requests are very welcome (please run ``make test test3`` to verify)
+- Pull requests are very welcome (please run ``make test`` to verify)
 
 See also
 --------
