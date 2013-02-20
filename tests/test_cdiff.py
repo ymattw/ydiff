@@ -296,7 +296,7 @@ spam
         items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
-        self.assertRaises(RuntimeError, next, parser._parse())
+        self.assertRaises(RuntimeError, list, parser._parse())
 
     def test_parse_missing_new_path(self):
         patch = r"""\
