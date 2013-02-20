@@ -63,10 +63,8 @@ class TestPatchStream(unittest.TestCase):
         items = ['hello', 'world', 'again', 'and', 'again']
         stream = cdiff.PatchStream(Sequential(items))
 
-        out = []
         _ = stream.read_stream_header(2)
-        for item in stream:
-            out.append(item)
+        out = list(stream)
         self.assertEqual(out, items)
 
 

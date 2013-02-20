@@ -1,9 +1,9 @@
 #!/bin/bash
 
-set -o errexit
+TOP_DIR=$(cd $(dirname $0)/.. && pwd) || exit 1
+cd $TOP_DIR || exit 1
 
-SELF_DIR=$(cd $(dirname $0) && pwd) || exit 1
-CDIFF=$SELF_DIR/../cdiff
+CDIFF=./cdiff
 
 # To test with py3k: PYTHON=python3 make test
 PYTHON=${PYTHON:-python}
@@ -26,37 +26,48 @@ function fail()
     fi
 }
 
-function cmpOutput()
+function cmp_output()
 {
     local input=${1:?}
     local expected_out=${2:?}
     local cdiff_opt=${3:-""}
+    local cmd
 
-    echo -n "Test option '$cdiff_opt' with input '$input' ... "
-    if $PYTHON $CDIFF $cdiff_opt $input 2>/dev/null \
-            | diff -ubq $expected_out - >& /dev/null; then
+    cmd=$(printf "%-8s $CDIFF %-25s %-20s " $PYTHON "$input" "$cdiff_opt")
+    printf "$cmd"
+    if $cmd 2>/dev/null | diff -ubq $expected_out - >& /dev/null; then
         pass
         return 0
     else
-        fail "(expected output: '$expected_out')"
+        fail "!= $expected_out"
         return 1
     fi
 }
 
 function main()
 {
-    local rc=0
+    local total=0
+    local e=0
     local d
 
-    for d in $SELF_DIR/*/; do
-        cmpOutput "${d}in.diff" ${d}out.normal "-c always" || rc=1
-        cmpOutput "${d}in.diff" ${d}out.side-by-side "-c always -s" || rc=1
-        cmpOutput "${d}in.diff" ${d}out.w70 "-c always -s -w70" || rc=1
-        cmpOutput "${d}in.diff" "${d}in.diff" "-c auto" || rc=1
-        cmpOutput "${d}in.diff" "${d}in.diff" "-c auto -s" || rc=1
-        cmpOutput "${d}in.diff" "${d}in.diff" "-c auto -s -w70" || rc=1
+    for d in tests/*/; do
+        d=${d%/}
+        cmp_output $d/in.diff $d/out.normal "-c always" || ((e++))
+        cmp_output $d/in.diff $d/out.side-by-side "-c always -s" || ((e++))
+        cmp_output $d/in.diff $d/out.w70 "-c always -s -w70" || ((e++))
+        cmp_output $d/in.diff $d/in.diff "-c auto" || ((e++))
+        cmp_output $d/in.diff $d/in.diff "-c auto -s" || ((e++))
+        cmp_output $d/in.diff $d/in.diff "-c auto -s -w70" || ((e++))
+        (( total += 6 ))
     done
-    return $rc
+
+    if (( e > 0 )); then
+        echo "*** $e out of $total tests failed." >&2
+        return 1
+    else
+        echo "All $total tests passed."
+        return 0
+    fi
 }
 
 main "$@"
