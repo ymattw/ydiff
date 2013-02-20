@@ -1,7 +1,7 @@
 *.pyc
 *~
 *.tmp
-.coverage
+/.coverage
 /MANIFEST
 /build/
 /cdiff.egg-info/
