@@ -377,7 +377,11 @@ class Udiff(Diff):
         return line.startswith('+++ ')
 
     def is_hunk_meta(self, line):
-        return line.startswith('@@ -') or line.startswith('## -')
+        """Minimal valid hunk meta is like '@@ -1 +1 @@', note extra chars might
+        occur after the ending @@, e.g. in git log
+        """
+        return (line.startswith('@@ -') and line.find(' @@') >= 8) or \
+               (line.startswith('## -') and line.find(' ##') >= 8)
 
     def parse_hunk_meta(self, hunk_meta):
         # @@ -3,7 +3,6 @@
@@ -401,9 +405,11 @@ class Udiff(Diff):
         return (line[0], line[1:])
 
     def is_old(self, line):
-        """Exclude header line from svn log --diff output"""
+        """Exclude old path and header line from svn log --diff output, allow
+        '----' likely to see in diff from yaml file
+        """
         return line.startswith('-') and not self.is_old_path(line) and \
-                not re.match(r'^-{4,}$', line.rstrip())
+                not re.match(r'^-{5,}$', line.rstrip())
 
     def is_new(self, line):
         return line.startswith('+') and not self.is_new_path(line)
@@ -496,6 +502,7 @@ class DiffParser(object):
             line = decode(line)
 
             if difflet.is_old_path(line):
+                # FIXME: '--- ' breaks here, need to probe next 3 lines
                 if diff._old_path and diff._new_path and len(diff._hunks) > 0:
                     # One diff constructed
                     yield diff
