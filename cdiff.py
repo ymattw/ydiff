@@ -65,7 +65,7 @@ VCS_INFO = {
     'Svn': {
         'probe' : ['svn', 'info'],
         'diff'  : ['svn', 'diff'],
-        'log'   : ['svn', 'log', '--diff'],
+        'log'   : ['svn', 'log', '--diff', '--use-merge-history'],
     },
 }
 
