@@ -84,8 +84,9 @@ class Hunk(object):
         self._hunk_list = []        # list of tuple (attr, line)
 
     def append(self, hunk_line):
-        """hunk_line is a 2-element tuple: (attr, text), where attris : '-':
-        old, '+': new, ' ': common"""
+        """hunk_line is a 2-element tuple: (attr, text), where attr is:
+                '-': old, '+': new, ' ': common
+        """
         self._hunk_list.append(hunk_line)
 
     def mdiff(self):
@@ -146,13 +147,13 @@ class Diff(object):
         return False
 
     def parse_hunk_meta(self, line):
-        """Returns a 2-element tuple, each of them is a tuple in form of (start,
-        offset)"""
+        """Returns a 2-element tuple, each is a tuple of (start, offset)"""
         return None
 
     def parse_hunk_line(self, line):
-        """Returns a 2-element tuple: (attr, text), where attr is: '-': old,
-        '+': new, ' ': common"""
+        """Returns a 2-element tuple: (attr, text), where attr is:
+                '-': old, '+': new, ' ': common
+        """
         return None
 
     def is_old(self, line):
@@ -219,8 +220,8 @@ class Diff(object):
 
         def _fit_with_marker_mix(text, base_color, width, pad=False):
             """Wrap or pad input text which contains mdiff tags, markup at the
-            meantime with the markup_fix_fn, note only left side need to set
-            `pad`"""
+            meantime, note only left side need to set `pad`
+            """
             out = [COLORS[base_color]]
             count = 0
             tag_re = re.compile(r'\x00[+^-]|\x01')

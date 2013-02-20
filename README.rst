@@ -78,7 +78,7 @@ Read the log (e.g. ``git log -p``) in a *Git/Mercurial/Svn* workspace:
 
     cd proj-workspace
     cdiff -l
-    cdiff -ls                   # equivalent to ``cdiff -l -s``
+    cdiff -ls                   # equivalent to cdiff -l -s
     cdiff -ls -w90
 
 Pipe in a diff:
