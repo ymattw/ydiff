@@ -5,7 +5,7 @@ Change log
 Version 0.6 (2013-02-20)
 
   - A few performance tuning and code clean up
-  - Add unit test cases with coverage report
+  - Add unit test cases with coverage 70%
   - Show merge history in svn log
 
 Version 0.5.1 (2013-02-19)
