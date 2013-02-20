@@ -261,18 +261,96 @@ class TestUdiff(unittest.TestCase):
 class TestDiffParser(unittest.TestCase):
 
     def test_type_detect(self):
-        items = ['spam\n', '--- README\n', '+++ README\n', '@@ -3,7 +3,6 @@\n']
+        patch = r"""\
+spam
+--- a
++++ b
+@@ -1,2 +1,2 @@
+"""
+        items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
         self.assertEqual(parser._type, 'udiff')
 
     def test_type_detect_neg(self):
-        items = ['spam\n', '--- README\n', '+++ README\n', 'spam\n']
+        patch = r"""\
+spam
+--- a
++++ b
+spam
+"""
+        items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
         self.assertRaises(RuntimeError, cdiff.DiffParser, stream)
 
-    def test_parser(self):
-        pass
+    def test_parse_dangling_header(self):
+        patch = r"""\
+--- a
++++ b
+@@ -1,2 +1,2 @@
+-foo
++bar
+ common
+spam
+"""
+        items = patch.splitlines(True)
+        stream = cdiff.PatchStream(Sequential(items))
+        parser = cdiff.DiffParser(stream)
+        self.assertRaises(RuntimeError, next, parser._parse())
+
+    def test_parse_missing_new_path(self):
+        patch = r"""\
+--- a
++++ b
+@@ -1,2 +1,2 @@
+-foo
++bar
+ common
+--- c
+"""
+        items = patch.splitlines(True)
+        stream = cdiff.PatchStream(Sequential(items))
+        parser = cdiff.DiffParser(stream)
+        self.assertRaises(AssertionError, list, parser._parse())
+
+    def test_parse_missing_hunk(self):
+        patch = r"""\
+--- a
++++ b
+@@ -1,2 +1,2 @@
+-foo
++bar
+ common
+--- c
++++ d
+"""
+        items = patch.splitlines(True)
+        stream = cdiff.PatchStream(Sequential(items))
+        parser = cdiff.DiffParser(stream)
+        self.assertRaises(AssertionError, list, parser._parse())
+
+    def test_parse_svn_prop(self):
+        patch = r"""\
+--- a
++++ b
+Added: svn:executable
+## -0,0 +1 ##
++*
+\ No newline at end of property
+Added: svn:keywords
+## -0,0 +1 ##
++Id
+"""
+        items = patch.splitlines(True)
+        stream = cdiff.PatchStream(Sequential(items))
+        parser = cdiff.DiffParser(stream)
+        out = list(parser._parse())
+        self.assertEqual(len(out), 1)
+        self.assertEqual(len(out[0]._hunks), 2)
+
+        hunk = out[0]._hunks[1]
+        self.assertEqual(hunk._hunk_headers, ['Added: svn:keywords\n'])
+        self.assertEqual(hunk._hunk_list, [('+', 'Id\n')])
 
 
 if __name__ == '__main__':
