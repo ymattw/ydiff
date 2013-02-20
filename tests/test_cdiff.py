@@ -269,11 +269,7 @@ class TestDiffParser(unittest.TestCase):
     def test_type_detect_neg(self):
         items = ['spam\n', '--- README\n', '+++ README\n', 'spam\n']
         stream = cdiff.PatchStream(Sequential(items))
-        try:
-            parser = cdiff.DiffParser(stream)
-        except:
-            e = sys.exc_info()[1]
-            self.assertTrue(isinstance(e, RuntimeError))
+        self.assertRaises(RuntimeError, cdiff.DiffParser, stream)
 
     def test_parser(self):
         pass
