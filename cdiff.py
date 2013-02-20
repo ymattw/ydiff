@@ -83,18 +83,6 @@ class Hunk(object):
         self._new_addr = new_addr   # tuple (start, offset)
         self._hunk_list = []        # list of tuple (attr, line)
 
-    def get_hunk_headers(self):
-        return self._hunk_headers
-
-    def get_hunk_meta(self):
-        return self._hunk_meta
-
-    def get_old_addr(self):
-        return self._old_addr
-
-    def get_new_addr(self):
-        return self._new_addr
-
     def append(self, hunk_line):
         """hunk_line is a 2-element tuple: (attr, text), where attris : '-':
         old, '+': new, ' ': common"""
@@ -188,9 +176,9 @@ class Diff(object):
         yield self._markup_new_path(self._new_path)
 
         for hunk in self._hunks:
-            for hunk_header in hunk.get_hunk_headers():
+            for hunk_header in hunk._hunk_headers:
                 yield self._markup_hunk_header(hunk_header)
-            yield self._markup_hunk_meta(hunk.get_hunk_meta())
+            yield self._markup_hunk_meta(hunk._hunk_meta)
             for old, new, changed in hunk.mdiff():
                 if changed:
                     if not old[0]:
@@ -275,9 +263,9 @@ class Diff(object):
         if width <= 0:
             width = 80
 
-        (start, offset) = self._hunks[-1].get_old_addr()
+        (start, offset) = self._hunks[-1]._old_addr
         max1 = start + offset - 1
-        (start, offset) = self._hunks[-1].get_new_addr()
+        (start, offset) = self._hunks[-1]._new_addr
         max2 = start + offset - 1
         num_width = max(len(str(max1)), len(str(max2)))
         left_num_fmt = colorize('%%(left_num)%ds' % num_width, 'yellow')
@@ -293,17 +281,17 @@ class Diff(object):
 
         # yield hunks
         for hunk in self._hunks:
-            for hunk_header in hunk.get_hunk_headers():
+            for hunk_header in hunk._hunk_headers:
                 yield self._markup_hunk_header(hunk_header)
-            yield self._markup_hunk_meta(hunk.get_hunk_meta())
+            yield self._markup_hunk_meta(hunk._hunk_meta)
             for old, new, changed in hunk.mdiff():
                 if old[0]:
-                    left_num = str(hunk.get_old_addr()[0] + int(old[0]) - 1)
+                    left_num = str(hunk._old_addr[0] + int(old[0]) - 1)
                 else:
                     left_num = ' '
 
                 if new[0]:
-                    right_num = str(hunk.get_new_addr()[0] + int(new[0]) - 1)
+                    right_num = str(hunk._new_addr[0] + int(new[0]) - 1)
                 else:
                     right_num = ' '
 
