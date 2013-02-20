@@ -4,7 +4,7 @@ TESTPYPI = https://testpypi.python.org/pypi
 PYPI = https://pypi.python.org/pypi
 
 .PHONY: dogfood clean build dist-test dist \
-	test test3 unit unit3 reg reg3 profile profile3
+	test test3 unit unit3 reg reg3 cov profile profile3
 
 dogfood:
 	./cdiff.py
@@ -26,6 +26,10 @@ reg:
 reg3:
 	PYTHON=python3 tests/regression.sh
 
+cov:
+	coverage run tests/test_cdiff.py
+	coverage report --include cdiff.py --show-missing
+
 profile:
 	tests/profile.sh profile.tmp
 
@@ -33,7 +37,7 @@ profile3:
 	tests/profile.sh profile3.tmp
 
 clean:
-	rm -f MANIFEST profile*.tmp*
+	rm -f MANIFEST profile*.tmp* .coverage
 	rm -rf build/ cdiff.egg-info/ dist/ __pycache__/
 
 build:
