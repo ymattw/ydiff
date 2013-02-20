@@ -113,8 +113,8 @@ Redirect output to another patch file is safe:
 Notes
 -----
 
-- Works with python >= 2.5.0 (subprocess.Popen seems not working with PIPE in
-  2.4.3, maybe you can fix it)
+- Verified on `travis <https://travis-ci.org/ymattw/cdiff>`_ with python 2.5,
+  2.6, 2.7, 3.2, 3.3 and pypy
 - Only takes unified diff for input
 - Side by side mode has alignment problem for wide chars
 - Pull requests are very welcome (please run ``make test`` to verify)
