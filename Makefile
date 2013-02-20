@@ -4,31 +4,29 @@ TESTPYPI = https://testpypi.python.org/pypi
 PYPI = https://pypi.python.org/pypi
 
 .PHONY: dogfood clean build dist-test dist \
-	test test3 unit unit3 reg reg3 cov profile profile3
+	test test3 cov cov3 reg reg3 profile profile3
 
 dogfood:
 	./cdiff.py
 	git diff | ./cdiff.py -s
 
-test: unit reg
+test: cov reg
 
-test3: unit3 reg3
+test3: cov reg3
 
-unit:
-	tests/test_cdiff.py
+cov:
+	coverage run tests/test_cdiff.py
+	coverage report --include cdiff.py --show-missing
 
-unit3:
-	python3 tests/test_cdiff.py
+cov3:
+	python3 `which coverage` run tests/test_cdiff.py
+	python3 `which coverage` report --include cdiff.py --show-missing
 
 reg:
 	tests/regression.sh
 
 reg3:
 	PYTHON=python3 tests/regression.sh
-
-cov:
-	coverage run tests/test_cdiff.py
-	coverage report --include cdiff.py --show-missing
 
 profile:
 	tests/profile.sh profile.tmp

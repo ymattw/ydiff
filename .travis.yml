@@ -15,4 +15,4 @@ install:
     - python setup.py --quiet install
 
 script:
-    - make test cov
+    - make test
