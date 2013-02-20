@@ -12,7 +12,7 @@ dogfood:
 
 test: cov reg
 
-test3: cov reg3
+test3: cov3 reg3
 
 cov:
 	coverage run tests/test_cdiff.py
