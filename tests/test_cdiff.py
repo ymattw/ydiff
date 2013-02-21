@@ -393,8 +393,7 @@ class TestMain(unittest.TestCase):
         self._change_file('read_diff')
 
         os.chdir(self._ws)
-        #ret = cdiff.main()
-        ret = 0
+        ret = cdiff.main()
         os.chdir(self._cwd)
         self.assertEqual(ret, 0)
 

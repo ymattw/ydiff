@@ -263,12 +263,13 @@ class Diff(object):
         # Setup line width and number width
         if width <= 0:
             width = 80
-
         (start, offset) = self._hunks[-1]._old_addr
         max1 = start + offset - 1
         (start, offset) = self._hunks[-1]._new_addr
         max2 = start + offset - 1
         num_width = max(len(str(max1)), len(str(max2)))
+
+        # Setup lineno and line format
         left_num_fmt = colorize('%%(left_num)%ds' % num_width, 'yellow')
         right_num_fmt = colorize('%%(right_num)%ds' % num_width, 'yellow')
         line_fmt = left_num_fmt + ' %(left)s ' + COLORS['reset'] + \
