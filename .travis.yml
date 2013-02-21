@@ -10,6 +10,7 @@ python:
 
 before_install:
     - pip --quiet install coverage
+    - coverage --version
 
 install:
     - python setup.py --quiet install
