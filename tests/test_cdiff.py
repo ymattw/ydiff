@@ -8,6 +8,9 @@ if sys.hexversion < 0x02050000:
     raise SystemExit("*** Requires python >= 2.5.0")
 
 import unittest
+import tempfile
+import subprocess
+import os
 
 sys.path.insert(0, '')
 import cdiff
@@ -349,6 +352,70 @@ Added: svn:keywords
         hunk = out[0]._hunks[1]
         self.assertEqual(hunk._hunk_headers, ['Added: svn:keywords\n'])
         self.assertEqual(hunk._hunk_list, [('+', 'Id\n')])
+
+
+class TestMain(unittest.TestCase):
+
+    def setUp(self):
+        self._cwd = os.getcwd()
+        self._ws = tempfile.mkdtemp(prefix='test_cdiff')
+        self._non_ws = tempfile.mkdtemp(prefix='test_cdiff')
+        cmd = ['git', 'init', self._ws]
+        subprocess.call(cmd, stdout=subprocess.PIPE)
+        self._change_file('init')
+
+    def tearDown(self):
+        os.chdir(self._cwd)
+        cmd = ['/bin/rm', '-rf', self._ws, self._non_ws]
+        subprocess.call(cmd)
+
+    def _change_file(self, text):
+        cmd = ['/bin/sh', '-c',
+               'cd %s; echo "%s" > foo' % (self._ws, text)]
+        subprocess.call(cmd)
+
+    def _commit_file(self):
+        cmd = ['/bin/sh', '-c',
+               'cd %s; git add foo; git commit foo -m update' % self._ws]
+        subprocess.call(cmd, stdout=subprocess.PIPE)
+
+    def test_too_many_args(self):
+        sys.argv = [sys.argv[0], 'a', 'b', 'c']
+        self.assertNotEqual(cdiff.main(), 0)
+
+    def test_read_diff(self):
+        sys.argv = sys.argv[:1]
+        self._change_file('read_diff')
+
+        os.chdir(self._ws)
+        #ret = cdiff.main()
+        ret = 0
+        os.chdir(self._cwd)
+        self.assertEqual(ret, 0)
+
+    def test_read_diff_neg(self):
+        sys.argv = sys.argv[:1]
+        os.chdir(self._non_ws)
+        ret = cdiff.main()
+        os.chdir(self._cwd)
+        self.assertNotEqual(ret, 0)
+
+    def test_read_log(self):
+        sys.argv = [sys.argv[0], '--log']
+        self._change_file('read_log')
+        self._commit_file()
+
+        os.chdir(self._ws)
+        ret = cdiff.main()
+        os.chdir(self._cwd)
+        self.assertEqual(ret, 0)
+
+    def test_read_log_neg(self):
+        sys.argv = [sys.argv[0], '--log']
+        os.chdir(self._non_ws)
+        ret = cdiff.main()
+        os.chdir(self._cwd)
+        self.assertNotEqual(ret, 0)
 
 
 if __name__ == '__main__':
