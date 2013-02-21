@@ -117,7 +117,8 @@ Notes
   2.6, 2.7, 3.2, 3.3 and pypy
 - Only takes unified diff for input
 - Side by side mode has alignment problem for wide chars
-- Pull requests are very welcome (please run ``make test`` to verify)
+- Pull requests are very welcome, run ``make test`` to verify (required tool
+  *coverage* can be installed with ``pip install coverage``)
 
 See also
 --------
