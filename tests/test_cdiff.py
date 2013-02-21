@@ -91,7 +91,7 @@ class TestHunk(unittest.TestCase):
 class TestDiff(unittest.TestCase):
 
     def _init_diff(self):
-        hunk = cdiff.Hunk([], '@@ -1,2 +1,2 @@\n', (1,2), (1,2))
+        hunk = cdiff.Hunk(['hunk header\n'], '@@ -1,2 +1,2 @@\n', (1,2), (1,2))
         hunk.append(('-', 'hella\n'))
         hunk.append(('+', 'hello\n'))
         hunk.append((' ', 'world\n'))
@@ -110,6 +110,28 @@ class TestDiff(unittest.TestCase):
     def test_markup_traditional(self):
         diff = self._init_diff()
         out = list(diff.markup_traditional())
+        self.assertEqual(len(out), 8)
+
+        sys.stdout.write('\n')
+        for markup in out:
+            sys.stdout.write(markup)
+
+        self.assertEqual(out[0], '\x1b[36mheader\n\x1b[0m')
+        self.assertEqual(out[1], '\x1b[33m--- old\n\x1b[0m')
+        self.assertEqual(out[2], '\x1b[33m+++ new\n\x1b[0m')
+        self.assertEqual(out[3], '\x1b[1;36mhunk header\n\x1b[0m')
+        self.assertEqual(out[4], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
+        self.assertEqual(out[5],
+                '\x1b[1;31m-\x1b[0m\x1b[31mhell\x1b[4m'
+                '\x1b[31ma\x1b[0m\x1b[31m\n\x1b[0m')
+        self.assertEqual(out[6],
+                '\x1b[1;32m+\x1b[0m\x1b[32mhell\x1b[4m'
+                '\x1b[32mo\x1b[0m\x1b[32m\n\x1b[0m')
+        self.assertEqual(out[7], '\x1b[0m world\n\x1b[0m')
+
+    def test_markup_side_by_side_padded(self):
+        diff = self._init_diff()
+        out = list(diff.markup_side_by_side(6))
         self.assertEqual(len(out), 7)
 
         sys.stdout.write('\n')
@@ -119,34 +141,14 @@ class TestDiff(unittest.TestCase):
         self.assertEqual(out[0], '\x1b[36mheader\n\x1b[0m')
         self.assertEqual(out[1], '\x1b[33m--- old\n\x1b[0m')
         self.assertEqual(out[2], '\x1b[33m+++ new\n\x1b[0m')
-        self.assertEqual(out[3], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
-        self.assertEqual(out[4],
-                '\x1b[1;31m-\x1b[0m\x1b[31mhell\x1b[4m'
-                '\x1b[31ma\x1b[0m\x1b[31m\n\x1b[0m')
+        self.assertEqual(out[3], '\x1b[1;36mhunk header\n\x1b[0m')
+        self.assertEqual(out[4], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
         self.assertEqual(out[5],
-                '\x1b[1;32m+\x1b[0m\x1b[32mhell\x1b[4m'
-                '\x1b[32mo\x1b[0m\x1b[32m\n\x1b[0m')
-        self.assertEqual(out[6], '\x1b[0m world\n\x1b[0m')
-
-    def test_markup_side_by_side_padded(self):
-        diff = self._init_diff()
-        out = list(diff.markup_side_by_side(6))
-        self.assertEqual(len(out), 6)
-
-        sys.stdout.write('\n')
-        for markup in out:
-            sys.stdout.write(markup)
-
-        self.assertEqual(out[0], '\x1b[36mheader\n\x1b[0m')
-        self.assertEqual(out[1], '\x1b[33m--- old\n\x1b[0m')
-        self.assertEqual(out[2], '\x1b[33m+++ new\n\x1b[0m')
-        self.assertEqual(out[3], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
-        self.assertEqual(out[4],
                 '\x1b[33m1\x1b[0m '
                 '\x1b[31mhell\x1b[4m\x1b[31ma\x1b[0m\x1b[31m\x1b[0m  '
                 '\x1b[0m\x1b[33m1\x1b[0m '
                 '\x1b[32mhell\x1b[4m\x1b[32mo\x1b[0m\x1b[32m\x1b[0m\n')
-        self.assertEqual(out[5],
+        self.assertEqual(out[6],
                 '\x1b[33m2\x1b[0m '
                 '\x1b[0mworld\x1b[0m  '
                 '\x1b[0m\x1b[33m2\x1b[0m '
@@ -155,7 +157,7 @@ class TestDiff(unittest.TestCase):
     def test_markup_side_by_side_off_by_one(self):
         diff = self._init_diff()
         out = list(diff.markup_side_by_side(5))
-        self.assertEqual(len(out), 6)
+        self.assertEqual(len(out), 7)
 
         sys.stdout.write('\n')
         for markup in out:
@@ -164,13 +166,14 @@ class TestDiff(unittest.TestCase):
         self.assertEqual(out[0], '\x1b[36mheader\n\x1b[0m')
         self.assertEqual(out[1], '\x1b[33m--- old\n\x1b[0m')
         self.assertEqual(out[2], '\x1b[33m+++ new\n\x1b[0m')
-        self.assertEqual(out[3], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
-        self.assertEqual(out[4],
+        self.assertEqual(out[3], '\x1b[1;36mhunk header\n\x1b[0m')
+        self.assertEqual(out[4], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
+        self.assertEqual(out[5],
                 '\x1b[33m1\x1b[0m '
                 '\x1b[31mhell\x1b[4m\x1b[31ma\x1b[0m '
                 '\x1b[0m\x1b[33m1\x1b[0m '
                 '\x1b[32mhell\x1b[4m\x1b[32mo\x1b[0m\n')
-        self.assertEqual(out[5],
+        self.assertEqual(out[6],
                 '\x1b[33m2\x1b[0m '
                 '\x1b[0mworld\x1b[0m '
                 '\x1b[0m\x1b[33m2\x1b[0m '
@@ -179,7 +182,7 @@ class TestDiff(unittest.TestCase):
     def test_markup_side_by_side_wrapped(self):
         diff = self._init_diff()
         out = list(diff.markup_side_by_side(4))
-        self.assertEqual(len(out), 6)
+        self.assertEqual(len(out), 7)
 
         sys.stdout.write('\n')
         for markup in out:
@@ -188,13 +191,14 @@ class TestDiff(unittest.TestCase):
         self.assertEqual(out[0], '\x1b[36mheader\n\x1b[0m')
         self.assertEqual(out[1], '\x1b[33m--- old\n\x1b[0m')
         self.assertEqual(out[2], '\x1b[33m+++ new\n\x1b[0m')
-        self.assertEqual(out[3], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
-        self.assertEqual(out[4],
+        self.assertEqual(out[3], '\x1b[1;36mhunk header\n\x1b[0m')
+        self.assertEqual(out[4], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
+        self.assertEqual(out[5],
                 '\x1b[33m1\x1b[0m '
                 '\x1b[31mhel\x1b[0m\x1b[1;35m>\x1b[0m '
                 '\x1b[0m\x1b[33m1\x1b[0m '
                 '\x1b[32mhel\x1b[0m\x1b[1;35m>\x1b[0m\n')
-        self.assertEqual(out[5],
+        self.assertEqual(out[6],
                 '\x1b[33m2\x1b[0m '
                 '\x1b[0mwor\x1b[0m\x1b[1;35m>\x1b[0m '
                 '\x1b[0m\x1b[33m2\x1b[0m '
