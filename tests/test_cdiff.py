@@ -364,8 +364,9 @@ class TestMain(unittest.TestCase):
         self._cwd = os.getcwd()
         self._ws = tempfile.mkdtemp(prefix='test_cdiff')
         self._non_ws = tempfile.mkdtemp(prefix='test_cdiff')
-        cmd = ['git', 'init', self._ws]
-        subprocess.call(cmd, stdout=subprocess.PIPE)
+        cmd = ('cd %s; git init; git config user.name me; '
+               'git config user.email me@example.org') % self._ws
+        subprocess.call(cmd, shell=True, stdout=subprocess.PIPE)
         self._change_file('init')
 
     def tearDown(self):
