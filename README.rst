@@ -6,8 +6,8 @@ Cdiff
    :alt: Build status
 
 Term based tool to view **colored**, **incremental** diff in *Git/Mercurial/Svn*
-workspace, given patch or two files, or from stdin, with **side by side** and
-**auto pager** support.  Requires python (>= 2.5.0) and ``less``.
+workspace or from stdin, with **side by side** and **auto pager** support.
+Requires python (>= 2.5.0) and ``less``.
 
 .. image:: http://ymattw.github.com/cdiff/img/default.png
    :alt: default
@@ -68,12 +68,12 @@ Read diff from local modification in a *Git/Mercurial/Svn* workspace:
 .. code:: sh
 
     cd proj-workspace
-    cdiff                       # view colored incremental udiff
+    cdiff                       # view colored incremental diff
     cdiff -s                    # view side by side
     cdiff -s -w 90              # use text width 90 other than default 80
     cdiff -s file1 dir2         # view modification of given files/dirs only
 
-Read the log with diff (e.g. ``git log -p``, ``svn log --diff``) in a
+Read the log with changes (e.g. ``git log -p``, ``svn log --diff``) in a
 *Git/Mercurial/Svn* workspace (note *--diff* option is new in svn 1.7.0):
 
 .. code:: sh
@@ -82,25 +82,19 @@ Read the log with diff (e.g. ``git log -p``, ``svn log --diff``) in a
     cdiff -l
     cdiff -ls                   # equivalent to cdiff -l -s
     cdiff -ls -w90
-    cdiff -ls file1 dir2        # view log with diff of given files/dirs only
+    cdiff -ls file1 dir2        # see log with changes of given files/dirs only
 
 Pipe in a diff:
 
 .. code:: sh
 
-    git log -p -2 | cdiff -s
-    git show 15bfa5 | cdiff -s
-    svn diff -r PREV | cdiff -s
-    diff -u foo bar | cdiff     # note cdiff only takes unified diff
-    diff -ur dir1 dir2 | cdiff  # read diff of two dirs
-
-View a diff (patch) file:
-
-.. code:: sh
-
-    cdiff < foo.patch           # or cat foo.patch | cdiff
-    cdiff -s < foo.patch
-    cdiff -s -w 90 < foo.patch
+    git log -p -2 | cdiff -s    # view git log with changes of last 2 commits
+    git show 15bfa | cdiff -s   # view a git commit
+    svn diff -r1234 | cdiff -s  # view svn diff comparing to given revision
+    cdiff < foo.patch           # view a patch file (unified format only)
+    cat foo.patch | cdiff       # same as above
+    diff -u foo bar | cdiff     # pipe in diff between two files (note the '-u')
+    diff -ur dir1 dir2 | cdiff  # pipe in diff between two dirs
 
 Redirect output to another patch file is safe:
 

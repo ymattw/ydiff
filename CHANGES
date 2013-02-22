@@ -2,10 +2,11 @@
 Change log
 ==========
 
-Version 0.7 (2013-02-22)
+Version 0.7 (2013-02-23)
 
-  - Support reading diff or log for given files/dirs in workspace (usage changed
-    on reading a patch file or two given files!)
+  - Support reading diff or log for given files/dirs in workspace
+  - Support diff generated from ``diff -ru dir1 dir2``
+  - Usage change: reading a patch and comparing two files need stdin redirect
 
 Version 0.6 (2013-02-20)
 

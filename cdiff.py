@@ -3,8 +3,8 @@
 
 """
 Term based tool to view **colored**, **incremental** diff in Git/Mercurial/Svn
-workspace, given patch or two files, or from stdin, with **side by side** and
-**auto pager** support.  Requires python (>= 2.5.0) and ``less``.
+workspace or from stdin, with **side by side** and **auto pager** support.
+Requires python (>= 2.5.0) and ``less``.
 """
 
 META_INFO = {
@@ -14,9 +14,8 @@ META_INFO = {
     'email'       : 'mattwyl(@)gmail(.)com',
     'url'         : 'https://github.com/ymattw/cdiff',
     'keywords'    : 'colored incremental side-by-side diff',
-    'description' : ('View colored, incremental diff in workspace, given patch '
-                     'or two files, or from stdin, with side by side and  auto '
-                     'pager support')
+    'description' : ('View colored, incremental diff in workspace or from '
+                     'stdin, with side by side and auto pager support')
 }
 
 import sys
@@ -639,18 +638,16 @@ def main():
 
     supported_vcs = sorted(VCS_INFO.keys())
 
-    usage = """
-  %prog [options]
-  %prog [options] [file ...]"""
+    usage = """%prog [options] [file|dir ...]"""
     parser = optparse.OptionParser(usage=usage,
             description=META_INFO['description'],
             version='%%prog %s' % META_INFO['version'])
     parser.add_option('-s', '--side-by-side', action='store_true',
-            help='show in side-by-side mode')
+            help='enable side-by-side mode')
     parser.add_option('-w', '--width', type='int', default=80, metavar='N',
             help='set text width (side-by-side mode only), default is 80')
     parser.add_option('-l', '--log', action='store_true',
-            help='show diff log from revision control')
+            help='show log with changes from revision control')
     parser.add_option('-c', '--color', default='auto', metavar='X',
             help='colorize mode "auto" (default), "always", or "never"')
     opts, args = parser.parse_args()
