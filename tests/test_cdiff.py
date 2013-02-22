@@ -447,10 +447,6 @@ class TestMain(unittest.TestCase):
                'cd %s; git add foo; git commit foo -m update' % self._ws]
         subprocess.call(cmd, stdout=subprocess.PIPE)
 
-    def test_too_many_args(self):
-        sys.argv = [sys.argv[0], 'a', 'b', 'c']
-        self.assertNotEqual(cdiff.main(), 0)
-
     def test_read_diff(self):
         sys.argv = sys.argv[:1]
         self._change_file('read_diff')

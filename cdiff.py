@@ -8,7 +8,7 @@ workspace, given patch or two files, or from stdin, with **side by side** and
 """
 
 META_INFO = {
-    'version'     : '0.6',
+    'version'     : '0.7',
     'license'     : 'BSD-3',
     'author'      : 'Matthew Wang',
     'email'       : 'mattwyl(@)gmail(.)com',
@@ -588,7 +588,7 @@ def markup_to_pager(stream, opts):
     color_diff = markup.markup(side_by_side=opts.side_by_side,
             width=opts.width)
 
-    # args stolen fron git source: github.com/git/git/blob/master/pager.c
+    # Args stolen from git source: github.com/git/git/blob/master/pager.c
     pager = subprocess.Popen(['less', '-FRSX'],
             stdin=subprocess.PIPE, stdout=sys.stdout)
     try:
@@ -610,18 +610,20 @@ def check_command_status(arguments):
         return False
 
 
-def revision_control_diff():
+def revision_control_diff(args):
     """Return diff from revision control system."""
     for _, ops in VCS_INFO.items():
         if check_command_status(ops['probe']):
-            return subprocess.Popen(ops['diff'], stdout=subprocess.PIPE).stdout
+            return subprocess.Popen(
+                    ops['diff'] + args, stdout=subprocess.PIPE).stdout
 
 
-def revision_control_log():
+def revision_control_log(args):
     """Return log from revision control system."""
     for _, ops in VCS_INFO.items():
         if check_command_status(ops['probe']):
-            return subprocess.Popen(ops['log'], stdout=subprocess.PIPE).stdout
+            return subprocess.Popen(
+                    ops['log'] + args, stdout=subprocess.PIPE).stdout
 
 
 def decode(line):
@@ -655,25 +657,13 @@ def main():
     opts, args = parser.parse_args()
 
     if opts.log:
-        diff_hdl = revision_control_log()
+        diff_hdl = revision_control_log(args)
         if not diff_hdl:
             sys.stderr.write(('*** Not in a supported workspace, supported '
                               'are: %s\n') % ', '.join(supported_vcs))
             return 1
-    elif len(args) > 2:
-        parser.print_help()
-        return 1
-    elif len(args) == 2:
-        diff_hdl = subprocess.Popen(['diff', '-u', args[0], args[1]],
-                stdout=subprocess.PIPE).stdout
-    elif len(args) == 1:
-        if IS_PY3:
-            # Python3 needs the newline='' to keep '\r' (DOS format)
-            diff_hdl = open(args[0], mode='rt', newline='')
-        else:
-            diff_hdl = open(args[0], mode='rt')
     elif sys.stdin.isatty():
-        diff_hdl = revision_control_diff()
+        diff_hdl = revision_control_diff(args)
         if not diff_hdl:
             sys.stderr.write(('*** Not in a supported workspace, supported '
                               'are: %s\n\n') % ', '.join(supported_vcs))

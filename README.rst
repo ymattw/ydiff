@@ -71,8 +71,10 @@ Read diff from local modification in a *Git/Mercurial/Svn* workspace:
     cdiff                       # view colored incremental udiff
     cdiff -s                    # view side by side
     cdiff -s -w 90              # use text width 90 other than default 80
+    cdiff -s file1 dir2         # view modification of given files/dirs only
 
-Read the log (e.g. ``git log -p``) in a *Git/Mercurial/Svn* workspace:
+Read the log with diff (e.g. ``git log -p``, ``svn log --diff``) in a
+*Git/Mercurial/Svn* workspace (note *--diff* option is new in svn 1.7.0):
 
 .. code:: sh
 
@@ -80,6 +82,7 @@ Read the log (e.g. ``git log -p``) in a *Git/Mercurial/Svn* workspace:
     cdiff -l
     cdiff -ls                   # equivalent to cdiff -l -s
     cdiff -ls -w90
+    cdiff -ls file1 dir2        # view log with diff of given files/dirs only
 
 Pipe in a diff:
 
@@ -88,21 +91,16 @@ Pipe in a diff:
     git log -p -2 | cdiff -s
     git show 15bfa5 | cdiff -s
     svn diff -r PREV | cdiff -s
+    diff -u foo bar | cdiff     # note cdiff only takes unified diff
+    diff -ur dir1 dir2 | cdiff  # read diff of two dirs
 
 View a diff (patch) file:
 
 .. code:: sh
 
-    cdiff foo.patch
-    cdiff foo.patch -s
-    cdiff foo.patch -s -w 90
-
-View diff between two files (wrapper of ``diff``):
-
-.. code:: sh
-
-    cdiff foo foo.new           # equivalent to diff -u foo foo.new | cdiff
-    cdiff foo foo.new -s
+    cdiff < foo.patch           # or cat foo.patch | cdiff
+    cdiff -s < foo.patch
+    cdiff -s -w 90 < foo.patch
 
 Redirect output to another patch file is safe:
 
