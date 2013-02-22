@@ -1,0 +1,22 @@
+diff -ru a/README b/README
+--- a/README	2013-02-22 20:26:43.000000000 +0800
++++ b/README	2013-02-22 20:27:51.000000000 +0800
+@@ -1,6 +1,6 @@
+-# To generate expected output, chdir to a subdir and use following command, then
++# To generate expected output, cd to a subdir and use following command, then
+ # review with `less -R`
+-#
+ ../../cdiff.py -c always in.diff > out.normal 
+ ../../cdiff.py -c always -s in.diff > out.side-by-side
+ ../../cdiff.py -c always -s in.diff -w70 > out.w70
++# EOF
+Only in a: a1
+Only in b: b1
+diff -ru a/common/foo.txt b/common/foo.txt
+--- a/common/foo.txt	2013-02-22 20:28:32.000000000 +0800
++++ b/common/foo.txt	2013-02-22 20:30:18.000000000 +0800
+@@ -1 +1 @@
+-Hello
++world
+Only in b: date.txt
+Only in a: time.txt

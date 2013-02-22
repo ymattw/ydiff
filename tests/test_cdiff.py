@@ -318,7 +318,7 @@ spam
         parser = cdiff.DiffParser(stream)
         self.assertRaises(AssertionError, list, parser._parse())
 
-    def test_parse_missing_hunk(self):
+    def test_parse_missing_hunk_meta(self):
         patch = r"""\
 --- a
 +++ b
@@ -333,6 +333,69 @@ spam
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
         self.assertRaises(AssertionError, list, parser._parse())
+
+    def test_parse_missing_hunk_list(self):
+        patch = r"""\
+--- a
++++ b
+@@ -1,2 +1,2 @@
+-foo
++bar
+ common
+--- c
++++ d
+@@ -1,2 +1,2 @@
+"""
+        items = patch.splitlines(True)
+        stream = cdiff.PatchStream(Sequential(items))
+        parser = cdiff.DiffParser(stream)
+        self.assertRaises(AssertionError, list, parser._parse())
+
+    def test_parse_only_in_dir(self):
+        patch = r"""\
+--- a
++++ b
+@@ -1,2 +1,2 @@
+-foo
++bar
+ common
+Only in foo: foo
+--- c
++++ d
+@@ -1,2 +1,2 @@
+-foo
++bar
+ common
+"""
+        items = patch.splitlines(True)
+        stream = cdiff.PatchStream(Sequential(items))
+        parser = cdiff.DiffParser(stream)
+
+        out = list(parser._parse())
+        self.assertEqual(len(out), 3)
+        self.assertEqual(len(out[1]._hunks), 0)
+        self.assertEqual(out[1]._headers, ['Only in foo: foo\n'])
+        self.assertEqual(len(out[2]._hunks), 1)
+        self.assertEqual(len(out[2]._hunks[0]._hunk_list), 3)
+
+    def test_parse_only_in_dir_at_last(self):
+        patch = r"""\
+--- a
++++ b
+@@ -1,2 +1,2 @@
+-foo
++bar
+ common
+Only in foo: foo
+"""
+        items = patch.splitlines(True)
+        stream = cdiff.PatchStream(Sequential(items))
+        parser = cdiff.DiffParser(stream)
+
+        out = list(parser._parse())
+        self.assertEqual(len(out), 2)
+        self.assertEqual(len(out[1]._hunks), 0)
+        self.assertEqual(out[1]._headers, ['Only in foo: foo\n'])
 
     def test_parse_svn_prop(self):
         patch = r"""\

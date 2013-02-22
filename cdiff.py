@@ -168,6 +168,9 @@ class Diff(object):
     def is_eof(self, line):
         return False
 
+    def is_only_in_dir(self, line):
+        return False
+
     def markup_traditional(self):
         """Returns a generator"""
         for line in self._headers:
@@ -260,13 +263,18 @@ class Diff(object):
 
             return ''.join(out)
 
-        # Setup line width and number width
+        # Set up line width
         if width <= 0:
             width = 80
-        (start, offset) = self._hunks[-1]._old_addr
-        max1 = start + offset - 1
-        (start, offset) = self._hunks[-1]._new_addr
-        max2 = start + offset - 1
+
+        # Set up number width, note last hunk might be empty
+        try:
+            (start, offset) = self._hunks[-1]._old_addr
+            max1 = start + offset - 1
+            (start, offset) = self._hunks[-1]._new_addr
+            max2 = start + offset - 1
+        except IndexError:
+            max1 = max2 = 0
         num_width = max(len(str(max1)), len(str(max2)))
 
         # Setup lineno and line format
@@ -412,6 +420,9 @@ class Udiff(Diff):
         # \ No newline at end of property
         return line.startswith(r'\ No newline at end of')
 
+    def is_only_in_dir(self, line):
+        return line.startswith('Only in ')
+
 
 class PatchStream(object):
 
@@ -492,7 +503,9 @@ class DiffParser(object):
             line = decode(line)
 
             if difflet.is_old_path(line):
-                # FIXME: '--- ' breaks here, need to probe next 3 lines
+                # FIXME: '--- ' breaks here, need to probe next 3 lines,
+                # reproducible with github raw patch
+                #
                 if diff._old_path and diff._new_path and len(diff._hunks) > 0:
                     # One diff constructed
                     yield diff
@@ -518,6 +531,16 @@ class DiffParser(object):
                 # ignore
                 pass
 
+            elif difflet.is_only_in_dir(line):
+                # 'Only in foo: ' is considered a separate diff, so yield
+                # current diff, then this line
+                #
+                if diff._old_path and diff._new_path and len(diff._hunks) > 0:
+                    # One diff constructed
+                    yield diff
+                yield Diff([line], '', '', [])
+                diff = Diff([], None, None, [])
+
             else:
                 # All other non-recognized lines are considered as headers or
                 # hunk headers respectively
@@ -527,12 +550,14 @@ class DiffParser(object):
         if headers:
             raise RuntimeError('dangling header(s):\n%s' % ''.join(headers))
 
-        # Validate and yield the last patch set
-        assert diff._old_path is not None
-        assert diff._new_path is not None
-        assert len(diff._hunks) > 0
-        assert len(diff._hunks[-1]._hunk_meta) > 0
-        yield diff
+        # Validate and yield the last patch set if it is not yielded yet
+        if diff._old_path:
+            assert diff._new_path is not None
+            assert len(diff._hunks) > 0
+            if diff._hunks:
+                assert len(diff._hunks[-1]._hunk_meta) > 0
+                assert len(diff._hunks[-1]._hunk_list) > 0
+            yield diff
 
 
 class DiffMarkup(object):
