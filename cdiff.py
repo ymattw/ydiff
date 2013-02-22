@@ -641,8 +641,7 @@ def main():
 
     usage = """
   %prog [options]
-  %prog [options] <patch>
-  %prog [options] <file1> <file2>"""
+  %prog [options] [file ...]"""
     parser = optparse.OptionParser(usage=usage,
             description=META_INFO['description'],
             version='%%prog %s' % META_INFO['version'])
