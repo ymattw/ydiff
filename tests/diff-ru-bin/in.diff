@@ -1,0 +1,20 @@
+diff -ru a/README b/README
+--- a/README	2013-02-23 19:51:41.000000000 +0800
++++ b/README	2013-02-23 19:52:06.000000000 +0800
+@@ -1,6 +1,6 @@
+-# To generate expected output, chdir to a subdir and use following command, then
++# To generate expected output, cd to a subdir and use following command, then
+ # review with `less -R`
+-#
+ ../../cdiff.py -c always < in.diff > out.normal
+ ../../cdiff.py -c always -s < in.diff > out.side-by-side
+ ../../cdiff.py -c always -s < in.diff -w70 > out.w70
++# EOF
+Binary files a/foo.pdf and b/foo.pdf differ
+diff -ru a/foo.txt b/foo.txt
+--- a/foo.txt	2013-02-23 19:55:03.000000000 +0800
++++ b/foo.txt	2013-02-23 19:55:10.000000000 +0800
+@@ -1,2 +1,2 @@
+-Hello
++hella
+ world

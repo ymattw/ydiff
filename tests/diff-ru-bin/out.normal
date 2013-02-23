@@ -1,0 +1,21 @@
+[36mdiff -ru a/README b/README
+[0m[33m--- a/README	2013-02-23 19:51:41.000000000 +0800
+[0m[33m+++ b/README	2013-02-23 19:52:06.000000000 +0800
+[0m[1;34m@@ -1,6 +1,6 @@
+[0m[1;31m-[0m[31m# To generate expected output, c[7m[31mh[0m[31md[7m[31mir[0m[31m to a subdir and use following command, then
+[0m[1;32m+[0m[32m# To generate expected output, cd to a subdir and use following command, then
+[0m[0m # review with `less -R`
+[0m[1;31m-#
+[0m[0m ../../cdiff.py -c always < in.diff > out.normal
+[0m[0m ../../cdiff.py -c always -s < in.diff > out.side-by-side
+[0m[0m ../../cdiff.py -c always -s < in.diff -w70 > out.w70
+[0m[1;32m+# EOF
+[0m[36mBinary files a/foo.pdf and b/foo.pdf differ
+[0m[33m[0m[33m[0m[36mdiff -ru a/foo.txt b/foo.txt
+[0m[33m--- a/foo.txt	2013-02-23 19:55:03.000000000 +0800
+[0m[33m+++ b/foo.txt	2013-02-23 19:55:10.000000000 +0800
+[0m[1;34m@@ -1,2 +1,2 @@
+[0m[1;31m-[0m[31m[7m[31mHello
+[0m[31m[0m[1;32m+[0m[32m[7m[32mhella
+[0m[32m[0m[0m world
+[0m

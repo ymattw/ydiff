@@ -1,0 +1,26 @@
+diff --git a/2pdf.sh b/2pdf.sh
+index 529d8a3..ad71911 100755
+--- a/2pdf.sh
++++ b/2pdf.sh
+@@ -13,3 +13,5 @@ INPUT=${1:-foo.html}
+ OUTPUT=${INPUT%.html}.pdf
+ 
+ wkhtmltopdf --page-size A4 $INPUT $OUTPUT  # very very long comments ends here
++
++# EOF
+diff --git a/example.pdf b/example.pdf
+index 1eacfd8..3696851 100644
+Binary files a/example.pdf and b/example.pdf differ
+diff --git a/foo.html b/foo.html
+index d2fd3fb..13afa6e 100644
+--- a/foo.html
++++ b/foo.html
+@@ -1,4 +1,4 @@
+-<!doctype html>
++<!DOCTYPE html>
+ <html>
+ 
+ <head>
+diff --git a/foo.pdf b/foo.pdf
+index 0e90017..3c3b90d 100644
+Binary files a/foo.pdf and b/foo.pdf differ

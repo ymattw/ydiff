@@ -397,6 +397,72 @@ Only in foo: foo
         self.assertEqual(len(out[1]._hunks), 0)
         self.assertEqual(out[1]._headers, ['Only in foo: foo\n'])
 
+    def test_parse_binary_differ_diff_ru(self):
+        patch = r"""\
+--- a
++++ b
+@@ -1,2 +1,2 @@
+-foo
++bar
+ common
+Binary files a/1.pdf and b/1.pdf differ
+--- c
++++ d
+@@ -1,2 +1,2 @@
+-foo
++bar
+ common
+"""
+        items = patch.splitlines(True)
+        stream = cdiff.PatchStream(Sequential(items))
+        parser = cdiff.DiffParser(stream)
+
+        out = list(parser._parse())
+        self.assertEqual(len(out), 3)
+        self.assertEqual(len(out[1]._hunks), 0)
+        self.assertEqual(out[1]._old_path, '')
+        self.assertEqual(out[1]._new_path, '')
+        self.assertEqual(len(out[1]._headers), 1)
+        self.assertTrue(out[1]._headers[0].startswith('Binary files'))
+        self.assertEqual(len(out[2]._hunks), 1)
+        self.assertEqual(len(out[2]._hunks[0]._hunk_list), 3)
+
+    def test_parse_binary_differ_git(self):
+        patch = r"""\
+diff --git a/foo b/foo
+index 529d8a3..ad71911 100755
+--- a/foo
++++ b/foo
+@@ -1,2 +1,2 @@
+-foo
++bar
+ common
+diff --git a/example.pdf b/example.pdf
+index 1eacfd8..3696851 100644
+Binary files a/example.pdf and b/example.pdf differ
+diff --git a/bar b/bar
+index 529e8a3..ad71921 100755
+--- a/bar
++++ b/bar
+@@ -1,2 +1,2 @@
+-foo
++bar
+ common
+"""
+        items = patch.splitlines(True)
+        stream = cdiff.PatchStream(Sequential(items))
+        parser = cdiff.DiffParser(stream)
+
+        out = list(parser._parse())
+        self.assertEqual(len(out), 3)
+        self.assertEqual(len(out[1]._hunks), 0)
+        self.assertEqual(out[1]._old_path, '')
+        self.assertEqual(out[1]._new_path, '')
+        self.assertEqual(len(out[1]._headers), 3)
+        self.assertTrue(out[1]._headers[2].startswith('Binary files'))
+        self.assertEqual(len(out[2]._hunks), 1)
+        self.assertEqual(len(out[2]._hunks[0]._hunk_list), 3)
+
     def test_parse_svn_prop(self):
         patch = r"""\
 --- a

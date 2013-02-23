@@ -169,6 +169,11 @@ class Diff(object):
     def is_only_in_dir(self, line):
         return False
 
+    def is_binary_differ(self, line):
+        return False
+
+    # Followings are not suppose to override
+    #
     def markup_traditional(self):
         """Returns a generator"""
         for line in self._headers:
@@ -421,6 +426,9 @@ class Udiff(Diff):
     def is_only_in_dir(self, line):
         return line.startswith('Only in ')
 
+    def is_binary_differ(self, line):
+        return re.match('^Binary files .* differ$', line.rstrip())
+
 
 class PatchStream(object):
 
@@ -529,14 +537,16 @@ class DiffParser(object):
                 # ignore
                 pass
 
-            elif difflet.is_only_in_dir(line):
-                # 'Only in foo: ' is considered a separate diff, so yield
-                # current diff, then this line
+            elif difflet.is_only_in_dir(line) or difflet.is_binary_differ(line):
+                # 'Only in foo:' and 'Binary files ... differ' are considered as
+                # separate diffs, so yield current diff, then this line
                 #
                 if diff._old_path and diff._new_path and len(diff._hunks) > 0:
-                    # One diff constructed
+                    # Current diff is comppletely constructed
                     yield diff
-                yield Diff([line], '', '', [])
+                headers.append(line)
+                yield Diff(headers, '', '', [])
+                headers = []
                 diff = Diff([], None, None, [])
 
             else:
