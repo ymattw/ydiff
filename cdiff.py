@@ -22,7 +22,6 @@ import sys
 
 if sys.hexversion < 0x02050000:
     raise SystemExit("*** Requires python >= 2.5.0")
-IS_PY3 = sys.hexversion >= 0x03000000
 
 import re
 import subprocess
