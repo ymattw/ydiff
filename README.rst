@@ -91,10 +91,9 @@ Pipe in a diff:
     git log -p -2 | cdiff -s    # view git log with changes of last 2 commits
     git show 15bfa | cdiff -s   # view a git commit
     svn diff -r1234 | cdiff -s  # view svn diff comparing to given revision
-    cdiff < foo.patch           # view a patch file (unified format only)
-    cat foo.patch | cdiff       # same as above
     diff -u foo bar | cdiff     # pipe in diff between two files (note the '-u')
     diff -ur dir1 dir2 | cdiff  # pipe in diff between two dirs
+    cat foo.patch | cdiff       # or cdiff < foo.path to view a unified patch
 
 Redirect output to another patch file is safe:
 
@@ -105,12 +104,16 @@ Redirect output to another patch file is safe:
 Notes
 -----
 
-- Verified on `travis <https://travis-ci.org/ymattw/cdiff>`_ with python 2.5,
-  2.6, 2.7, 3.2, 3.3 and pypy
+Cdiff has following known issues:
+
 - Only takes unified diff for input
 - Side by side mode has alignment problem for wide chars
-- Pull requests are very welcome, run ``make test`` to verify (required tool
-  *coverage* can be installed with ``pip install coverage``)
+- Terminal might be in a mess on exception (type ``reset`` can fix it)
+
+Pull requests are very welcome, please make sure your changes can pass unit
+tests and regression tests by run ``make test`` (required tool *coverage* can be
+installed with ``pip install coverage``).  Also watch out `travis build
+<https://travis-ci.org/ymattw/cdiff>`_ after push, make sure it passes as well.
 
 See also
 --------
