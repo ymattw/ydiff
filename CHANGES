@@ -2,6 +2,11 @@
 Change log
 ==========
 
+Version 0.7.1 (2013-02-25)
+
+  - Handle 'Binary files ... differ'
+  - Document update for known issues
+
 Version 0.7 (2013-02-23)
 
   - Support reading diff or log for given files/dirs in workspace
