@@ -5,9 +5,9 @@ Cdiff
    :target: https://travis-ci.org/ymattw/cdiff
    :alt: Build status
 
-Term based tool to view **colored**, **incremental** diff in *Git/Mercurial/Svn*
-workspace or from stdin, with **side by side** and **auto pager** support.
-Requires python (>= 2.5.0) and ``less``.
+Term based tool to view *colored*, *incremental* diff in a *Git/Mercurial/Svn*
+workspace or from stdin, with *side by side* and *auto pager* support. Requires
+python (>= 2.5.0) and ``less``.
 
 .. image:: http://ymattw.github.com/cdiff/img/default.png
    :alt: default
@@ -28,7 +28,7 @@ Cdiff is already listed on `PyPI <http://pypi.python.org/pypi/cdiff>`_, you can
 install with ``pip`` if you have the tool.
 
 .. code:: sh
- 
+
     pip install --upgrade cdiff
 
 Install with setup.py
@@ -51,17 +51,29 @@ my ``$PATH``, so I save the script there and name as ``cdiff``.
 
 .. code:: sh
 
-    curl -ksS https://raw.github.com/ymattw/cdiff/master/cdiff.py > ~/bin/cdiff
+    curl https://raw.github.com/ymattw/cdiff/master/cdiff.py > ~/bin/cdiff
     chmod +x ~/bin/cdiff
 
 Usage
 -----
 
-Show usage:
+Type ``cdiff -h`` to show usage:
 
-.. code:: sh
+.. code::
 
-    cdiff -h
+    $ cdiff -h
+    Usage: cdiff [options] [file|dir ...]
+
+    View colored, incremental diff in a workspace or from stdin, with side by side
+    and auto pager support
+
+    Options:
+      --version           show program's version number and exit
+      -h, --help          show this help message and exit
+      -s, --side-by-side  enable side-by-side mode
+      -w N, --width=N     set text width for side-by-side mode, default is 80
+      -l, --log           show log with changes from revision control
+      -c X, --color=X     colorize mode 'auto' (default), 'always', or 'never'
 
 Read diff from local modification in a *Git/Mercurial/Svn* workspace:
 
@@ -79,21 +91,26 @@ Read the log with changes (e.g. ``git log -p``, ``svn log --diff``) in a
 .. code:: sh
 
     cd proj-workspace
-    cdiff -l
-    cdiff -ls                   # equivalent to cdiff -l -s
-    cdiff -ls -w90
+    cdiff -l                    # read log along with changes
+    cdiff -ls                   # equivalent to cdiff -l -s, view side by side
+    cdiff -ls -w90              # set text width 90 as well
     cdiff -ls file1 dir2        # see log with changes of given files/dirs only
 
 Pipe in a diff:
 
 .. code:: sh
 
-    git log -p -2 | cdiff -s    # view git log with changes of last 2 commits
-    git show 15bfa | cdiff -s   # view a git commit
+    git log -p -2 | cdiff       # view git log with changes of last 2 commits
+    git show 15bfa | cdiff -s   # view a given git commit, side by side
     svn diff -r1234 | cdiff -s  # view svn diff comparing to given revision
-    diff -u foo bar | cdiff     # pipe in diff between two files (note the '-u')
-    diff -ur dir1 dir2 | cdiff  # pipe in diff between two dirs
-    cat foo.patch | cdiff       # or cdiff < foo.path to view a unified patch
+    diff -u file1 file2 | cdiff # view diff between two files (note the '-u')
+    diff -ur dir1 dir2 | cdiff  # view diff between two dirs
+    cat foo.patch | cdiff       # view a unified patch (or cdiff < foo.path)
+
+    # View a GitHub pull request, side by side (GitHub web interface is missing
+    # this feature :)
+    #
+    curl https://github.com/ymattw/cdiff/pull/11.diff | cdiff -s
 
 Redirect output to another patch file is safe:
 
@@ -111,8 +128,8 @@ Cdiff has following known issues:
 - Terminal might be in a mess on exception (type ``reset`` can fix it)
 
 Pull requests are very welcome, please make sure your changes can pass unit
-tests and regression tests by run ``make test`` (required tool *coverage* can be
-installed with ``pip install coverage``).  Also watch out `travis build
+tests and regression tests by run ``make test`` (required tool *coverage* can
+be installed with ``pip install coverage``).  Also watch out `travis build
 <https://travis-ci.org/ymattw/cdiff>`_ after push, make sure it passes as well.
 
 See also
