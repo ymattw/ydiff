@@ -4,7 +4,7 @@ TESTPYPI = https://testpypi.python.org/pypi
 PYPI = https://pypi.python.org/pypi
 
 .PHONY: dogfood clean build dist-test dist \
-	test test3 cov cov3 reg reg3 profile profile3
+	test test3 cov cov3 html reg reg3 profile profile3
 
 dogfood:
 	./cdiff.py
@@ -16,11 +16,15 @@ test3: cov3 reg3
 
 cov:
 	coverage run tests/test_cdiff.py
-	coverage report --include cdiff.py --show-missing
+	coverage report --show-missing
 
 cov3:
 	python3 `which coverage` run tests/test_cdiff.py
-	python3 `which coverage` report --include cdiff.py --show-missing
+	python3 `which coverage` report --show-missing
+
+html:
+	coverage html
+	python -m webbrowser -n "file://$(shell pwd)/htmlcov/index.html"
 
 reg:
 	tests/regression.sh

@@ -2,6 +2,7 @@
 *~
 *.tmp
 /.coverage
+/htmlcov/
 /MANIFEST
 /build/
 /cdiff.egg-info/
