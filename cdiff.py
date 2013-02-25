@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Term based tool to view **colored**, **incremental** diff in Git/Mercurial/Svn
-workspace or from stdin, with **side by side** and **auto pager** support.
-Requires python (>= 2.5.0) and ``less``.
+Term based tool to view *colored*, *incremental* diff in a *Git/Mercurial/Svn*
+workspace or from stdin, with *side by side* and *auto pager* support. Requires
+python (>= 2.5.0) and ``less``.
 """
 
 META_INFO = {
@@ -14,7 +14,7 @@ META_INFO = {
     'email'       : 'mattwyl(@)gmail(.)com',
     'url'         : 'https://github.com/ymattw/cdiff',
     'keywords'    : 'colored incremental side-by-side diff',
-    'description' : ('View colored, incremental diff in workspace or from '
+    'description' : ('View colored, incremental diff in a workspace or from '
                      'stdin, with side by side and auto pager support')
 }
 
@@ -212,12 +212,13 @@ class Diff(object):
         wrap_char = colorize('>', 'lightmagenta')
 
         def _normalize(line):
-            return line.replace('\t', ' '*8).replace('\n', '').replace('\r', '')
+            return line.replace(
+                '\t', ' ' * 8).replace('\n', '').replace('\r', '')
 
         def _fit_with_marker(text, markup_fn, width, pad=False):
             """Wrap or pad input pure text, then markup"""
             if len(text) > width:
-                return markup_fn(text[:width-1]) + wrap_char
+                return markup_fn(text[:(width - 1)]) + wrap_char
             elif pad:
                 pad_len = width - len(text)
                 return '%s%*s' % (markup_fn(text), pad_len, '')
@@ -247,9 +248,9 @@ class Diff(object):
                     text = text[1:]
                 else:
                     # FIXME: utf-8 wchar might break the rule here, e.g.
-                    # u'\u554a' takes double width of a single letter, also this
-                    # depends on your terminal font.  I guess audience of this
-                    # tool never put that kind of symbol in their code :-)
+                    # u'\u554a' takes double width of a single letter, also
+                    # this depends on your terminal font.  I guess audience of
+                    # this tool never put that kind of symbol in their code :-)
                     #
                     out.append(text[0])
                     count += 1
@@ -284,7 +285,7 @@ class Diff(object):
         left_num_fmt = colorize('%%(left_num)%ds' % num_width, 'yellow')
         right_num_fmt = colorize('%%(right_num)%ds' % num_width, 'yellow')
         line_fmt = left_num_fmt + ' %(left)s ' + COLORS['reset'] + \
-                right_num_fmt + ' %(right)s\n'
+            right_num_fmt + ' %(right)s\n'
 
         # yield header, old path and new path
         for line in self._headers:
@@ -315,7 +316,8 @@ class Diff(object):
                     if not old[0]:
                         left = '%*s' % (width, ' ')
                         right = right.lstrip('\x00+').rstrip('\x01')
-                        right = _fit_with_marker(right, self._markup_new, width)
+                        right = _fit_with_marker(
+                            right, self._markup_new, width)
                     elif not new[0]:
                         left = left.lstrip('\x00-').rstrip('\x01')
                         left = _fit_with_marker(left, self._markup_old, width)
@@ -324,7 +326,8 @@ class Diff(object):
                         left = _fit_with_marker_mix(left, 'red', width, 1)
                         right = _fit_with_marker_mix(right, 'green', width)
                 else:
-                    left = _fit_with_marker(left, self._markup_common, width, 1)
+                    left = _fit_with_marker(
+                        left, self._markup_common, width, 1)
                     right = _fit_with_marker(right, self._markup_common, width)
                 yield line_fmt % {
                     'left_num': left_num,
@@ -378,8 +381,8 @@ class Udiff(Diff):
         return line.startswith('+++ ')
 
     def is_hunk_meta(self, line):
-        """Minimal valid hunk meta is like '@@ -1 +1 @@', note extra chars might
-        occur after the ending @@, e.g. in git log
+        """Minimal valid hunk meta is like '@@ -1 +1 @@', note extra chars
+        might occur after the ending @@, e.g. in git log
         """
         return (line.startswith('@@ -') and line.find(' @@') >= 8) or \
                (line.startswith('## -') and line.find(' ##') >= 8)
@@ -410,7 +413,7 @@ class Udiff(Diff):
         '----' likely to see in diff from yaml file
         """
         return line.startswith('-') and not self.is_old_path(line) and \
-                not re.match(r'^-{5,}$', line.rstrip())
+            not re.match(r'^-{5,}$', line.rstrip())
 
     def is_new(self, line):
         return line.startswith('+') and not self.is_new_path(line)
@@ -529,17 +532,19 @@ class DiffParser(object):
                 headers = []
                 diff._hunks.append(hunk)
 
-            elif len(diff._hunks) > 0 and (difflet.is_old(line) or \
-                    difflet.is_new(line) or difflet.is_common(line)):
+            elif len(diff._hunks) > 0 and (difflet.is_old(line) or
+                                           difflet.is_new(line) or
+                                           difflet.is_common(line)):
                 diff._hunks[-1].append(difflet.parse_hunk_line(line))
 
             elif difflet.is_eof(line):
                 # ignore
                 pass
 
-            elif difflet.is_only_in_dir(line) or difflet.is_binary_differ(line):
-                # 'Only in foo:' and 'Binary files ... differ' are considered as
-                # separate diffs, so yield current diff, then this line
+            elif difflet.is_only_in_dir(line) or \
+                    difflet.is_binary_differ(line):
+                # 'Only in foo:' and 'Binary files ... differ' are considered
+                # as separate diffs, so yield current diff, then this line
                 #
                 if diff._old_path and diff._new_path and len(diff._hunks) > 0:
                     # Current diff is comppletely constructed
@@ -594,11 +599,11 @@ class DiffMarkup(object):
 def markup_to_pager(stream, opts):
     markup = DiffMarkup(stream)
     color_diff = markup.markup(side_by_side=opts.side_by_side,
-            width=opts.width)
+                               width=opts.width)
 
     # Args stolen from git source: github.com/git/git/blob/master/pager.c
-    pager = subprocess.Popen(['less', '-FRSX'],
-            stdin=subprocess.PIPE, stdout=sys.stdout)
+    pager = subprocess.Popen(
+        ['less', '-FRSX'], stdin=subprocess.PIPE, stdout=sys.stdout)
     try:
         for line in color_diff:
             pager.stdin.write(line.encode('utf-8'))
@@ -623,7 +628,7 @@ def revision_control_diff(args):
     for _, ops in VCS_INFO.items():
         if check_command_status(ops['probe']):
             return subprocess.Popen(
-                    ops['diff'] + args, stdout=subprocess.PIPE).stdout
+                ops['diff'] + args, stdout=subprocess.PIPE).stdout
 
 
 def revision_control_log(args):
@@ -631,7 +636,7 @@ def revision_control_log(args):
     for _, ops in VCS_INFO.items():
         if check_command_status(ops['probe']):
             return subprocess.Popen(
-                    ops['log'] + args, stdout=subprocess.PIPE).stdout
+                ops['log'] + args, stdout=subprocess.PIPE).stdout
 
 
 def decode(line):
@@ -648,17 +653,21 @@ def main():
     supported_vcs = sorted(VCS_INFO.keys())
 
     usage = """%prog [options] [file|dir ...]"""
-    parser = optparse.OptionParser(usage=usage,
-            description=META_INFO['description'],
-            version='%%prog %s' % META_INFO['version'])
-    parser.add_option('-s', '--side-by-side', action='store_true',
-            help='enable side-by-side mode')
-    parser.add_option('-w', '--width', type='int', default=80, metavar='N',
-            help='set text width (side-by-side mode only), default is 80')
-    parser.add_option('-l', '--log', action='store_true',
-            help='show log with changes from revision control')
-    parser.add_option('-c', '--color', default='auto', metavar='X',
-            help='colorize mode "auto" (default), "always", or "never"')
+    parser = optparse.OptionParser(
+        usage=usage, description=META_INFO['description'],
+        version='%%prog %s' % META_INFO['version'])
+    parser.add_option(
+        '-s', '--side-by-side', action='store_true',
+        help='enable side-by-side mode')
+    parser.add_option(
+        '-w', '--width', type='int', default=80, metavar='N',
+        help='set text width for side-by-side mode, default is 80')
+    parser.add_option(
+        '-l', '--log', action='store_true',
+        help='show log with changes from revision control')
+    parser.add_option(
+        '-c', '--color', default='auto', metavar='X',
+        help="""colorize mode 'auto' (default), 'always', or 'never'""")
     opts, args = parser.parse_args()
 
     if opts.log:
@@ -683,7 +692,8 @@ def main():
     if stream.is_empty():
         return 0
 
-    if opts.color == 'always' or (opts.color == 'auto' and sys.stdout.isatty()):
+    if opts.color == 'always' or \
+            (opts.color == 'auto' and sys.stdout.isatty()):
         try:
             markup_to_pager(stream, opts)
         except IOError:
@@ -704,4 +714,4 @@ def main():
 if __name__ == '__main__':
     sys.exit(main())
 
-# vim:set et sts=4 sw=4 tw=80:
+# vim:set et sts=4 sw=4 tw=79:

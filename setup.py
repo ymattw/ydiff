@@ -39,4 +39,4 @@ setup(
     scripts = ['cdiff'],
 )
 
-# vim:set et sts=4 sw=4 tw=80:
+# vim:set et sts=4 sw=4 tw=79:
