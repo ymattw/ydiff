@@ -91,11 +91,30 @@ class TestHunk(unittest.TestCase):
 class TestDiff(unittest.TestCase):
 
     def _init_diff(self):
-        hunk = cdiff.Hunk(['hunk header\n'], '@@ -1,2 +1,2 @@\n',
-                          (1, 2), (1, 2))
-        hunk.append(('-', 'hella\n'))
-        hunk.append(('+', 'hello\n'))
+        """Return a minimal diff contains all required samples
+            header
+            --- old
+            +++ new
+            hunk header
+            @@ -1,4 +1,4 @@
+            -hhello
+            +helloo
+            +spammm
+             world
+            -garb
+            -Again
+            +again
+        """
+
+        hunk = cdiff.Hunk(['hunk header\n'], '@@ -1,4 +1,4 @@\n',
+                          (1, 4), (1, 4))
+        hunk.append(('-', 'hhello\n'))
+        hunk.append(('+', 'helloo\n'))
+        hunk.append(('+', 'spammm\n'))
         hunk.append((' ', 'world\n'))
+        hunk.append(('-', 'garb\n'))
+        hunk.append(('-', 'Again\n'))
+        hunk.append(('+', 'again\n'))
         diff = cdiff.Diff(['header\n'], '--- old\n', '+++ new\n', [hunk])
         return diff
 
@@ -109,34 +128,71 @@ class TestDiff(unittest.TestCase):
             '\x1b[7m\x1b[31madd\x1b[0m\x1b[31m '
             '\x1b[4m\x1b[31mchg\x1b[0m\x1b[31m bar\x1b[0m')
 
-    def test_markup_traditional(self):
-        diff = self._init_diff()
+    def test_markup_traditional_hunk_header(self):
+        hunk = cdiff.Hunk(['hunk header\n'], '@@ -0 +0 @@\n', (0, 0), (0, 0))
+        diff = cdiff.Diff([], '--- old\n', '+++ new\n', [hunk])
+
         out = list(diff.markup_traditional())
-        self.assertEqual(len(out), 8)
+        self.assertEqual(len(out), 4)
 
-        sys.stdout.write('\n')
-        for markup in out:
-            sys.stdout.write(markup)
+        self.assertEqual(out[0], '\x1b[33m--- old\n\x1b[0m')
+        self.assertEqual(out[1], '\x1b[33m+++ new\n\x1b[0m')
+        self.assertEqual(out[2], '\x1b[1;36mhunk header\n\x1b[0m')
+        self.assertEqual(out[3], '\x1b[1;34m@@ -0 +0 @@\n\x1b[0m')
 
-        self.assertEqual(out[0], '\x1b[36mheader\n\x1b[0m')
-        self.assertEqual(out[1], '\x1b[33m--- old\n\x1b[0m')
-        self.assertEqual(out[2], '\x1b[33m+++ new\n\x1b[0m')
-        self.assertEqual(out[3], '\x1b[1;36mhunk header\n\x1b[0m')
-        self.assertEqual(out[4], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
+    def test_markup_traditional_old_changed(self):
+        hunk = cdiff.Hunk([], '@@ -1 +0,0 @@\n', (1, 0), (0, 0))
+        hunk.append(('-', 'spam\n'))
+        diff = cdiff.Diff([], '--- old\n', '+++ new\n', [hunk])
+
+        out = list(diff.markup_traditional())
+        self.assertEqual(len(out), 4)
+
+        self.assertEqual(out[0], '\x1b[33m--- old\n\x1b[0m')
+        self.assertEqual(out[1], '\x1b[33m+++ new\n\x1b[0m')
+        self.assertEqual(out[2], '\x1b[1;34m@@ -1 +0,0 @@\n\x1b[0m')
+        self.assertEqual(out[3], '\x1b[1;31m-spam\n\x1b[0m')
+
+    def test_markup_traditional_new_changed(self):
+        hunk = cdiff.Hunk([], '@@ -0,0 +1 @@\n', (0, 0), (1, 0))
+        hunk.append(('+', 'spam\n'))
+        diff = cdiff.Diff([], '--- old\n', '+++ new\n', [hunk])
+
+        out = list(diff.markup_traditional())
+        self.assertEqual(len(out), 4)
+
+        self.assertEqual(out[0], '\x1b[33m--- old\n\x1b[0m')
+        self.assertEqual(out[1], '\x1b[33m+++ new\n\x1b[0m')
+        self.assertEqual(out[2], '\x1b[1;34m@@ -0,0 +1 @@\n\x1b[0m')
+        self.assertEqual(out[3], '\x1b[1;32m+spam\n\x1b[0m')
+
+    def test_markup_traditional_both_changed(self):
+        hunk = cdiff.Hunk([], '@@ -1,2 +1,2 @@\n', (1, 2), (1, 2))
+        hunk.append(('-', 'hella\n'))
+        hunk.append(('+', 'hello\n'))
+        hunk.append((' ', 'common\n'))
+        diff = cdiff.Diff([], '--- old\n', '+++ new\n', [hunk])
+
+        out = list(diff.markup_traditional())
+        self.assertEqual(len(out), 6)
+
+        self.assertEqual(out[0], '\x1b[33m--- old\n\x1b[0m')
+        self.assertEqual(out[1], '\x1b[33m+++ new\n\x1b[0m')
+        self.assertEqual(out[2], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
         self.assertEqual(
-            out[5],
-            '\x1b[1;31m-\x1b[0m\x1b[31mhell\x1b[4m'
-            '\x1b[31ma\x1b[0m\x1b[31m\n\x1b[0m')
+            out[3],
+            '\x1b[1;31m-\x1b[0m\x1b[31mhell'
+            '\x1b[4m\x1b[31ma\x1b[0m\x1b[31m\n\x1b[0m')
         self.assertEqual(
-            out[6],
-            '\x1b[1;32m+\x1b[0m\x1b[32mhell\x1b[4m'
-            '\x1b[32mo\x1b[0m\x1b[32m\n\x1b[0m')
-        self.assertEqual(out[7], '\x1b[0m world\n\x1b[0m')
+            out[4],
+            '\x1b[1;32m+\x1b[0m\x1b[32mhell'
+            '\x1b[4m\x1b[32mo\x1b[0m\x1b[32m\n\x1b[0m')
+        self.assertEqual(out[5], '\x1b[0m common\n\x1b[0m')
 
     def test_markup_side_by_side_padded(self):
         diff = self._init_diff()
-        out = list(diff.markup_side_by_side(6))
-        self.assertEqual(len(out), 7)
+        out = list(diff.markup_side_by_side(7))
+        self.assertEqual(len(out), 10)
 
         sys.stdout.write('\n')
         for markup in out:
@@ -146,24 +202,85 @@ class TestDiff(unittest.TestCase):
         self.assertEqual(out[1], '\x1b[33m--- old\n\x1b[0m')
         self.assertEqual(out[2], '\x1b[33m+++ new\n\x1b[0m')
         self.assertEqual(out[3], '\x1b[1;36mhunk header\n\x1b[0m')
-        self.assertEqual(out[4], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
+        self.assertEqual(out[4], '\x1b[1;34m@@ -1,4 +1,4 @@\n\x1b[0m')
         self.assertEqual(
             out[5],
             '\x1b[33m1\x1b[0m '
-            '\x1b[31mhell\x1b[4m\x1b[31ma\x1b[0m\x1b[31m\x1b[0m  '
+            '\x1b[31m\x1b[7m\x1b[31mh\x1b[0m\x1b[31mhello\x1b[0m  '
             '\x1b[0m\x1b[33m1\x1b[0m '
-            '\x1b[32mhell\x1b[4m\x1b[32mo\x1b[0m\x1b[32m\x1b[0m\n')
+            '\x1b[32mhello\x1b[7m\x1b[32mo\x1b[0m\x1b[32m\x1b[0m\n')
         self.assertEqual(
             out[6],
-            '\x1b[33m2\x1b[0m '
-            '\x1b[0mworld\x1b[0m  '
+            '\x1b[33m '
+            '\x1b[0m         '
             '\x1b[0m\x1b[33m2\x1b[0m '
+            '\x1b[1;32mspammm\x1b[0m\n')
+        self.assertEqual(
+            out[7],
+            '\x1b[33m2\x1b[0m '
+            '\x1b[0mworld\x1b[0m   '
+            '\x1b[0m\x1b[33m3\x1b[0m '
             '\x1b[0mworld\x1b[0m\n')
+        self.assertEqual(
+            out[8],
+            '\x1b[33m3\x1b[0m '
+            '\x1b[1;31mgarb\x1b[0m '
+            '\x1b[0m\x1b[33m '
+            '\x1b[0m \n')
+        self.assertEqual(
+            out[9],
+            '\x1b[33m4\x1b[0m '
+            '\x1b[31m\x1b[4m\x1b[31mA\x1b[0m\x1b[31mgain\x1b[0m   '
+            '\x1b[0m\x1b[33m4\x1b[0m '
+            '\x1b[32m\x1b[4m\x1b[32ma\x1b[0m\x1b[32mgain\x1b[0m\n')
+
+    def test_markup_side_by_side_neg_width(self):
+        diff = self._init_diff()
+        out = list(diff.markup_side_by_side(-1))
+        self.assertEqual(len(out), 10)
+
+        self.assertEqual(out[0], '\x1b[36mheader\n\x1b[0m')
+        self.assertEqual(out[1], '\x1b[33m--- old\n\x1b[0m')
+        self.assertEqual(out[2], '\x1b[33m+++ new\n\x1b[0m')
+        self.assertEqual(out[3], '\x1b[1;36mhunk header\n\x1b[0m')
+        self.assertEqual(out[4], '\x1b[1;34m@@ -1,4 +1,4 @@\n\x1b[0m')
+        self.assertEqual(
+            out[5],
+            '\x1b[33m1\x1b[0m '
+            '\x1b[31m\x1b[7m\x1b[31mh\x1b[0m\x1b[31mhello\x1b[0m ' +
+            (' ' * 74) +
+            '\x1b[0m\x1b[33m1\x1b[0m '
+            '\x1b[32mhello\x1b[7m\x1b[32mo\x1b[0m\x1b[32m\x1b[0m\n')
+        self.assertEqual(
+            out[6],
+            '\x1b[33m '
+            '\x1b[0m  ' + (' ' * 80) +
+            '\x1b[0m\x1b[33m2\x1b[0m '
+            '\x1b[1;32mspammm\x1b[0m\n')
+        self.assertEqual(
+            out[7],
+            '\x1b[33m2\x1b[0m '
+            '\x1b[0mworld\x1b[0m ' + (' ' * 75) +
+            '\x1b[0m\x1b[33m3\x1b[0m '
+            '\x1b[0mworld\x1b[0m\n')
+        self.assertEqual(
+            out[8],
+            '\x1b[33m3\x1b[0m '
+            '\x1b[1;31mgarb\x1b[0m '
+            '\x1b[0m\x1b[33m '
+            '\x1b[0m \n')
+        self.assertEqual(
+            out[9],
+            '\x1b[33m4\x1b[0m '
+            '\x1b[31m\x1b[4m\x1b[31mA\x1b[0m\x1b[31mgain\x1b[0m ' +
+            (' ' * 75) +
+            '\x1b[0m\x1b[33m4\x1b[0m '
+            '\x1b[32m\x1b[4m\x1b[32ma\x1b[0m\x1b[32mgain\x1b[0m\n')
 
     def test_markup_side_by_side_off_by_one(self):
         diff = self._init_diff()
-        out = list(diff.markup_side_by_side(5))
-        self.assertEqual(len(out), 7)
+        out = list(diff.markup_side_by_side(6))
+        self.assertEqual(len(out), 10)
 
         sys.stdout.write('\n')
         for markup in out:
@@ -173,24 +290,41 @@ class TestDiff(unittest.TestCase):
         self.assertEqual(out[1], '\x1b[33m--- old\n\x1b[0m')
         self.assertEqual(out[2], '\x1b[33m+++ new\n\x1b[0m')
         self.assertEqual(out[3], '\x1b[1;36mhunk header\n\x1b[0m')
-        self.assertEqual(out[4], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
+        self.assertEqual(out[4], '\x1b[1;34m@@ -1,4 +1,4 @@\n\x1b[0m')
         self.assertEqual(
             out[5],
             '\x1b[33m1\x1b[0m '
-            '\x1b[31mhell\x1b[4m\x1b[31ma\x1b[0m '
+            '\x1b[31m\x1b[7m\x1b[31mh\x1b[0m\x1b[31mhello\x1b[0m '
             '\x1b[0m\x1b[33m1\x1b[0m '
-            '\x1b[32mhell\x1b[4m\x1b[32mo\x1b[0m\n')
+            '\x1b[32mhello\x1b[7m\x1b[32mo\x1b[0m\n')
         self.assertEqual(
             out[6],
-            '\x1b[33m2\x1b[0m '
-            '\x1b[0mworld\x1b[0m '
+            '\x1b[33m \x1b[0m        '
             '\x1b[0m\x1b[33m2\x1b[0m '
+            '\x1b[1;32mspammm\x1b[0m\n')
+        self.assertEqual(
+            out[7],
+            '\x1b[33m2\x1b[0m '
+            '\x1b[0mworld\x1b[0m  '
+            '\x1b[0m\x1b[33m3\x1b[0m '
             '\x1b[0mworld\x1b[0m\n')
+        self.assertEqual(
+            out[8],
+            '\x1b[33m3\x1b[0m '
+            '\x1b[1;31mgarb\x1b[0m '
+            '\x1b[0m\x1b[33m '
+            '\x1b[0m \n')
+        self.assertEqual(
+            out[9],
+            '\x1b[33m4\x1b[0m '
+            '\x1b[31m\x1b[4m\x1b[31mA\x1b[0m\x1b[31mgain\x1b[0m  '
+            '\x1b[0m\x1b[33m4\x1b[0m '
+            '\x1b[32m\x1b[4m\x1b[32ma\x1b[0m\x1b[32mgain\x1b[0m\n')
 
     def test_markup_side_by_side_wrapped(self):
         diff = self._init_diff()
-        out = list(diff.markup_side_by_side(4))
-        self.assertEqual(len(out), 7)
+        out = list(diff.markup_side_by_side(5))
+        self.assertEqual(len(out), 10)
 
         sys.stdout.write('\n')
         for markup in out:
@@ -200,19 +334,37 @@ class TestDiff(unittest.TestCase):
         self.assertEqual(out[1], '\x1b[33m--- old\n\x1b[0m')
         self.assertEqual(out[2], '\x1b[33m+++ new\n\x1b[0m')
         self.assertEqual(out[3], '\x1b[1;36mhunk header\n\x1b[0m')
-        self.assertEqual(out[4], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
+        self.assertEqual(out[4], '\x1b[1;34m@@ -1,4 +1,4 @@\n\x1b[0m')
         self.assertEqual(
             out[5],
             '\x1b[33m1\x1b[0m '
-            '\x1b[31mhel\x1b[0m\x1b[1;35m>\x1b[0m '
+            '\x1b[31m\x1b[7m\x1b[31mh\x1b[0m\x1b[31mhel\x1b[0m\x1b[1;35m>\x1b[0m '
             '\x1b[0m\x1b[33m1\x1b[0m '
-            '\x1b[32mhel\x1b[0m\x1b[1;35m>\x1b[0m\n')
+            '\x1b[32mhell\x1b[0m\x1b[1;35m>\x1b[0m\n')
         self.assertEqual(
             out[6],
-            '\x1b[33m2\x1b[0m '
-            '\x1b[0mwor\x1b[0m\x1b[1;35m>\x1b[0m '
+            '\x1b[33m \x1b[0m       '
             '\x1b[0m\x1b[33m2\x1b[0m '
-            '\x1b[0mwor\x1b[0m\x1b[1;35m>\x1b[0m\n')
+            ''
+            '\x1b[1;32mspam\x1b[0m\x1b[1;35m>\x1b[0m\n')
+        self.assertEqual(
+            out[7],
+            '\x1b[33m2\x1b[0m '
+            '\x1b[0mworld\x1b[0m '
+            '\x1b[0m\x1b[33m3\x1b[0m '
+            '\x1b[0mworld\x1b[0m\n')
+        self.assertEqual(
+            out[8],
+            '\x1b[33m3\x1b[0m '
+            '\x1b[1;31mgarb\x1b[0m '
+            '\x1b[0m\x1b[33m '
+            '\x1b[0m \n')
+        self.assertEqual(
+            out[9],
+            '\x1b[33m4\x1b[0m '
+            '\x1b[31m\x1b[4m\x1b[31mA\x1b[0m\x1b[31mgain\x1b[0m '
+            '\x1b[0m\x1b[33m4\x1b[0m '
+            '\x1b[32m\x1b[4m\x1b[32ma\x1b[0m\x1b[32mgain\x1b[0m\n')
 
 
 class TestUdiff(unittest.TestCase):
@@ -294,6 +446,19 @@ spam
         stream = cdiff.PatchStream(Sequential(items))
         self.assertRaises(RuntimeError, cdiff.DiffParser, stream)
 
+    def test_parse_invalid_hunk_meta(self):
+        patch = r"""\
+spam
+--- a
++++ b
+spam
+@@ -a,a +0 @@
+"""
+        items = patch.splitlines(True)
+        stream = cdiff.PatchStream(Sequential(items))
+        parser = cdiff.DiffParser(stream)
+        self.assertRaises(RuntimeError, list, parser.get_diff_generator())
+
     def test_parse_dangling_header(self):
         patch = r"""\
 --- a
@@ -307,7 +472,7 @@ spam
         items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
-        self.assertRaises(RuntimeError, list, parser._parse())
+        self.assertRaises(RuntimeError, list, parser.get_diff_generator())
 
     def test_parse_missing_new_path(self):
         patch = r"""\
@@ -322,7 +487,7 @@ spam
         items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
-        self.assertRaises(AssertionError, list, parser._parse())
+        self.assertRaises(AssertionError, list, parser.get_diff_generator())
 
     def test_parse_missing_hunk_meta(self):
         patch = r"""\
@@ -338,7 +503,7 @@ spam
         items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
-        self.assertRaises(AssertionError, list, parser._parse())
+        self.assertRaises(AssertionError, list, parser.get_diff_generator())
 
     def test_parse_missing_hunk_list(self):
         patch = r"""\
@@ -355,7 +520,7 @@ spam
         items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
-        self.assertRaises(AssertionError, list, parser._parse())
+        self.assertRaises(AssertionError, list, parser.get_diff_generator())
 
     def test_parse_only_in_dir(self):
         patch = r"""\
@@ -377,7 +542,7 @@ Only in foo: foo
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
 
-        out = list(parser._parse())
+        out = list(parser.get_diff_generator())
         self.assertEqual(len(out), 3)
         self.assertEqual(len(out[1]._hunks), 0)
         self.assertEqual(out[1]._headers, ['Only in foo: foo\n'])
@@ -398,7 +563,7 @@ Only in foo: foo
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
 
-        out = list(parser._parse())
+        out = list(parser.get_diff_generator())
         self.assertEqual(len(out), 2)
         self.assertEqual(len(out[1]._hunks), 0)
         self.assertEqual(out[1]._headers, ['Only in foo: foo\n'])
@@ -423,7 +588,7 @@ Binary files a/1.pdf and b/1.pdf differ
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
 
-        out = list(parser._parse())
+        out = list(parser.get_diff_generator())
         self.assertEqual(len(out), 3)
         self.assertEqual(len(out[1]._hunks), 0)
         self.assertEqual(out[1]._old_path, '')
@@ -459,7 +624,7 @@ index 529e8a3..ad71921 100755
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
 
-        out = list(parser._parse())
+        out = list(parser.get_diff_generator())
         self.assertEqual(len(out), 3)
         self.assertEqual(len(out[1]._hunks), 0)
         self.assertEqual(out[1]._old_path, '')
@@ -484,7 +649,7 @@ Added: svn:keywords
         items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
-        out = list(parser._parse())
+        out = list(parser.get_diff_generator())
         self.assertEqual(len(out), 1)
         self.assertEqual(len(out[0]._hunks), 2)
 

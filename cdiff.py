@@ -488,12 +488,6 @@ class DiffParser(object):
             raise RuntimeError('unknown diff type')
 
     def get_diff_generator(self):
-        try:
-            return self._parse()
-        except (AssertionError, IndexError):
-            raise RuntimeError('invalid patch format')
-
-    def _parse(self):
         """parse all diff lines, construct a list of Diff objects"""
         if self._type == 'udiff':
             difflet = Udiff(None, None, None, None)
@@ -522,7 +516,10 @@ class DiffParser(object):
 
             elif difflet.is_hunk_meta(line):
                 hunk_meta = line
-                old_addr, new_addr = difflet.parse_hunk_meta(hunk_meta)
+                try:
+                    old_addr, new_addr = difflet.parse_hunk_meta(hunk_meta)
+                except (IndexError, ValueError):
+                    raise RuntimeError('invalid hunk meta: %s' % hunk_meta)
                 hunk = Hunk(headers, hunk_meta, old_addr, new_addr)
                 headers = []
                 diff._hunks.append(hunk)
