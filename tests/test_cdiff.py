@@ -5,7 +5,7 @@
 
 import sys
 if sys.hexversion < 0x02050000:
-    raise SystemExit("*** Requires python >= 2.5.0")
+    raise SystemExit("*** Requires python >= 2.5.0")    # pragma: no cover
 
 import unittest
 import tempfile

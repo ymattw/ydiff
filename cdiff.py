@@ -21,7 +21,7 @@ META_INFO = {
 import sys
 
 if sys.hexversion < 0x02050000:
-    raise SystemExit("*** Requires python >= 2.5.0")
+    raise SystemExit("*** Requires python >= 2.5.0")    # pragma: no cover
 
 import re
 import subprocess
@@ -118,10 +118,6 @@ class Hunk(object):
                 out.append(line)
         return out
 
-    def __iter__(self):
-        for hunk_line in self._hunk_list:
-            yield hunk_line
-
 
 class Diff(object):
 
@@ -136,41 +132,41 @@ class Diff(object):
     # non-recognized lines are considered as headers
     #
     def is_old_path(self, line):
-        return False
+        return False        # pragma: no cover
 
     def is_new_path(self, line):
-        return False
+        return False        # pragma: no cover
 
     def is_hunk_meta(self, line):
-        return False
+        return False        # pragma: no cover
 
     def parse_hunk_meta(self, line):
         """Returns a 2-element tuple, each is a tuple of (start, offset)"""
-        return None
+        return None         # pragma: no cover
 
     def parse_hunk_line(self, line):
         """Returns a 2-element tuple: (attr, text), where attr is:
                 '-': old, '+': new, ' ': common
         """
-        return None
+        return None         # pragma: no cover
 
     def is_old(self, line):
-        return False
+        return False        # pragma: no cover
 
     def is_new(self, line):
-        return False
+        return False        # pragma: no cover
 
     def is_common(self, line):
-        return False
+        return False        # pragma: no cover
 
     def is_eof(self, line):
-        return False
+        return False        # pragma: no cover
 
     def is_only_in_dir(self, line):
-        return False
+        return False        # pragma: no cover
 
     def is_binary_differ(self, line):
-        return False
+        return False        # pragma: no cover
 
     # Followings are not suppose to override
     #
