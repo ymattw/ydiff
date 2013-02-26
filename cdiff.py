@@ -119,7 +119,49 @@ class Hunk(object):
         return out
 
 
-class Diff(object):
+class DiffOps(object):      # pragma: no cover
+    """Methods in this class are supposed to be overwritten by derived class.
+    No is_header() anymore, all non-recognized lines are considered as headers
+    """
+    def is_old_path(self, line):
+        return False
+
+    def is_new_path(self, line):
+        return False
+
+    def is_hunk_meta(self, line):
+        return False
+
+    def parse_hunk_meta(self, line):
+        """Returns a 2-element tuple, each is a tuple of (start, offset)"""
+        return None
+
+    def parse_hunk_line(self, line):
+        """Returns a 2-element tuple: (attr, text), where attr is:
+                '-': old, '+': new, ' ': common
+        """
+        return None
+
+    def is_old(self, line):
+        return False
+
+    def is_new(self, line):
+        return False
+
+    def is_common(self, line):
+        return False
+
+    def is_eof(self, line):
+        return False
+
+    def is_only_in_dir(self, line):
+        return False
+
+    def is_binary_differ(self, line):
+        return False
+
+
+class Diff(DiffOps):
 
     def __init__(self, headers, old_path, new_path, hunks):
         self._headers = headers
@@ -127,49 +169,6 @@ class Diff(object):
         self._new_path = new_path
         self._hunks = hunks
 
-    # Following detectors, parse_hunk_meta() and parse_hunk_line() are suppose
-    # to be overwritten by derived class.  No is_header() anymore, all
-    # non-recognized lines are considered as headers
-    #
-    def is_old_path(self, line):
-        return False        # pragma: no cover
-
-    def is_new_path(self, line):
-        return False        # pragma: no cover
-
-    def is_hunk_meta(self, line):
-        return False        # pragma: no cover
-
-    def parse_hunk_meta(self, line):
-        """Returns a 2-element tuple, each is a tuple of (start, offset)"""
-        return None         # pragma: no cover
-
-    def parse_hunk_line(self, line):
-        """Returns a 2-element tuple: (attr, text), where attr is:
-                '-': old, '+': new, ' ': common
-        """
-        return None         # pragma: no cover
-
-    def is_old(self, line):
-        return False        # pragma: no cover
-
-    def is_new(self, line):
-        return False        # pragma: no cover
-
-    def is_common(self, line):
-        return False        # pragma: no cover
-
-    def is_eof(self, line):
-        return False        # pragma: no cover
-
-    def is_only_in_dir(self, line):
-        return False        # pragma: no cover
-
-    def is_binary_differ(self, line):
-        return False        # pragma: no cover
-
-    # Followings are not suppose to override
-    #
     def markup_traditional(self):
         """Returns a generator"""
         for line in self._headers:
