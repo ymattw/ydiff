@@ -24,8 +24,9 @@ setup(
     long_description = long_description,
     keywords = _meta['keywords'],
     url = _meta['url'],
+    # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers = [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Topic :: Utilities',
         'License :: OSI Approved :: BSD License',
         'Environment :: Console',
