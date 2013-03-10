@@ -411,7 +411,7 @@ class TestUdiff(unittest.TestCase):
 
     def test_is_old_neg(self):
         self.assertFalse(self.diff.is_old('--- considered as old path'))
-        self.assertFalse(self.diff.is_old('-------------'))  # svn log --diff
+        self.assertFalse(self.diff.is_old('-' * 72))         # svn log --diff
 
     def test_is_new(self):
         self.assertTrue(self.diff.is_new('+hello world'))

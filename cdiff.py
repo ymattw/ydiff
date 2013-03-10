@@ -408,7 +408,7 @@ class Udiff(Diff):
         '----' likely to see in diff from yaml file
         """
         return line.startswith('-') and not self.is_old_path(line) and \
-            not re.match(r'^-{5,}$', line.rstrip())
+            not re.match(r'^-{72}$', line.rstrip())
 
     def is_new(self, line):
         return line.startswith('+') and not self.is_new_path(line)
