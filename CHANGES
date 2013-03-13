@@ -2,6 +2,12 @@
 Change log
 ==========
 
+Version 0.8 (2013-03-13)
+
+  - Parser is now robust enough to handle dangling headers and short patch
+  - PEP8 (with minor own flavors) and other code lint
+  - Change 'Development Status' to stable
+
 Version 0.7.1 (2013-02-25)
 
   - Handle 'Binary files ... differ'
@@ -56,7 +62,7 @@ Version 0.0.4 (2013-02-04)
   - Add CHANGES for history track and better versioning
 
 Version 0.0.3 (2013-02-04)
-  
+
   - Publish on PyPI, supports read patch from file, pipe and diff output from
     revision tools (thanks to `Steven Myint <https://github.com/myint>`_)
 
