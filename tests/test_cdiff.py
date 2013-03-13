@@ -439,8 +439,8 @@ spam
         patch = r"""\
 spam
 --- a
-+++ b
 spam
++++ b
 """
         items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
@@ -472,7 +472,14 @@ spam
         items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
-        self.assertRaises(RuntimeError, list, parser.get_diff_generator())
+
+        out = list(parser.get_diff_generator())
+        self.assertEqual(len(out), 2)
+        self.assertEqual(len(out[1]._headers), 1)
+        self.assertEqual(out[1]._headers[0], 'spam\n')
+        self.assertEqual(out[1]._old_path, '')
+        self.assertEqual(out[1]._new_path, '')
+        self.assertEqual(len(out[1]._hunks), 0)
 
     def test_parse_missing_new_path(self):
         patch = r"""\
@@ -503,7 +510,13 @@ spam
         items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
-        self.assertRaises(AssertionError, list, parser.get_diff_generator())
+
+        out = list(parser.get_diff_generator())
+        self.assertEqual(len(out), 2)
+        self.assertEqual(len(out[1]._headers), 0)
+        self.assertEqual(out[1]._old_path, '--- c\n')
+        self.assertEqual(out[1]._new_path, '+++ d\n')
+        self.assertEqual(len(out[1]._hunks), 0)
 
     def test_parse_missing_hunk_list(self):
         patch = r"""\

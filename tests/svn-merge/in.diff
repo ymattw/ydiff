@@ -1,0 +1,10 @@
+Index: .
+==================================================================
+--- .   (revision 10)
++++ .   (working copy)
+
+Property changes on: .
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /repository/foo/branches/foo-bar:r4-9
+   Merged /repository/foo/trunk/foo:r2-3

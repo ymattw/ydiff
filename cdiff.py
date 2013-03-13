@@ -472,20 +472,22 @@ class DiffParser(object):
         """
         self._stream = stream
 
-        flag = 0
-        for line in self._stream.read_stream_header(100):
-            line = decode(line)
-            if line.startswith('--- '):
-                flag |= 1
-            elif line.startswith('+++ '):
-                flag |= 2
-            elif line.startswith('@@ ') or line.startswith('## '):
-                flag |= 4
-            if (flag & 7) == 7:
+        header = self._stream.read_stream_header(100)
+        size = len(header)
+        for n in range(size):
+            if decode(header[n]).startswith('--- ') and (n < size - 1) and \
+                    decode(header[n+1]).startswith('+++ '):
                 self._type = 'udiff'
                 break
         else:
-            raise RuntimeError('unknown diff type')
+            if size < 4:
+                # It's safe to consider as udiff if patch stream contains no
+                # more than 3 lines, happens with `git diff` on a file that
+                # only has perm bits changes
+                #
+                self._type = 'udiff'
+            else:
+                raise RuntimeError('unknown diff type')
 
     def get_diff_generator(self):
         """parse all diff lines, construct a list of Diff objects"""
@@ -552,17 +554,19 @@ class DiffParser(object):
                 #
                 headers.append(line)
 
-        if headers:
-            raise RuntimeError('dangling header(s):\n%s' % ''.join(headers))
-
         # Validate and yield the last patch set if it is not yielded yet
         if diff._old_path:
             assert diff._new_path is not None
-            assert len(diff._hunks) > 0
             if diff._hunks:
                 assert len(diff._hunks[-1]._hunk_meta) > 0
                 assert len(diff._hunks[-1]._hunk_list) > 0
             yield diff
+
+        if headers:
+            # Tolerate dangling headers, just yield a Diff object with only
+            # header lines
+            #
+            yield Diff(headers, '', '', [])
 
 
 class DiffMarkup(object):
