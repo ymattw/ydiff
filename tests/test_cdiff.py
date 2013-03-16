@@ -41,7 +41,7 @@ class Sequential(object):
         return item
 
 
-class TestPatchStream(unittest.TestCase):
+class PatchStreamTest(unittest.TestCase):
 
     def test_is_empty(self):
         stream = cdiff.PatchStream(Sequential([]))
@@ -71,7 +71,7 @@ class TestPatchStream(unittest.TestCase):
         self.assertEqual(out, items)
 
 
-class TestHunk(unittest.TestCase):
+class HunkTest(unittest.TestCase):
 
     def test_get_old_text(self):
         hunk = cdiff.Hunk([], '@@ -1,2 +1,2 @@', (1, 2), (1, 2))
@@ -88,7 +88,7 @@ class TestHunk(unittest.TestCase):
         self.assertEqual(hunk._get_new_text(), ['bar\n', 'common\n'])
 
 
-class TestDiff(unittest.TestCase):
+class DiffTest(unittest.TestCase):
 
     def _init_diff(self):
         """Return a minimal diff contains all required samples
@@ -367,9 +367,9 @@ class TestDiff(unittest.TestCase):
             '\x1b[32m\x1b[4m\x1b[32ma\x1b[0m\x1b[32mgain\x1b[0m\n')
 
 
-class TestUdiff(unittest.TestCase):
+class UnifiedDiffTest(unittest.TestCase):
 
-    diff = cdiff.Udiff(None, None, None, None)
+    diff = cdiff.UnifiedDiff(None, None, None, None)
 
     def test_is_hunk_meta_normal(self):
         self.assertTrue(self.diff.is_hunk_meta('@@ -1 +1 @@'))
@@ -421,10 +421,10 @@ class TestUdiff(unittest.TestCase):
         self.assertFalse(self.diff.is_new('+++ considered as new path'))
 
 
-class TestDiffParser(unittest.TestCase):
+class DiffParserTest(unittest.TestCase):
 
     def test_type_detect(self):
-        patch = r"""\
+        patch = """\
 spam
 --- a
 +++ b
@@ -433,10 +433,10 @@ spam
         items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
-        self.assertEqual(parser._type, 'udiff')
+        self.assertEqual(parser._type, 'unified')
 
     def test_type_detect_neg(self):
-        patch = r"""\
+        patch = """\
 spam
 --- a
 spam
@@ -447,7 +447,7 @@ spam
         self.assertRaises(RuntimeError, cdiff.DiffParser, stream)
 
     def test_parse_invalid_hunk_meta(self):
-        patch = r"""\
+        patch = """\
 spam
 --- a
 +++ b
@@ -460,7 +460,7 @@ spam
         self.assertRaises(RuntimeError, list, parser.get_diff_generator())
 
     def test_parse_dangling_header(self):
-        patch = r"""\
+        patch = """\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -482,7 +482,7 @@ spam
         self.assertEqual(len(out[1]._hunks), 0)
 
     def test_parse_missing_new_path(self):
-        patch = r"""\
+        patch = """\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -497,7 +497,7 @@ spam
         self.assertRaises(AssertionError, list, parser.get_diff_generator())
 
     def test_parse_missing_hunk_meta(self):
-        patch = r"""\
+        patch = """\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -519,7 +519,7 @@ spam
         self.assertEqual(len(out[1]._hunks), 0)
 
     def test_parse_missing_hunk_list(self):
-        patch = r"""\
+        patch = """\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -536,7 +536,7 @@ spam
         self.assertRaises(AssertionError, list, parser.get_diff_generator())
 
     def test_parse_only_in_dir(self):
-        patch = r"""\
+        patch = """\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -563,7 +563,7 @@ Only in foo: foo
         self.assertEqual(len(out[2]._hunks[0]._hunk_list), 3)
 
     def test_parse_only_in_dir_at_last(self):
-        patch = r"""\
+        patch = """\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -582,7 +582,7 @@ Only in foo: foo
         self.assertEqual(out[1]._headers, ['Only in foo: foo\n'])
 
     def test_parse_binary_differ_diff_ru(self):
-        patch = r"""\
+        patch = """\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -612,7 +612,7 @@ Binary files a/1.pdf and b/1.pdf differ
         self.assertEqual(len(out[2]._hunks[0]._hunk_list), 3)
 
     def test_parse_binary_differ_git(self):
-        patch = r"""\
+        patch = """\
 diff --git a/foo b/foo
 index 529d8a3..ad71911 100755
 --- a/foo
@@ -648,13 +648,13 @@ index 529e8a3..ad71921 100755
         self.assertEqual(len(out[2]._hunks[0]._hunk_list), 3)
 
     def test_parse_svn_prop(self):
-        patch = r"""\
+        patch = """\
 --- a
 +++ b
 Added: svn:executable
 ## -0,0 +1 ##
 +*
-\ No newline at end of property
+\\ No newline at end of property
 Added: svn:keywords
 ## -0,0 +1 ##
 +Id
@@ -671,7 +671,7 @@ Added: svn:keywords
         self.assertEqual(hunk._hunk_list, [('+', 'Id\n')])
 
 
-class TestMain(unittest.TestCase):
+class MainTest(unittest.TestCase):
 
     def setUp(self):
         self._cwd = os.getcwd()

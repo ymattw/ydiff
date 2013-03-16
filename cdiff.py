@@ -367,7 +367,7 @@ class Diff(DiffOps):
         return colorize(line, base_color)
 
 
-class Udiff(Diff):
+class UnifiedDiff(Diff):
 
     def is_old_path(self, line):
         return line.startswith('--- ')
@@ -377,7 +377,8 @@ class Udiff(Diff):
 
     def is_hunk_meta(self, line):
         """Minimal valid hunk meta is like '@@ -1 +1 @@', note extra chars
-        might occur after the ending @@, e.g. in git log
+        might occur after the ending @@, e.g. in git log.  '## ' uaually
+        indicates svn property changes in output from `svn log --diff`
         """
         return (line.startswith('@@ -') and line.find(' @@') >= 8) or \
                (line.startswith('## -') and line.find(' ##') >= 8)
@@ -467,17 +468,16 @@ class PatchStream(object):
 class DiffParser(object):
 
     def __init__(self, stream):
-        """Detect Udiff with 3 conditions, '## ' uaually indicates svn property
-        changes in output from `svn log --diff`
-        """
         self._stream = stream
 
-        header = self._stream.read_stream_header(100)
+        header = [decode(line) for line in
+                  self._stream.read_stream_header(100)]
         size = len(header)
+
         for n in range(size):
-            if decode(header[n]).startswith('--- ') and (n < size - 1) and \
-                    decode(header[n+1]).startswith('+++ '):
-                self._type = 'udiff'
+            if header[n].startswith('--- ') and (n < size - 1) and \
+                    header[n+1].startswith('+++ '):
+                self._type = 'unified'
                 break
         else:
             if size < 4:
@@ -485,14 +485,14 @@ class DiffParser(object):
                 # more than 3 lines, happens with `git diff` on a file that
                 # only has perm bits changes
                 #
-                self._type = 'udiff'
+                self._type = 'unified'
             else:
                 raise RuntimeError('unknown diff type')
 
     def get_diff_generator(self):
         """parse all diff lines, construct a list of Diff objects"""
-        if self._type == 'udiff':
-            difflet = Udiff(None, None, None, None)
+        if self._type == 'unified':
+            difflet = UnifiedDiff(None, None, None, None)
         else:
             raise RuntimeError('unsupported diff format')
 
