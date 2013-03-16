@@ -423,7 +423,7 @@ class UnifiedDiffTest(unittest.TestCase):
 
 class DiffParserTest(unittest.TestCase):
 
-    def test_type_detect(self):
+    def test_type_detect_unified(self):
         patch = """\
 spam
 --- a
@@ -434,6 +434,21 @@ spam
         stream = cdiff.PatchStream(Sequential(items))
         parser = cdiff.DiffParser(stream)
         self.assertEqual(parser._type, 'unified')
+
+    def test_type_detect_context(self):
+        patch = """\
+*** /path/to/original timestamp
+--- /path/to/new timestamp
+***************
+*** 1,1 ****
+--- 1,2 ----
++ This is an important
+  This part of the
+"""
+        items = patch.splitlines(True)
+        stream = cdiff.PatchStream(Sequential(items))
+        parser = cdiff.DiffParser(stream)
+        self.assertEqual(parser._type, 'context')
 
     def test_type_detect_neg(self):
         patch = """\
