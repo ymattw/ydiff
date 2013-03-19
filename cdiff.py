@@ -480,9 +480,9 @@ class DiffParser(object):
 
         if size >= 4 and (header[0].startswith('*** ') and
                           header[1].startswith('--- ') and
-                          header[2] == '***************\n' and
+                          header[2].rstrip() == '***************' and
                           header[3].startswith('*** ') and
-                          header[3].endswith(' ****\n')):
+                          header[3].rstrip().endswith(' ****')):
             self._type = 'context'
             return
 
