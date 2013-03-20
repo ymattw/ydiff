@@ -377,7 +377,7 @@ class UnifiedDiff(Diff):
 
     def is_hunk_meta(self, line):
         """Minimal valid hunk meta is like '@@ -1 +1 @@', note extra chars
-        might occur after the ending @@, e.g. in git log.  '## ' uaually
+        might occur after the ending @@, e.g. in git log.  '## ' usually
         indicates svn property changes in output from `svn log --diff`
         """
         return (line.startswith('@@ -') and line.find(' @@') >= 8) or \
@@ -484,6 +484,12 @@ class DiffParser(object):
                           header[3].startswith('*** ') and
                           header[3].rstrip().endswith(' ****')):
             self._type = 'context'
+
+            # For context diff, try use `filterdiff` to translate it to unified
+            # format and provide a new stream
+            #
+            # TODO
+
             return
 
         for n in range(size):
@@ -492,15 +498,11 @@ class DiffParser(object):
                 self._type = 'unified'
                 break
         else:
-            if size < 5:
-                # It's safe to consider as udiff if patch stream contains no
-                # more than 4 lines. happens with `git diff` on a file that
-                # only has perm bits changes or `svn diff` with property
-                # changes.
-                #
-                self._type = 'unified'
-            else:
-                raise RuntimeError('unknown diff type')
+            # `filterdiff` translate unknown diff to nothing, fall through to
+            # unified diff give cdiff a chance to show everything as headers
+            #
+            sys.stderr.write("*** unknown format, fall through to 'unified'\n")
+            self._type = 'unified'
 
     def get_diff_generator(self):
         """parse all diff lines, construct a list of Diff objects"""

@@ -460,7 +460,8 @@ spam
 """
         items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
-        self.assertRaises(RuntimeError, cdiff.DiffParser, stream)
+        parser = cdiff.DiffParser(stream)
+        self.assertEqual(parser._type, 'unified')
 
     def test_parse_invalid_hunk_meta(self):
         patch = """\
