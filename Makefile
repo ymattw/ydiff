@@ -1,7 +1,7 @@
 # Makefile for testing
 
-TESTPYPI = https://testpypi.python.org/pypi
-PYPI = https://pypi.python.org/pypi
+TESTPYPI = http://testpypi.python.org/pypi
+PYPI = http://pypi.python.org/pypi
 
 .PHONY: dogfood clean build dist-test dist \
 	test test3 cov cov3 html reg reg3 profile profile3
