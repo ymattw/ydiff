@@ -480,10 +480,11 @@ class DiffParser(object):
                 self._type = 'unified'
                 break
         else:
-            if size < 4:
+            if size < 5:
                 # It's safe to consider as udiff if patch stream contains no
-                # more than 3 lines, happens with `git diff` on a file that
-                # only has perm bits changes
+                # more than 4 lines. happens with `git diff` on a file that
+                # only has perm bits changes or `svn diff` with property
+                # changes.
                 #
                 self._type = 'unified'
             else:

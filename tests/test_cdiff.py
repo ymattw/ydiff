@@ -441,6 +441,7 @@ spam
 --- a
 spam
 +++ b
+
 """
         items = patch.splitlines(True)
         stream = cdiff.PatchStream(Sequential(items))
