@@ -429,6 +429,10 @@ class UnifiedDiff(Diff):
         return re.match('^Binary files .* differ$', line.rstrip())
 
 
+class ContextDiff(Diff):
+    pass
+
+
 class PatchStream(object):
 
     def __init__(self, diff_hdl):
@@ -473,6 +477,14 @@ class DiffParser(object):
         header = [decode(line) for line in
                   self._stream.read_stream_header(100)]
         size = len(header)
+
+        if size >= 4 and (header[0].startswith('*** ') and
+                          header[1].startswith('--- ') and
+                          header[2].rstrip() == '***************' and
+                          header[3].startswith('*** ') and
+                          header[3].rstrip().endswith(' ****')):
+            self._type = 'context'
+            return
 
         for n in range(size):
             if header[n].startswith('--- ') and (n < size - 1) and \
