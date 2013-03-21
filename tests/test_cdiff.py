@@ -435,8 +435,7 @@ spam
         parser = cdiff.DiffParser(stream)
         self.assertEqual(parser._type, 'unified')
 
-    # Note @unittest.skip() not available for python < 2.7
-    def SKIP_test_type_detect_context(self):
+    def test_type_detect_context(self):
         patch = """\
 *** /path/to/original timestamp
 --- /path/to/new timestamp
