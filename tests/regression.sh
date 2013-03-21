@@ -52,6 +52,7 @@ function main()
 
     for d in tests/*/; do
         d=${d%/}
+        [[ -f $d/in.diff ]] || continue
         cmp_output $d/in.diff $d/out.normal "-c always" || ((e++))
         cmp_output $d/in.diff $d/out.side-by-side "-c always -s" || ((e++))
         cmp_output $d/in.diff $d/out.w70 "-c always -s -w70" || ((e++))
