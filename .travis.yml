@@ -11,6 +11,7 @@ python:
 before_install:
     - pip --quiet install coverage
     - coverage --version
+    - sudo apt-get --quiet=2 install patchutils
 
 install:
     - python setup.py --quiet install
