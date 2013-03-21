@@ -1,0 +1,56 @@
+*** a/Lib/test/test_minidom.py	Fri Sep 30 08:46:25 2011 +0300
+--- b/Lib/test/test_minidom.py	Sat Oct 01 21:02:49 2011 +0300
+***************
+*** 467,472 ****
+--- 467,479 ----
+          dom.unlink()
+          self.confirm(domstr == str.replace("\n", "\r\n"))
+  
++     def testPrettyTextNode(self):
++         str = '<A>B</A>'
++         dom = parseString(str)
++         dom2 = parseString(dom.toprettyxml())
++         self.confirm(dom.childNodes[0].childNodes[0].toxml()==
++                      dom2.childNodes[0].childNodes[0].toxml())
++ 
+      def testProcessingInstruction(self):
+          dom = parseString('<e><?mypi \t\n data \t\n ?></e>')
+          pi = dom.documentElement.firstChild
+*** a/Lib/xml/dom/minidom.py	Fri Sep 30 08:46:25 2011 +0300
+--- b/Lib/xml/dom/minidom.py	Sat Oct 01 21:02:49 2011 +0300
+***************
+*** 836,842 ****
+              _write_data(writer, attrs[a_name].value)
+              writer.write("\"")
+          if self.childNodes:
+!             writer.write(">%s"%(newl))
+              for node in self.childNodes:
+                  node.writexml(writer,indent+addindent,addindent,newl)
+              writer.write("%s</%s>%s" % (indent,self.tagName,newl))
+--- 836,844 ----
+              _write_data(writer, attrs[a_name].value)
+              writer.write("\"")
+          if self.childNodes:
+!             writer.write(">")
+!             if self.childNodes[0].nodeType != Node.TEXT_NODE:     # Strict check
+!                 writer.write(newl)
+              for node in self.childNodes:
+                  node.writexml(writer,indent+addindent,addindent,newl)
+              writer.write("%s</%s>%s" % (indent,self.tagName,newl))
+***************
+*** 1061,1067 ****
+          return newText
+  
+      def writexml(self, writer, indent="", addindent="", newl=""):
+!         _write_data(writer, "%s%s%s"%(indent, self.data, newl))
+  
+      # DOM Level 3 (WD 9 April 2002)
+  
+--- 1063,1069 ----
+          return newText
+  
+      def writexml(self, writer, indent="", addindent="", newl=""):
+!         _write_data(writer, self.data)
+  
+      # DOM Level 3 (WD 9 April 2002)
+  

@@ -26,6 +26,8 @@ if sys.hexversion < 0x02050000:
 import re
 import subprocess
 import errno
+import fcntl
+import os
 import difflib
 
 
@@ -429,10 +431,6 @@ class UnifiedDiff(Diff):
         return re.match('^Binary files .* differ$', line.rstrip())
 
 
-class ContextDiff(Diff):
-    pass
-
-
 class PatchStream(object):
 
     def __init__(self, diff_hdl):
@@ -469,13 +467,54 @@ class PatchStream(object):
             yield line
 
 
+class PatchStreamForwarder(object):
+    """A non-block stream forwarder.  Note input stream is non-seekable, and
+    upstream has eaten some lines.
+    """
+    def __init__(self, istream, translator):
+        assert isinstance(istream, PatchStream)
+        self._istream = istream
+        self._translator = translator
+
+        self._istream_open = True
+        self._set_non_block(self._translator.stdin)
+        self._set_non_block(self._translator.stdout)
+
+        self._forward_until_block()
+
+    def _set_non_block(self, hdl):
+        fd = hdl.fileno()
+        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+        fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+
+    def _forward_until_block(self):
+        for line in self._istream:
+            try:
+                self._translator.stdin.write(line.encode('utf-8'))
+            except IOError:
+                break       # EAGAIN
+        else:
+            self._translator.stdin.close()
+            self._istream_open = False
+
+    def __iter__(self):
+        while True:
+            try:
+                line = self._translator.stdout.readline()
+                if not line:
+                    return
+                yield line
+            except IOError:
+                if self._istream_open:
+                    self._forward_until_block()
+                continue    # EAGAIN
+
+
 class DiffParser(object):
 
     def __init__(self, stream):
-        self._stream = stream
 
-        header = [decode(line) for line in
-                  self._stream.read_stream_header(100)]
+        header = [decode(line) for line in stream.read_stream_header(100)]
         size = len(header)
 
         if size >= 4 and (header[0].startswith('*** ') and
@@ -483,34 +522,37 @@ class DiffParser(object):
                           header[2].rstrip() == '***************' and
                           header[3].startswith('*** ') and
                           header[3].rstrip().endswith(' ****')):
-            self._type = 'context'
-
             # For context diff, try use `filterdiff` to translate it to unified
             # format and provide a new stream
             #
-            # TODO
-
+            self._type = 'context'
+            try:
+                self._translator = subprocess.Popen(
+                    ['filterdiff', '--format=unified'], stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE)
+            except OSError:
+                raise SystemExit('*** Context diff support depends on '
+                                 'filterdiff')
+            self._stream = PatchStreamForwarder(stream, self._translator)
             return
 
         for n in range(size):
             if header[n].startswith('--- ') and (n < size - 1) and \
                     header[n+1].startswith('+++ '):
                 self._type = 'unified'
+                self._stream = stream
                 break
         else:
-            # `filterdiff` translate unknown diff to nothing, fall through to
+            # `filterdiff` translates unknown diff to nothing, fall through to
             # unified diff give cdiff a chance to show everything as headers
             #
             sys.stderr.write("*** unknown format, fall through to 'unified'\n")
             self._type = 'unified'
+            self._stream = stream
 
     def get_diff_generator(self):
         """parse all diff lines, construct a list of Diff objects"""
-        if self._type == 'unified':
-            difflet = UnifiedDiff(None, None, None, None)
-        else:
-            raise RuntimeError('unsupported diff format')
-
+        difflet = UnifiedDiff(None, None, None, None)
         diff = Diff([], None, None, [])
         headers = []
 
