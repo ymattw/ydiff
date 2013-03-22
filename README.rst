@@ -107,12 +107,15 @@ Pipe in a diff:
     svn diff -r1234 | cdiff -s  # view svn diff comparing to given revision
     diff -u file1 file2 | cdiff # view diff between two files (note the '-u')
     diff -ur dir1 dir2 | cdiff  # view diff between two dirs
-    cat foo.patch | cdiff       # view a unified patch (or cdiff < foo.path)
 
-    # View a GitHub pull request, side by side (GitHub web interface is missing
-    # this feature :)
-    #
+    # View diff in a GitHub pull request, side by side
     curl https://github.com/ymattw/cdiff/pull/11.diff | cdiff -s
+
+    # View a patch file in unified or context format, the latter depends on
+    # command `filterdiff` from package `patchutils` which is available in
+    # major Linux distros and MacPorts.  "cdiff < foo.path" works too.
+    #
+    cat foo.patch | cdiff 
 
 Redirect output to another patch file is safe:
 
@@ -125,7 +128,8 @@ Notes
 
 Cdiff has following known issues:
 
-- Only takes unified diff for input
+- Does not recognize `normal` diff, and depends on ``filterdiff`` (patchutils)
+  to read `context` diff
 - Side by side mode has alignment problem for wide chars
 - Terminal might be in a mess on exception (type ``reset`` can fix it)
 
