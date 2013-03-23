@@ -560,17 +560,14 @@ class DiffParser(object):
             line = decode(line)
 
             if difflet.is_old_path(line):
-                # FIXME: '--- ' breaks here, need to probe next 3 lines,
-                # reproducible with github raw patch
-                #
-                if diff._old_path and diff._new_path and len(diff._hunks) > 0:
-                    # One diff constructed
+                # FIXME: '--- ' breaks here, better to probe next line
+                if diff._old_path and diff._new_path and diff._hunks:
+                    # See a new diff, yield previous diff if exists
                     yield diff
-                    diff = Diff([], None, None, [])
                 diff = Diff(headers, line, None, [])
                 headers = []
 
-            elif difflet.is_new_path(line):
+            elif difflet.is_new_path(line) and diff._old_path:
                 diff._new_path = line
 
             elif difflet.is_hunk_meta(line):
@@ -583,9 +580,9 @@ class DiffParser(object):
                 headers = []
                 diff._hunks.append(hunk)
 
-            elif len(diff._hunks) > 0 and (difflet.is_old(line) or
-                                           difflet.is_new(line) or
-                                           difflet.is_common(line)):
+            elif diff._hunks and not headers and (difflet.is_old(line) or
+                                                  difflet.is_new(line) or
+                                                  difflet.is_common(line)):
                 diff._hunks[-1].append(difflet.parse_hunk_line(line))
 
             elif difflet.is_eof(line):
@@ -597,7 +594,7 @@ class DiffParser(object):
                 # 'Only in foo:' and 'Binary files ... differ' are considered
                 # as separate diffs, so yield current diff, then this line
                 #
-                if diff._old_path and diff._new_path and len(diff._hunks) > 0:
+                if diff._old_path and diff._new_path and diff._hunks:
                     # Current diff is comppletely constructed
                     yield diff
                 headers.append(line)
