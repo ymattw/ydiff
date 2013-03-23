@@ -121,255 +121,13 @@ class Hunk(object):
         return out
 
 
-class DiffOps(object):      # pragma: no cover
-    """Methods in this class are supposed to be overwritten by derived class.
-    No is_header() anymore, all non-recognized lines are considered as headers
-    """
-    def is_old_path(self, line):
-        return False
-
-    def is_new_path(self, line):
-        return False
-
-    def is_hunk_meta(self, line):
-        return False
-
-    def parse_hunk_meta(self, line):
-        """Returns a 2-element tuple, each is a tuple of (start, offset)"""
-        return None
-
-    def parse_hunk_line(self, line):
-        """Returns a 2-element tuple: (attr, text), where attr is:
-                '-': old, '+': new, ' ': common
-        """
-        return None
-
-    def is_old(self, line):
-        return False
-
-    def is_new(self, line):
-        return False
-
-    def is_common(self, line):
-        return False
-
-    def is_eof(self, line):
-        return False
-
-    def is_only_in_dir(self, line):
-        return False
-
-    def is_binary_differ(self, line):
-        return False
-
-
-class Diff(DiffOps):
+class UnifiedDiff(object):
 
     def __init__(self, headers, old_path, new_path, hunks):
         self._headers = headers
         self._old_path = old_path
         self._new_path = new_path
         self._hunks = hunks
-
-    def markup_traditional(self):
-        """Returns a generator"""
-        for line in self._headers:
-            yield self._markup_header(line)
-
-        yield self._markup_old_path(self._old_path)
-        yield self._markup_new_path(self._new_path)
-
-        for hunk in self._hunks:
-            for hunk_header in hunk._hunk_headers:
-                yield self._markup_hunk_header(hunk_header)
-            yield self._markup_hunk_meta(hunk._hunk_meta)
-            for old, new, changed in hunk.mdiff():
-                if changed:
-                    if not old[0]:
-                        # The '+' char after \x00 is kept
-                        # DEBUG: yield 'NEW: %s %s\n' % (old, new)
-                        line = new[1].strip('\x00\x01')
-                        yield self._markup_new(line)
-                    elif not new[0]:
-                        # The '-' char after \x00 is kept
-                        # DEBUG: yield 'OLD: %s %s\n' % (old, new)
-                        line = old[1].strip('\x00\x01')
-                        yield self._markup_old(line)
-                    else:
-                        # DEBUG: yield 'CHG: %s %s\n' % (old, new)
-                        yield self._markup_old('-') + \
-                            self._markup_mix(old[1], 'red')
-                        yield self._markup_new('+') + \
-                            self._markup_mix(new[1], 'green')
-                else:
-                    yield self._markup_common(' ' + old[1])
-
-    def markup_side_by_side(self, width):
-        """Returns a generator"""
-        wrap_char = colorize('>', 'lightmagenta')
-
-        def _normalize(line):
-            return line.replace(
-                '\t', ' ' * 8).replace('\n', '').replace('\r', '')
-
-        def _fit_with_marker(text, markup_fn, width, pad=False):
-            """Wrap or pad input pure text, then markup"""
-            if len(text) > width:
-                return markup_fn(text[:(width - 1)]) + wrap_char
-            elif pad:
-                pad_len = width - len(text)
-                return '%s%*s' % (markup_fn(text), pad_len, '')
-            else:
-                return markup_fn(text)
-
-        def _fit_with_marker_mix(text, base_color, width, pad=False):
-            """Wrap or pad input text which contains mdiff tags, markup at the
-            meantime, note only left side need to set `pad`
-            """
-            out = [COLORS[base_color]]
-            count = 0
-            tag_re = re.compile(r'\x00[+^-]|\x01')
-
-            while text and count < width:
-                if text.startswith('\x00-'):    # del
-                    out.append(COLORS['reverse'] + COLORS[base_color])
-                    text = text[2:]
-                elif text.startswith('\x00+'):  # add
-                    out.append(COLORS['reverse'] + COLORS[base_color])
-                    text = text[2:]
-                elif text.startswith('\x00^'):  # change
-                    out.append(COLORS['underline'] + COLORS[base_color])
-                    text = text[2:]
-                elif text.startswith('\x01'):   # reset
-                    out.append(COLORS['reset'] + COLORS[base_color])
-                    text = text[1:]
-                else:
-                    # FIXME: utf-8 wchar might break the rule here, e.g.
-                    # u'\u554a' takes double width of a single letter, also
-                    # this depends on your terminal font.  I guess audience of
-                    # this tool never put that kind of symbol in their code :-)
-                    #
-                    out.append(text[0])
-                    count += 1
-                    text = text[1:]
-
-            if count == width and tag_re.sub('', text):
-                # Was stripped: output fulfil and still has normal char in text
-                out[-1] = COLORS['reset'] + wrap_char
-            elif count < width and pad:
-                pad_len = width - count
-                out.append('%s%*s' % (COLORS['reset'], pad_len, ''))
-            else:
-                out.append(COLORS['reset'])
-
-            return ''.join(out)
-
-        # Set up line width
-        if width <= 0:
-            width = 80
-
-        # Set up number width, note last hunk might be empty
-        try:
-            (start, offset) = self._hunks[-1]._old_addr
-            max1 = start + offset - 1
-            (start, offset) = self._hunks[-1]._new_addr
-            max2 = start + offset - 1
-        except IndexError:
-            max1 = max2 = 0
-        num_width = max(len(str(max1)), len(str(max2)))
-
-        # Setup lineno and line format
-        left_num_fmt = colorize('%%(left_num)%ds' % num_width, 'yellow')
-        right_num_fmt = colorize('%%(right_num)%ds' % num_width, 'yellow')
-        line_fmt = left_num_fmt + ' %(left)s ' + COLORS['reset'] + \
-            right_num_fmt + ' %(right)s\n'
-
-        # yield header, old path and new path
-        for line in self._headers:
-            yield self._markup_header(line)
-        yield self._markup_old_path(self._old_path)
-        yield self._markup_new_path(self._new_path)
-
-        # yield hunks
-        for hunk in self._hunks:
-            for hunk_header in hunk._hunk_headers:
-                yield self._markup_hunk_header(hunk_header)
-            yield self._markup_hunk_meta(hunk._hunk_meta)
-            for old, new, changed in hunk.mdiff():
-                if old[0]:
-                    left_num = str(hunk._old_addr[0] + int(old[0]) - 1)
-                else:
-                    left_num = ' '
-
-                if new[0]:
-                    right_num = str(hunk._new_addr[0] + int(new[0]) - 1)
-                else:
-                    right_num = ' '
-
-                left = _normalize(old[1])
-                right = _normalize(new[1])
-
-                if changed:
-                    if not old[0]:
-                        left = '%*s' % (width, ' ')
-                        right = right.lstrip('\x00+').rstrip('\x01')
-                        right = _fit_with_marker(
-                            right, self._markup_new, width)
-                    elif not new[0]:
-                        left = left.lstrip('\x00-').rstrip('\x01')
-                        left = _fit_with_marker(left, self._markup_old, width)
-                        right = ''
-                    else:
-                        left = _fit_with_marker_mix(left, 'red', width, 1)
-                        right = _fit_with_marker_mix(right, 'green', width)
-                else:
-                    left = _fit_with_marker(
-                        left, self._markup_common, width, 1)
-                    right = _fit_with_marker(right, self._markup_common, width)
-                yield line_fmt % {
-                    'left_num': left_num,
-                    'left': left,
-                    'right_num': right_num,
-                    'right': right
-                }
-
-    def _markup_header(self, line):
-        return colorize(line, 'cyan')
-
-    def _markup_old_path(self, line):
-        return colorize(line, 'yellow')
-
-    def _markup_new_path(self, line):
-        return colorize(line, 'yellow')
-
-    def _markup_hunk_header(self, line):
-        return colorize(line, 'lightcyan')
-
-    def _markup_hunk_meta(self, line):
-        return colorize(line, 'lightblue')
-
-    def _markup_common(self, line):
-        return colorize(line, 'reset')
-
-    def _markup_old(self, line):
-        return colorize(line, 'lightred')
-
-    def _markup_new(self, line):
-        return colorize(line, 'lightgreen')
-
-    def _markup_mix(self, line, base_color):
-        del_code = COLORS['reverse'] + COLORS[base_color]
-        add_code = COLORS['reverse'] + COLORS[base_color]
-        chg_code = COLORS['underline'] + COLORS[base_color]
-        rst_code = COLORS['reset'] + COLORS[base_color]
-        line = line.replace('\x00-', del_code)
-        line = line.replace('\x00+', add_code)
-        line = line.replace('\x00^', chg_code)
-        line = line.replace('\x01', rst_code)
-        return colorize(line, base_color)
-
-
-class UnifiedDiff(Diff):
 
     def is_old_path(self, line):
         return line.startswith('--- ')
@@ -551,46 +309,45 @@ class DiffParser(object):
             self._stream = stream
 
     def get_diff_generator(self):
-        """parse all diff lines, construct a list of Diff objects"""
-        difflet = UnifiedDiff(None, None, None, None)
-        diff = Diff([], None, None, [])
+        """parse all diff lines, construct a list of UnifiedDiff objects"""
+        diff = UnifiedDiff([], None, None, [])
         headers = []
 
         for line in self._stream:
             line = decode(line)
 
-            if difflet.is_old_path(line):
+            if diff.is_old_path(line):
                 # FIXME: '--- ' breaks here, better to probe next line
                 if diff._old_path and diff._new_path and diff._hunks:
                     # See a new diff, yield previous diff if exists
                     yield diff
-                diff = Diff(headers, line, None, [])
+                diff = UnifiedDiff(headers, line, None, [])
                 headers = []
 
-            elif difflet.is_new_path(line) and diff._old_path:
+            elif diff.is_new_path(line) and diff._old_path:
                 diff._new_path = line
 
-            elif difflet.is_hunk_meta(line):
+            elif diff.is_hunk_meta(line):
                 hunk_meta = line
                 try:
-                    old_addr, new_addr = difflet.parse_hunk_meta(hunk_meta)
+                    old_addr, new_addr = diff.parse_hunk_meta(hunk_meta)
                 except (IndexError, ValueError):
                     raise RuntimeError('invalid hunk meta: %s' % hunk_meta)
                 hunk = Hunk(headers, hunk_meta, old_addr, new_addr)
                 headers = []
                 diff._hunks.append(hunk)
 
-            elif diff._hunks and not headers and (difflet.is_old(line) or
-                                                  difflet.is_new(line) or
-                                                  difflet.is_common(line)):
-                diff._hunks[-1].append(difflet.parse_hunk_line(line))
+            elif diff._hunks and not headers and (diff.is_old(line) or
+                                                  diff.is_new(line) or
+                                                  diff.is_common(line)):
+                diff._hunks[-1].append(diff.parse_hunk_line(line))
 
-            elif difflet.is_eof(line):
+            elif diff.is_eof(line):
                 # ignore
                 pass
 
-            elif difflet.is_only_in_dir(line) or \
-                    difflet.is_binary_differ(line):
+            elif diff.is_only_in_dir(line) or \
+                    diff.is_binary_differ(line):
                 # 'Only in foo:' and 'Binary files ... differ' are considered
                 # as separate diffs, so yield current diff, then this line
                 #
@@ -598,9 +355,9 @@ class DiffParser(object):
                     # Current diff is comppletely constructed
                     yield diff
                 headers.append(line)
-                yield Diff(headers, '', '', [])
+                yield UnifiedDiff(headers, '', '', [])
                 headers = []
-                diff = Diff([], None, None, [])
+                diff = UnifiedDiff([], None, None, [])
 
             else:
                 # All other non-recognized lines are considered as headers or
@@ -617,38 +374,227 @@ class DiffParser(object):
             yield diff
 
         if headers:
-            # Tolerate dangling headers, just yield a Diff object with only
-            # header lines
+            # Tolerate dangling headers, just yield a UnifiedDiff object with
+            # only header lines
             #
-            yield Diff(headers, '', '', [])
+            yield UnifiedDiff(headers, '', '', [])
 
 
-class DiffMarkup(object):
+class DiffMarker(object):
 
-    def __init__(self, stream):
-        self._diffs = DiffParser(stream).get_diff_generator()
-
-    def markup(self, side_by_side=False, width=0):
+    def markup(self, diffs, side_by_side=False, width=0):
         """Returns a generator"""
         if side_by_side:
-            return self._markup_side_by_side(width)
+            for diff in diffs:
+                for line in self._markup_side_by_side(diff, width):
+                    yield line
         else:
-            return self._markup_traditional()
+            for diff in diffs:
+                for line in self._markup_traditional(diff):
+                    yield line
 
-    def _markup_traditional(self):
-        for diff in self._diffs:
-            for line in diff.markup_traditional():
-                yield line
+    def _markup_traditional(self, diff):
+        """Returns a generator"""
+        for line in diff._headers:
+            yield self._markup_header(line)
 
-    def _markup_side_by_side(self, width):
-        for diff in self._diffs:
-            for line in diff.markup_side_by_side(width):
-                yield line
+        yield self._markup_old_path(diff._old_path)
+        yield self._markup_new_path(diff._new_path)
+
+        for hunk in diff._hunks:
+            for hunk_header in hunk._hunk_headers:
+                yield self._markup_hunk_header(hunk_header)
+            yield self._markup_hunk_meta(hunk._hunk_meta)
+            for old, new, changed in hunk.mdiff():
+                if changed:
+                    if not old[0]:
+                        # The '+' char after \x00 is kept
+                        # DEBUG: yield 'NEW: %s %s\n' % (old, new)
+                        line = new[1].strip('\x00\x01')
+                        yield self._markup_new(line)
+                    elif not new[0]:
+                        # The '-' char after \x00 is kept
+                        # DEBUG: yield 'OLD: %s %s\n' % (old, new)
+                        line = old[1].strip('\x00\x01')
+                        yield self._markup_old(line)
+                    else:
+                        # DEBUG: yield 'CHG: %s %s\n' % (old, new)
+                        yield self._markup_old('-') + \
+                            self._markup_mix(old[1], 'red')
+                        yield self._markup_new('+') + \
+                            self._markup_mix(new[1], 'green')
+                else:
+                    yield self._markup_common(' ' + old[1])
+
+    def _markup_side_by_side(self, diff, width):
+        """Returns a generator"""
+        wrap_char = colorize('>', 'lightmagenta')
+
+        def _normalize(line):
+            return line.replace(
+                '\t', ' ' * 8).replace('\n', '').replace('\r', '')
+
+        def _fit_with_marker(text, markup_fn, width, pad=False):
+            """Wrap or pad input pure text, then markup"""
+            if len(text) > width:
+                return markup_fn(text[:(width - 1)]) + wrap_char
+            elif pad:
+                pad_len = width - len(text)
+                return '%s%*s' % (markup_fn(text), pad_len, '')
+            else:
+                return markup_fn(text)
+
+        def _fit_with_marker_mix(text, base_color, width, pad=False):
+            """Wrap or pad input text which contains mdiff tags, markup at the
+            meantime, note only left side need to set `pad`
+            """
+            out = [COLORS[base_color]]
+            count = 0
+            tag_re = re.compile(r'\x00[+^-]|\x01')
+
+            while text and count < width:
+                if text.startswith('\x00-'):    # del
+                    out.append(COLORS['reverse'] + COLORS[base_color])
+                    text = text[2:]
+                elif text.startswith('\x00+'):  # add
+                    out.append(COLORS['reverse'] + COLORS[base_color])
+                    text = text[2:]
+                elif text.startswith('\x00^'):  # change
+                    out.append(COLORS['underline'] + COLORS[base_color])
+                    text = text[2:]
+                elif text.startswith('\x01'):   # reset
+                    out.append(COLORS['reset'] + COLORS[base_color])
+                    text = text[1:]
+                else:
+                    # FIXME: utf-8 wchar might break the rule here, e.g.
+                    # u'\u554a' takes double width of a single letter, also
+                    # this depends on your terminal font.  I guess audience of
+                    # this tool never put that kind of symbol in their code :-)
+                    #
+                    out.append(text[0])
+                    count += 1
+                    text = text[1:]
+
+            if count == width and tag_re.sub('', text):
+                # Was stripped: output fulfil and still has normal char in text
+                out[-1] = COLORS['reset'] + wrap_char
+            elif count < width and pad:
+                pad_len = width - count
+                out.append('%s%*s' % (COLORS['reset'], pad_len, ''))
+            else:
+                out.append(COLORS['reset'])
+
+            return ''.join(out)
+
+        # Set up line width
+        if width <= 0:
+            width = 80
+
+        # Set up number width, note last hunk might be empty
+        try:
+            (start, offset) = diff._hunks[-1]._old_addr
+            max1 = start + offset - 1
+            (start, offset) = diff._hunks[-1]._new_addr
+            max2 = start + offset - 1
+        except IndexError:
+            max1 = max2 = 0
+        num_width = max(len(str(max1)), len(str(max2)))
+
+        # Setup lineno and line format
+        left_num_fmt = colorize('%%(left_num)%ds' % num_width, 'yellow')
+        right_num_fmt = colorize('%%(right_num)%ds' % num_width, 'yellow')
+        line_fmt = left_num_fmt + ' %(left)s ' + COLORS['reset'] + \
+            right_num_fmt + ' %(right)s\n'
+
+        # yield header, old path and new path
+        for line in diff._headers:
+            yield self._markup_header(line)
+        yield self._markup_old_path(diff._old_path)
+        yield self._markup_new_path(diff._new_path)
+
+        # yield hunks
+        for hunk in diff._hunks:
+            for hunk_header in hunk._hunk_headers:
+                yield self._markup_hunk_header(hunk_header)
+            yield self._markup_hunk_meta(hunk._hunk_meta)
+            for old, new, changed in hunk.mdiff():
+                if old[0]:
+                    left_num = str(hunk._old_addr[0] + int(old[0]) - 1)
+                else:
+                    left_num = ' '
+
+                if new[0]:
+                    right_num = str(hunk._new_addr[0] + int(new[0]) - 1)
+                else:
+                    right_num = ' '
+
+                left = _normalize(old[1])
+                right = _normalize(new[1])
+
+                if changed:
+                    if not old[0]:
+                        left = '%*s' % (width, ' ')
+                        right = right.lstrip('\x00+').rstrip('\x01')
+                        right = _fit_with_marker(
+                            right, self._markup_new, width)
+                    elif not new[0]:
+                        left = left.lstrip('\x00-').rstrip('\x01')
+                        left = _fit_with_marker(left, self._markup_old, width)
+                        right = ''
+                    else:
+                        left = _fit_with_marker_mix(left, 'red', width, 1)
+                        right = _fit_with_marker_mix(right, 'green', width)
+                else:
+                    left = _fit_with_marker(
+                        left, self._markup_common, width, 1)
+                    right = _fit_with_marker(right, self._markup_common, width)
+                yield line_fmt % {
+                    'left_num': left_num,
+                    'left': left,
+                    'right_num': right_num,
+                    'right': right
+                }
+
+    def _markup_header(self, line):
+        return colorize(line, 'cyan')
+
+    def _markup_old_path(self, line):
+        return colorize(line, 'yellow')
+
+    def _markup_new_path(self, line):
+        return colorize(line, 'yellow')
+
+    def _markup_hunk_header(self, line):
+        return colorize(line, 'lightcyan')
+
+    def _markup_hunk_meta(self, line):
+        return colorize(line, 'lightblue')
+
+    def _markup_common(self, line):
+        return colorize(line, 'reset')
+
+    def _markup_old(self, line):
+        return colorize(line, 'lightred')
+
+    def _markup_new(self, line):
+        return colorize(line, 'lightgreen')
+
+    def _markup_mix(self, line, base_color):
+        del_code = COLORS['reverse'] + COLORS[base_color]
+        add_code = COLORS['reverse'] + COLORS[base_color]
+        chg_code = COLORS['underline'] + COLORS[base_color]
+        rst_code = COLORS['reset'] + COLORS[base_color]
+        line = line.replace('\x00-', del_code)
+        line = line.replace('\x00+', add_code)
+        line = line.replace('\x00^', chg_code)
+        line = line.replace('\x01', rst_code)
+        return colorize(line, base_color)
 
 
 def markup_to_pager(stream, opts):
-    markup = DiffMarkup(stream)
-    color_diff = markup.markup(side_by_side=opts.side_by_side,
+    diffs = DiffParser(stream).get_diff_generator()
+    marker = DiffMarker()
+    color_diff = marker.markup(diffs, side_by_side=opts.side_by_side,
                                width=opts.width)
 
     # Args stolen from git source: github.com/git/git/blob/master/pager.c
