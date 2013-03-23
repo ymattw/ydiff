@@ -73,7 +73,7 @@ Type ``cdiff -h`` to show usage:
       -s, --side-by-side  enable side-by-side mode
       -w N, --width=N     set text width for side-by-side mode, default is 80
       -l, --log           show log with changes from revision control
-      -c X, --color=X     colorize mode 'auto' (default), 'always', or 'never'
+      -c M, --color=M     colorize mode 'auto' (default), 'always', or 'never'
 
 Read diff from local modification in a *Git/Mercurial/Svn* workspace (output
 from e.g. ``git diff``, ``svn diff``):
@@ -113,9 +113,9 @@ Pipe in a diff:
 
     # View a patch file in unified or context format, the latter depends on
     # command `filterdiff` from package `patchutils` which is available in
-    # major Linux distros and MacPorts.  "cdiff < foo.path" works too.
+    # major Linux distros and MacPorts.
     #
-    cat foo.patch | cdiff 
+    cdiff -s < foo.patch
 
 Redirect output to another patch file is safe:
 
@@ -136,7 +136,8 @@ Cdiff has following known issues:
 Pull requests are very welcome, please make sure your changes can pass unit
 tests and regression tests by run ``make test`` (required tool *coverage* can
 be installed with ``pip install coverage``).  Also watch out `travis build
-<https://travis-ci.org/ymattw/cdiff>`_ after push, make sure it passes as well.
+<https://travis-ci.org/ymattw/cdiff/pull_requests>`_ after push, make sure it
+passes as well.
 
 See also
 --------

@@ -46,7 +46,7 @@ profile3:
 
 clean:
 	rm -f MANIFEST profile*.tmp* .coverage
-	rm -rf build/ cdiff.egg-info/ dist/ __pycache__/
+	rm -rf build/ cdiff.egg-info/ dist/ __pycache__/ htmlcov/
 
 build:
 	./setup.py build sdist

@@ -2,6 +2,12 @@
 Change log
 ==========
 
+Version 0.9 (2013-03-23)
+
+  - Supports reading context diff via ``filterdiff`` (patchutils)
+  - Fixed a diff parser bug which misread git commit message as common line
+  - Lots of code refactor
+
 Version 0.8 (2013-03-13)
 
   - Parser is now robust enough to handle dangling headers and short patch

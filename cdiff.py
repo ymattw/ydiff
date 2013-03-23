@@ -8,7 +8,7 @@ python (>= 2.5.0) and ``less``.
 """
 
 META_INFO = {
-    'version'     : '0.8',
+    'version'     : '0.9',
     'license'     : 'BSD-3',
     'author'      : 'Matthew Wang',
     'email'       : 'mattwyl(@)gmail(.)com',
@@ -662,7 +662,7 @@ def main():
         '-l', '--log', action='store_true',
         help='show log with changes from revision control')
     parser.add_option(
-        '-c', '--color', default='auto', metavar='X',
+        '-c', '--color', default='auto', metavar='M',
         help="""colorize mode 'auto' (default), 'always', or 'never'""")
     opts, args = parser.parse_args()
 
