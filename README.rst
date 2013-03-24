@@ -57,9 +57,7 @@ my ``$PATH``, so I save the script there and name as ``cdiff``.
 Usage
 -----
 
-Type ``cdiff -h`` to show usage:
-
-.. code::
+Type ``cdiff -h`` to show usage::
 
     $ cdiff -h
     Usage: cdiff [options] [file|dir ...]
