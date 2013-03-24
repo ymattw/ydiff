@@ -37,7 +37,7 @@ Version 0.5 (2013-02-18)
   - Support read output from ``svn diff --log`` and ``hg log -p``
   - Streamline reading large patch set
   - New ``--log (-l)`` option to read revision control diff log (thanks to
-    `Steven Myint <https://github.com/myint>`_)
+    `Steven Myint`_)
 
 Version 0.4 (2013-02-16)
 
@@ -64,5 +64,6 @@ Version 0.0.4 (2013-02-04)
 Version 0.0.3 (2013-02-04)
 
   - Publish on PyPI, supports read patch from file, pipe and diff output from
-    revision tools (thanks to `Steven Myint <https://github.com/myint>`_)
+    revision tools (thanks to `Steven Myint`_)
 
+.. _Steven Myint: https://github.com/myint
