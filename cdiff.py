@@ -591,11 +591,21 @@ class DiffMarker(object):
         return colorize(line, base_color)
 
 
-def markup_to_pager(stream, opts):
+def markup(stream, opts):
     diffs = DiffParser(stream).get_diff_generator()
     marker = DiffMarker()
     color_diff = marker.markup(diffs, side_by_side=opts.side_by_side,
                                width=opts.width)
+    if opts.no_pager:
+        output_to_stdout(color_diff)
+    else:
+        output_to_pager(color_diff)
+
+def output_to_stdout(color_diff):
+    for line in color_diff:
+        sys.stdout.write(line)
+
+def output_to_pager(color_diff):
 
     # Args stolen from git source: github.com/git/git/blob/master/pager.c
     pager = subprocess.Popen(
@@ -608,7 +618,6 @@ def markup_to_pager(stream, opts):
 
     pager.stdin.close()
     pager.wait()
-
 
 def check_command_status(arguments):
     """Return True if command returns 0."""
@@ -659,6 +668,9 @@ def main():
         '-w', '--width', type='int', default=80, metavar='N',
         help='set text width for side-by-side mode, default is 80')
     parser.add_option(
+        '-n', '--no-pager', action='store_true', default=False,
+        help='output to standard out rather than a pager')
+    parser.add_option(
         '-l', '--log', action='store_true',
         help='show log with changes from revision control')
     parser.add_option(
@@ -691,7 +703,7 @@ def main():
     if opts.color == 'always' or \
             (opts.color == 'auto' and sys.stdout.isatty()):
         try:
-            markup_to_pager(stream, opts)
+            markup(stream, opts)
         except IOError:
             e = sys.exc_info()[1]
             if e.errno == errno.EPIPE:
