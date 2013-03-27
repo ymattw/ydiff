@@ -590,6 +590,14 @@ class DiffMarker(object):
         line = line.replace('\x01', rst_code)
         return colorize(line, base_color)
 
+def markup_to_stdout(stream, opts):
+    diffs = DiffParser(stream).get_diff_generator()
+    marker = DiffMarker()
+    color_diff = marker.markup(diffs, side_by_side=opts.side_by_side,
+                               width=opts.width)
+
+    for line in color_diff:
+        sys.stdout.write(line)
 
 def markup_to_pager(stream, opts):
     diffs = DiffParser(stream).get_diff_generator()
@@ -659,6 +667,9 @@ def main():
         '-w', '--width', type='int', default=80, metavar='N',
         help='set text width for side-by-side mode, default is 80')
     parser.add_option(
+        '-n', '--no-pager', action='store_true', default=False,
+        help='output to standard out rather than a pager')
+    parser.add_option(
         '-l', '--log', action='store_true',
         help='show log with changes from revision control')
     parser.add_option(
@@ -691,7 +702,10 @@ def main():
     if opts.color == 'always' or \
             (opts.color == 'auto' and sys.stdout.isatty()):
         try:
-            markup_to_pager(stream, opts)
+            if opts.no_pager:
+                markup_to_stdout(stream, opts)
+            else:
+                markup_to_pager(stream, opts)
         except IOError:
             e = sys.exc_info()[1]
             if e.errno == errno.EPIPE:
