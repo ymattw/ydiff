@@ -8,7 +8,7 @@ python (>= 2.5.0) and ``less``.
 """
 
 META_INFO = {
-    'version'     : '0.9',
+    'version'     : '0.9.1',
     'license'     : 'BSD-3',
     'author'      : 'Matthew Wang',
     'email'       : 'mattwyl(@)gmail(.)com',
@@ -54,7 +54,7 @@ COLORS = {
 VCS_INFO = {
     'Git': {
         'probe' : ['git', 'rev-parse'],
-        'diff'  : ['env', '-u', 'GIT_EXTERNAL_DIFF', 'git', 'diff'],
+        'diff'  : ['git', 'diff', '--no-ext-diff'],
         'log'   : ['git', 'log', '--patch'],
     },
     'Mercurial': {
