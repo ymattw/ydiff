@@ -54,7 +54,7 @@ COLORS = {
 VCS_INFO = {
     'Git': {
         'probe' : ['git', 'rev-parse'],
-        'diff'  : ['git', 'diff'],
+        'diff'  : ['env', '-u', 'GIT_EXTERNAL_DIFF', 'git', 'diff'],
         'log'   : ['git', 'log', '--patch'],
     },
     'Mercurial': {
