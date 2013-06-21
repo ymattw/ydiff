@@ -644,7 +644,8 @@ def decode(line):
 
 
 def main():
-    from optparse import (OptionParser, BadOptionError, AmbiguousOptionError)
+    from optparse import (OptionParser, BadOptionError, AmbiguousOptionError,
+                          OptionGroup)
 
     class PassThroughOptionParser(OptionParser):
         """Stop parsing on first unknown option (e.g. --cached, -U10) and pass
@@ -682,6 +683,13 @@ def main():
     parser.add_option(
         '-c', '--color', default='auto', metavar='M',
         help="""colorize mode 'auto' (default), 'always', or 'never'""")
+
+    # Hack: use OptionGroup text for extra help message after option list
+    option_group = OptionGroup(
+        parser, "Note", ("Option parser will stop on first unknown option "
+                         "and pass them down to underneath revision control"))
+    parser.add_option_group(option_group)
+
     opts, args = parser.parse_args()
 
     if opts.log:
