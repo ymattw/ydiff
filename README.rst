@@ -73,6 +73,10 @@ Type ``cdiff -h`` to show usage::
       -l, --log           show log with changes from revision control
       -c M, --color=M     colorize mode 'auto' (default), 'always', or 'never'
 
+      Note:
+        Option parser will stop on first unknown option and pass them down to
+        underneath revision control
+
 Read diff from local modification in a *Git/Mercurial/Svn* workspace (output
 from e.g. ``git diff``, ``svn diff``):
 
@@ -84,6 +88,9 @@ from e.g. ``git diff``, ``svn diff``):
     cdiff -s -w 90              # use text width 90 other than default 80
     cdiff -s file1 dir2         # view modification of given files/dirs only
     cdiff -s -w90 -- -U10       # pass '-U10' to underneath revision diff tool
+    cdiff -s -w90 -U10          # '--' is optional as it's unknown to cdiff
+    cdiff -s --cached           # show git staged diff (git diff --cached)
+    cdiff -s -r1234             # show svn diff to revision 1234
 
 Read log with changes in a *Git/Mercurial/Svn* workspace (output from e.g.
 ``git log -p``, ``svn log --diff``), note *--diff* option is new in svn 1.7.0:
