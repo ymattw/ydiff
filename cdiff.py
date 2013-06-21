@@ -644,12 +644,30 @@ def decode(line):
 
 
 def main():
-    import optparse
+    from optparse import (OptionParser, BadOptionError, AmbiguousOptionError)
+
+    class PassThroughOptionParser(OptionParser):
+        """Stop parsing on first unknown option (e.g. --cached, -U10) and pass
+        them down.  Note the `opt_str` in exception object does not give us
+        chance to take the full option back, e.g. for '-U10' it will only
+        contain '-U' and the '10' part will be lost.  Ref: http://goo.gl/IqY4A
+        (on stackoverflow).  My hack is to try parse and insert a '--' in place
+        and parse again.  Let me know if someone has better solution.
+        """
+        def _process_args(self, largs, rargs, values):
+            left = largs[:]
+            right = rargs[:]
+            try:
+                OptionParser._process_args(self, left, right, values)
+            except (BadOptionError, AmbiguousOptionError):
+                parsed_num = len(rargs) - len(right) - 1
+                rargs.insert(parsed_num, '--')
+            OptionParser._process_args(self, largs, rargs, values)
 
     supported_vcs = sorted(VCS_INFO.keys())
 
     usage = """%prog [options] [file|dir ...]"""
-    parser = optparse.OptionParser(
+    parser = PassThroughOptionParser(
         usage=usage, description=META_INFO['description'],
         version='%%prog %s' % META_INFO['version'])
     parser.add_option(
