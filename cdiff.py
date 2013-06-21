@@ -8,7 +8,7 @@ python (>= 2.5.0) and ``less``.
 """
 
 META_INFO = {
-    'version'     : '0.9.1',
+    'version'     : '0.9.2',
     'license'     : 'BSD-3',
     'author'      : 'Matthew Wang',
     'email'       : 'mattwyl(@)gmail(.)com',

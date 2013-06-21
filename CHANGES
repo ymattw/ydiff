@@ -2,6 +2,12 @@
 Change log
 ==========
 
+Version 0.9.2 (2013-06-21)
+
+  - Enahanced option parser now pass unknown option to underneath revision
+    control, user can use `cdiff --cached`, `cdiff -U5` directly
+
+
 Version 0.9.1 (2013-05-20)
 
   - Use `--no-ext-diff` to disable GIT_EXTERNAL_DIFF and diff.external which
