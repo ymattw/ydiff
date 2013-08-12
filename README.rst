@@ -9,11 +9,11 @@ Term based tool to view *colored*, *incremental* diff in a *Git/Mercurial/Svn*
 workspace or from stdin, with *side by side* and *auto pager* support. Requires
 python (>= 2.5.0) and ``less``.
 
-.. image:: http://ymattw.github.com/cdiff/img/default.png
+.. image:: https://raw.github.com/ymattw/cdiff/gh-pages/img/default.png
    :alt: default
    :align: center
 
-.. image:: http://ymattw.github.com/cdiff/img/side-by-side.png
+.. image:: https://raw.github.com/ymattw/cdiff/gh-pages/img/side-by-side.png
    :alt: side by side
    :align: center
    :width: 900 px
