@@ -24,6 +24,7 @@ if sys.hexversion < 0x02050000:
     raise SystemExit("*** Requires python >= 2.5.0")    # pragma: no cover
 
 import re
+import signal
 import subprocess
 import errno
 import fcntl
@@ -600,11 +601,8 @@ def markup_to_pager(stream, opts):
     # Args stolen from git source: github.com/git/git/blob/master/pager.c
     pager = subprocess.Popen(
         ['less', '-FRSX'], stdin=subprocess.PIPE, stdout=sys.stdout)
-    try:
-        for line in color_diff:
-            pager.stdin.write(line.encode('utf-8'))
-    except KeyboardInterrupt:
-        pass
+    for line in color_diff:
+        pager.stdin.write(line.encode('utf-8'))
 
     pager.stdin.close()
     pager.wait()
@@ -644,6 +642,9 @@ def decode(line):
 
 
 def main():
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
     from optparse import (OptionParser, BadOptionError, AmbiguousOptionError,
                           OptionGroup)
 
