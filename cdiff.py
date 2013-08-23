@@ -642,8 +642,14 @@ def decode(line):
 
 
 def main():
-    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    try:
+        # Exit on broken pipe.
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+    except AttributeError:
+        # SIGPIPE is not available on Windows.
+        pass
 
     from optparse import (OptionParser, BadOptionError, AmbiguousOptionError,
                           OptionGroup)
