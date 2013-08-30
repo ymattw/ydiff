@@ -26,7 +26,6 @@ if sys.hexversion < 0x02050000:
 import re
 import signal
 import subprocess
-import errno
 import fcntl
 import os
 import difflib
@@ -717,12 +716,7 @@ def main():
 
     if opts.color == 'always' or \
             (opts.color == 'auto' and sys.stdout.isatty()):
-        try:
-            markup_to_pager(stream, opts)
-        except IOError:
-            e = sys.exc_info()[1]
-            if e.errno == errno.EPIPE:
-                pass
+        markup_to_pager(stream, opts)
     else:
         # pipe out stream untouched to make sure it is still a patch
         for line in stream:
