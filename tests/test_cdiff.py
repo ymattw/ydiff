@@ -78,7 +78,7 @@ class DecodeTest(unittest.TestCase):
         self.assertEqual('hello', cdiff.decode(utext))
 
     def test_malformed_utf8(self):
-        text = b'\x80\x02q\x01(U'
+        text = '\x80\x02q\x01(U'
         self.assertEqual(text, cdiff.decode(text))
 
 
