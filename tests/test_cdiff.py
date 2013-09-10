@@ -71,6 +71,17 @@ class PatchStreamTest(unittest.TestCase):
         self.assertEqual(out, items)
 
 
+class DecodeTest(unittest.TestCase):
+
+    def test_normal(self):
+        utext = 'hello'.encode('utf-8')
+        self.assertEqual('hello', cdiff.decode(utext))
+
+    def test_malformed_utf8(self):
+        text = b'\x80\x02q\x01(U'
+        self.assertEqual(text, cdiff.decode(text))
+
+
 class HunkTest(unittest.TestCase):
 
     def test_get_old_text(self):

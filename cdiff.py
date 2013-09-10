@@ -634,7 +634,7 @@ def decode(line):
     """Decode UTF-8 if necessary."""
     try:
         return line.decode('utf-8')
-    except AttributeError:
+    except (AttributeError, UnicodeDecodeError):
         return line
 
 
