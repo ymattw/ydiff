@@ -26,7 +26,7 @@ if sys.hexversion < 0x02050000:
 import re
 import signal
 import subprocess
-import fcntl
+import select
 import os
 import difflib
 
@@ -226,44 +226,54 @@ class PatchStream(object):
 
 
 class PatchStreamForwarder(object):
-    """A non-block stream forwarder.  Note input stream is non-seekable, and
-    upstream has eaten some lines.
+    """A blocking stream forwarder use `select` and line buffered mode.  Feed
+    input stream to a diff format translator and read output stream from it.
+    Note input stream is non-seekable, and upstream has eaten some lines.
     """
     def __init__(self, istream, translator):
         assert isinstance(istream, PatchStream)
-        self._istream = istream
-        self._translator = translator
+        assert isinstance(translator, subprocess.Popen)
+        self._istream = iter(istream)
+        self._in = translator.stdin
+        self._out = translator.stdout
 
-        self._set_non_block(self._translator.stdin)
-        self._set_non_block(self._translator.stdout)
+    def _can_read(self, timeout=0):
+        return select.select([self._out.fileno()], [], [], timeout)[0]
 
-        self._forward_until_block()
-
-    def _set_non_block(self, hdl):
-        fd = hdl.fileno()
-        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-        fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-
-    def _forward_until_block(self):
-        for line in self._istream:
-            try:
-                self._translator.stdin.write(line.encode('utf-8'))
-            except IOError:
-                break       # EAGAIN
-        else:
-            self._translator.stdin.close()
+    def _forward_line(self):
+        try:
+            line = next(self._istream)
+            self._in.write(line.encode('utf-8'))
+        except StopIteration:
+            # XXX: close() does not notify select() for EOF event in python
+            # 2.x, one of these two interface must be buggy
+            #
+            # Sending EOF manually does not work either
+            #
+            #print('StopIteration, closing (sending EOF)')
+            #self._in.write('\x1a'.encode('utf-8'))
+            self._in.close()
 
     def __iter__(self):
         while True:
-            try:
-                line = self._translator.stdout.readline()
-                if not line:
+            if self._can_read():
+                line = self._out.readline()
+                if line:
+                    yield line
+                else:
+                    #print('got EOF')
                     return
-                yield line
-            except IOError:
-                if not self._translator.stdin.closed:
-                    self._forward_until_block()
-                continue    # EAGAIN
+            elif not self._in.closed:
+                self._forward_line()
+            else:
+                #print('no data to read and istream closed')
+                # XXX: `close` or `select` seems buggy in python 2.x, select
+                # does not tell ready event on _translator.stdout anymore once
+                # the stdin is closed.  Just add a timeout here to detect, when
+                # that happen the remaining in output stream will be discarded
+                #
+                if not self._can_read(0.5):
+                    return
 
 
 class DiffParser(object):
@@ -283,9 +293,10 @@ class DiffParser(object):
             #
             self._type = 'context'
             try:
+                # Use line buffered mode so that to readline() in block mode
                 self._translator = subprocess.Popen(
                     ['filterdiff', '--format=unified'], stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE)
+                    stdout=subprocess.PIPE, bufsize=1)
             except OSError:
                 raise SystemExit('*** Context diff support depends on '
                                  'filterdiff')
