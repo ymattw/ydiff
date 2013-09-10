@@ -234,7 +234,6 @@ class PatchStreamForwarder(object):
         self._istream = istream
         self._translator = translator
 
-        self._istream_open = True
         self._set_non_block(self._translator.stdin)
         self._set_non_block(self._translator.stdout)
 
@@ -253,7 +252,6 @@ class PatchStreamForwarder(object):
                 break       # EAGAIN
         else:
             self._translator.stdin.close()
-            self._istream_open = False
 
     def __iter__(self):
         while True:
@@ -263,7 +261,7 @@ class PatchStreamForwarder(object):
                     return
                 yield line
             except IOError:
-                if self._istream_open:
+                if not self._translator.stdin.closed:
                     self._forward_until_block()
                 continue    # EAGAIN
 
