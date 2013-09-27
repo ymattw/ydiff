@@ -23,6 +23,12 @@ import sys
 if sys.hexversion < 0x02050000:
     raise SystemExit("*** Requires python >= 2.5.0")    # pragma: no cover
 
+# Python < 2.6 does not have next()
+try:
+    next
+except NameError:
+    def next(obj): return obj.next()
+
 import re
 import signal
 import subprocess
