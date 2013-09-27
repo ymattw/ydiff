@@ -252,7 +252,7 @@ class PatchStreamForwarder(object):
             self._in.write(line.encode('utf-8'))
         except StopIteration:
             # XXX: close() does not notify select() for EOF event in python
-            # 2.x, one of these two interface must be buggy
+            # < 2.7.3, one of these two interface must be buggy
             #
             # Sending EOF manually does not work either
             #
@@ -273,7 +273,7 @@ class PatchStreamForwarder(object):
                 self._forward_line()
             else:
                 #print('no data to read and istream closed')
-                # XXX: `close` or `select` seems buggy in python 2.x, select
+                # XXX: `close` or `select` seems buggy in python < 2.7.3, select
                 # does not tell ready event on _translator.stdout anymore once
                 # the stdin is closed.  Just add a timeout here to detect, when
                 # that happen the remaining in output stream will be discarded
