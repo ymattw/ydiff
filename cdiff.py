@@ -251,13 +251,6 @@ class PatchStreamForwarder(object):
             line = next(self._istream)
             self._in.write(line.encode('utf-8'))
         except StopIteration:
-            # XXX: close() does not notify select() for EOF event in python
-            # < 2.7.3, one of these two interface must be buggy
-            #
-            # Sending EOF manually does not work either
-            #
-            #print('StopIteration, closing (sending EOF)')
-            #self._in.write('\x1a'.encode('utf-8'))
             self._in.close()
 
     def __iter__(self):
@@ -267,19 +260,9 @@ class PatchStreamForwarder(object):
                 if line:
                     yield line
                 else:
-                    #print('got EOF')
                     return
             elif not self._in.closed:
                 self._forward_line()
-            else:
-                #print('no data to read and istream closed')
-                # XXX: `close` or `select` seems buggy in python < 2.7.3, select
-                # does not tell ready event on _translator.stdout anymore once
-                # the stdin is closed.  Just add a timeout here to detect, when
-                # that happen the remaining in output stream will be discarded
-                #
-                if not self._can_read(0.5):
-                    return
 
 
 class DiffParser(object):
@@ -607,14 +590,26 @@ class DiffMarker(object):
 
 
 def markup_to_pager(stream, opts):
+    """Pipe unified diff stream to pager (less).
+
+    Note: have to create pager Popen object before the translator Popen object
+    in PatchStreamForwarder, otherwise the `stdin=subprocess.PIPE` would cause
+    trouble to the translator pipe (select() never see EOF after input stream
+    ended), most likely python bug 12607 (http://bugs.python.org/issue12607)
+    which was fixed in python 2.7.3.
+
+    See issue #30 (https://github.com/ymattw/cdiff/issues/30) for more
+    information.
+    """
+    # Args stolen from git source: github.com/git/git/blob/master/pager.c
+    pager = subprocess.Popen(
+        ['less', '-FRSX'], stdin=subprocess.PIPE, stdout=sys.stdout)
+
     diffs = DiffParser(stream).get_diff_generator()
     marker = DiffMarker()
     color_diff = marker.markup(diffs, side_by_side=opts.side_by_side,
                                width=opts.width)
 
-    # Args stolen from git source: github.com/git/git/blob/master/pager.c
-    pager = subprocess.Popen(
-        ['less', '-FRSX'], stdin=subprocess.PIPE, stdout=sys.stdout)
     for line in color_diff:
         pager.stdin.write(line.encode('utf-8'))
 
