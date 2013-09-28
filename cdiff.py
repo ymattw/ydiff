@@ -23,10 +23,16 @@ import sys
 if sys.hexversion < 0x02050000:
     raise SystemExit("*** Requires python >= 2.5.0")    # pragma: no cover
 
+# Python < 2.6 does not have next()
+try:
+    next
+except NameError:
+    def next(obj): return obj.next()
+
 import re
 import signal
 import subprocess
-import fcntl
+import select
 import os
 import difflib
 
@@ -226,44 +232,37 @@ class PatchStream(object):
 
 
 class PatchStreamForwarder(object):
-    """A non-block stream forwarder.  Note input stream is non-seekable, and
-    upstream has eaten some lines.
+    """A blocking stream forwarder use `select` and line buffered mode.  Feed
+    input stream to a diff format translator and read output stream from it.
+    Note input stream is non-seekable, and upstream has eaten some lines.
     """
     def __init__(self, istream, translator):
         assert isinstance(istream, PatchStream)
-        self._istream = istream
-        self._translator = translator
+        assert isinstance(translator, subprocess.Popen)
+        self._istream = iter(istream)
+        self._in = translator.stdin
+        self._out = translator.stdout
 
-        self._set_non_block(self._translator.stdin)
-        self._set_non_block(self._translator.stdout)
+    def _can_read(self, timeout=0):
+        return select.select([self._out.fileno()], [], [], timeout)[0]
 
-        self._forward_until_block()
-
-    def _set_non_block(self, hdl):
-        fd = hdl.fileno()
-        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-        fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-
-    def _forward_until_block(self):
-        for line in self._istream:
-            try:
-                self._translator.stdin.write(line.encode('utf-8'))
-            except IOError:
-                break       # EAGAIN
-        else:
-            self._translator.stdin.close()
+    def _forward_line(self):
+        try:
+            line = next(self._istream)
+            self._in.write(line.encode('utf-8'))
+        except StopIteration:
+            self._in.close()
 
     def __iter__(self):
         while True:
-            try:
-                line = self._translator.stdout.readline()
-                if not line:
+            if self._can_read():
+                line = self._out.readline()
+                if line:
+                    yield line
+                else:
                     return
-                yield line
-            except IOError:
-                if not self._translator.stdin.closed:
-                    self._forward_until_block()
-                continue    # EAGAIN
+            elif not self._in.closed:
+                self._forward_line()
 
 
 class DiffParser(object):
@@ -283,9 +282,10 @@ class DiffParser(object):
             #
             self._type = 'context'
             try:
+                # Use line buffered mode so that to readline() in block mode
                 self._translator = subprocess.Popen(
                     ['filterdiff', '--format=unified'], stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE)
+                    stdout=subprocess.PIPE, bufsize=1)
             except OSError:
                 raise SystemExit('*** Context diff support depends on '
                                  'filterdiff')
@@ -590,14 +590,26 @@ class DiffMarker(object):
 
 
 def markup_to_pager(stream, opts):
+    """Pipe unified diff stream to pager (less).
+
+    Note: have to create pager Popen object before the translator Popen object
+    in PatchStreamForwarder, otherwise the `stdin=subprocess.PIPE` would cause
+    trouble to the translator pipe (select() never see EOF after input stream
+    ended), most likely python bug 12607 (http://bugs.python.org/issue12607)
+    which was fixed in python 2.7.3.
+
+    See issue #30 (https://github.com/ymattw/cdiff/issues/30) for more
+    information.
+    """
+    # Args stolen from git source: github.com/git/git/blob/master/pager.c
+    pager = subprocess.Popen(
+        ['less', '-FRSX'], stdin=subprocess.PIPE, stdout=sys.stdout)
+
     diffs = DiffParser(stream).get_diff_generator()
     marker = DiffMarker()
     color_diff = marker.markup(diffs, side_by_side=opts.side_by_side,
                                width=opts.width)
 
-    # Args stolen from git source: github.com/git/git/blob/master/pager.c
-    pager = subprocess.Popen(
-        ['less', '-FRSX'], stdin=subprocess.PIPE, stdout=sys.stdout)
     for line in color_diff:
         pager.stdin.write(line.encode('utf-8'))
 
