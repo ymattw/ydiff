@@ -33,7 +33,6 @@ import re
 import signal
 import subprocess
 import select
-import os
 import difflib
 
 
