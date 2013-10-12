@@ -36,6 +36,12 @@ import select
 import difflib
 
 
+try:
+    unicode
+except NameError:
+    unicode = str
+
+
 COLORS = {
     'reset'         : '\x1b[0m',
     'underline'     : '\x1b[4m',
@@ -248,7 +254,7 @@ class PatchStreamForwarder(object):
     def _forward_line(self):
         try:
             line = next(self._istream)
-            self._in.write(line.encode('utf-8'))
+            self._in.write(line)
         except StopIteration:
             self._in.close()
 
@@ -643,10 +649,16 @@ def revision_control_log(args):
 
 def decode(line):
     """Decode UTF-8 if necessary."""
-    try:
-        return line.decode('utf-8')
-    except (AttributeError, UnicodeDecodeError):
+    if isinstance(line, unicode):
         return line
+
+    for encoding in ['utf-8', 'latin1']:
+        try:
+            return line.decode(encoding)
+        except UnicodeDecodeError:
+            pass
+
+    return '*** cdiff: undecodable bytes ***\n'
 
 
 def main():
@@ -715,7 +727,8 @@ def main():
             parser.print_help()
             return 1
     else:
-        diff_hdl = sys.stdin
+        diff_hdl = (sys.stdin.buffer if hasattr(sys.stdin, 'buffer')
+                    else sys.stdin)
 
     stream = PatchStream(diff_hdl)
 
@@ -730,8 +743,11 @@ def main():
         # pipe out stream untouched to make sure it is still a patch
         if sys.hexversion < 0x03000000:
             reload(sys).setdefaultencoding('utf8')
+
+        byte_output = (sys.stdout.buffer if hasattr(sys.stdout, 'buffer')
+                       else sys.stdout)
         for line in stream:
-            sys.stdout.write(decode(line))
+            byte_output.write(line)
 
     if diff_hdl is not sys.stdin:
         diff_hdl.close()
