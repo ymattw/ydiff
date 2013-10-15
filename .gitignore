@@ -1,7 +1,9 @@
+.*.swp
 *.pyc
 *~
 *.tmp
 /.coverage
+/.travis-solo/
 /htmlcov/
 /MANIFEST
 /build/

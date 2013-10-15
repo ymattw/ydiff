@@ -77,9 +77,13 @@ class DecodeTest(unittest.TestCase):
         utext = 'hello'.encode('utf-8')
         self.assertEqual('hello', cdiff.decode(utext))
 
-    def test_malformed_utf8(self):
+    def test_latin_1(self):
         text = '\x80\x02q\x01(U'
-        self.assertEqual(text, cdiff.decode(text))
+        if sys.version_info[0] == 2:
+            decoded_text = text.decode('latin-1')
+        else:
+            decoded_text = text
+        self.assertEqual(decoded_text, cdiff.decode(text))
 
 
 class HunkTest(unittest.TestCase):
