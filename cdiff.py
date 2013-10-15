@@ -741,9 +741,6 @@ def main():
         markup_to_pager(stream, opts)
     else:
         # pipe out stream untouched to make sure it is still a patch
-        if sys.hexversion < 0x03000000:
-            reload(sys).setdefaultencoding('utf8')
-
         byte_output = (sys.stdout.buffer if hasattr(sys.stdout, 'buffer')
                        else sys.stdout)
         for line in stream:
