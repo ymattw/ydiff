@@ -29,6 +29,7 @@ try:
 except NameError:
     def next(obj): return obj.next()
 
+import os
 import re
 import signal
 import subprocess
@@ -606,9 +607,12 @@ def markup_to_pager(stream, opts):
     See issue #30 (https://github.com/ymattw/cdiff/issues/30) for more
     information.
     """
-    # Args stolen from git source: github.com/git/git/blob/master/pager.c
+    pager_cmd = ['less']
+    if not os.getenv('LESS'):
+        # Args stolen from git source: github.com/git/git/blob/master/pager.c
+        pager_cmd.extend(['-FRSX'])
     pager = subprocess.Popen(
-        ['less', '-FRSX'], stdin=subprocess.PIPE, stdout=sys.stdout)
+        pager_cmd, stdin=subprocess.PIPE, stdout=sys.stdout)
 
     diffs = DiffParser(stream).get_diff_generator()
     marker = DiffMarker()
