@@ -35,6 +35,8 @@ setup(
         'Operating System :: POSIX',
         'Operating System :: Unix',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
     ],
     py_modules = ['cdiff'],
     scripts = ['cdiff'],
