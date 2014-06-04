@@ -2,6 +2,11 @@
 Change log
 ==========
 
+Version 0.9.4 (2014-06-04)
+  - Respect the `LESS' environment variable
+  - Support python 3.4
+  - Fix curl options in document
+
 Version 0.9.3 (2013-09-28)
 
   - Moved screenshots to 'gh-pages' branch
