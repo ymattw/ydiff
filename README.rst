@@ -51,7 +51,7 @@ my ``$PATH``, so I save the script there and name as ``cdiff``.
 
 .. code:: sh
 
-    curl https://raw.github.com/ymattw/cdiff/master/cdiff.py > ~/bin/cdiff
+    curl -sSL https://raw.github.com/ymattw/cdiff/master/cdiff.py > ~/bin/cdiff
     chmod +x ~/bin/cdiff
 
 Usage
