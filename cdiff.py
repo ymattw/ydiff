@@ -725,8 +725,8 @@ def main():
         help='enable side-by-side mode')
     parser.add_option(
         '-w', '--width', type='int', default=80, metavar='N',
-        help='set text width for side-by-side mode. If set to "0", cdiff ' \
-             'will attempt to fit the terminal width.')
+        help='set text width for side-by-side mode, 0 for auto detection, '
+             'default is 80')
     parser.add_option(
         '-l', '--log', action='store_true',
         help='show log with changes from revision control')

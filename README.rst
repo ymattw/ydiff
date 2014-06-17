@@ -69,7 +69,8 @@ Type ``cdiff -h`` to show usage::
       --version           show program's version number and exit
       -h, --help          show this help message and exit
       -s, --side-by-side  enable side-by-side mode
-      -w N, --width=N     set text width for side-by-side mode, default is 80
+      -w N, --width=N     set text width for side-by-side mode, 0 for auto
+                          detection, default is 80
       -l, --log           show log with changes from revision control
       -c M, --color=M     colorize mode 'auto' (default), 'always', or 'never'
 
