@@ -665,25 +665,19 @@ def decode(line):
 
     return '*** cdiff: undecodable bytes ***\n'
 
-def terminal_size():
-    """
-    Returns terminal size.
 
-    Taken from this gist:
-    https://gist.github.com/marsam/7268750
+def terminal_size():
+    """Returns terminal size. Taken from https://gist.github.com/marsam/7268750
+    but removed win32 support which depends on 3rd party extension.
     """
     width, height = None, None
-    if sys.platform == 'win32':
-        import win32utils
-        width, height = win32utils.get_console_size(defaultx=width, defaulty=height)
-    else:
-        try:
-            import struct, fcntl, termios
-            s = struct.pack('HHHH', 0, 0, 0, 0)
-            x = fcntl.ioctl(1, termios.TIOCGWINSZ, s)
-            height, width = struct.unpack('HHHH', x)[0:2]
-        except (IOError, AttributeError):
-            pass
+    try:
+        import struct, fcntl, termios
+        s = struct.pack('HHHH', 0, 0, 0, 0)
+        x = fcntl.ioctl(1, termios.TIOCGWINSZ, s)
+        height, width = struct.unpack('HHHH', x)[0:2]
+    except (IOError, AttributeError):
+        pass
     return width, height
 
 
