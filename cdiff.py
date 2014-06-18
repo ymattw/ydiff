@@ -490,10 +490,6 @@ class DiffMarker(object):
 
             return ''.join(out)
 
-        # Set up line width
-        if width <= 0:
-            width = 80
-
         # Set up number width, note last hunk might be empty
         try:
             (start, offset) = diff._hunks[-1]._old_addr
@@ -503,7 +499,19 @@ class DiffMarker(object):
         except IndexError:
             max1 = max2 = 0
         num_width = max(len(str(max1)), len(str(max2)))
-        width -= num_width
+
+        # Set up line width
+        if width <= 0:
+            # Autodetection of text width according to terminal size
+            try:
+                # Each line is like "nnn TEXT nnn TEXT\n", so width is half of
+                # [terminal size minus the line number columns and 3 separating
+                # spaces
+                #
+                width = (terminal_size()[0] - num_width * 2 - 3) / 2
+            except Exception:
+                # If terminal detection failed, set back to default
+                width = 80
 
         # Setup lineno and line format
         left_num_fmt = colorize('%%(left_num)%ds' % num_width, 'yellow')
@@ -733,15 +741,6 @@ def main():
     parser.add_option_group(option_group)
 
     opts, args = parser.parse_args()
-
-    if opts.width == 0 and opts.side_by_side:
-        # Autodetection of text width according to terminal size
-        try:
-            # width = half the terminal size minus the 3 minimum padding chars
-            opts.width = (terminal_size()[0] - 3) / 2
-        except Exception:
-            # If terminal detection failed, set back to default
-            opts.width = 80
 
     if opts.log:
         diff_hdl = revision_control_log(args)
