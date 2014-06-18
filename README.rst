@@ -85,8 +85,9 @@ from e.g. ``git diff``, ``svn diff``):
 
     cd proj-workspace
     cdiff                       # view colored incremental diff
-    cdiff -s                    # view side by side
+    cdiff -s                    # view side by side, use default text width 80
     cdiff -s -w 90              # use text width 90 other than default 80
+    cdiff -s -w 0               # auto set text width based on terminal size
     cdiff -s file1 dir2         # view modification of given files/dirs only
     cdiff -s -w90 -- -U10       # pass '-U10' to underneath revision diff tool
     cdiff -s -w90 -U10          # '--' is optional as it's unknown to cdiff
