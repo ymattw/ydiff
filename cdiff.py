@@ -490,10 +490,6 @@ class DiffMarker(object):
 
             return ''.join(out)
 
-        # Set up line width
-        if width <= 0:
-            width = 80
-
         # Set up number width, note last hunk might be empty
         try:
             (start, offset) = diff._hunks[-1]._old_addr
@@ -503,6 +499,19 @@ class DiffMarker(object):
         except IndexError:
             max1 = max2 = 0
         num_width = max(len(str(max1)), len(str(max2)))
+
+        # Set up line width
+        if width <= 0:
+            # Autodetection of text width according to terminal size
+            try:
+                # Each line is like "nnn TEXT nnn TEXT\n", so width is half of
+                # [terminal size minus the line number columns and 3 separating
+                # spaces
+                #
+                width = (terminal_size()[0] - num_width * 2 - 3) / 2
+            except Exception:
+                # If terminal detection failed, set back to default
+                width = 80
 
         # Setup lineno and line format
         left_num_fmt = colorize('%%(left_num)%ds' % num_width, 'yellow')
@@ -665,6 +674,21 @@ def decode(line):
     return '*** cdiff: undecodable bytes ***\n'
 
 
+def terminal_size():
+    """Returns terminal size. Taken from https://gist.github.com/marsam/7268750
+    but removed win32 support which depends on 3rd party extension.
+    """
+    width, height = None, None
+    try:
+        import struct, fcntl, termios
+        s = struct.pack('HHHH', 0, 0, 0, 0)
+        x = fcntl.ioctl(1, termios.TIOCGWINSZ, s)
+        height, width = struct.unpack('HHHH', x)[0:2]
+    except (IOError, AttributeError):
+        pass
+    return width, height
+
+
 def main():
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -701,7 +725,8 @@ def main():
         help='enable side-by-side mode')
     parser.add_option(
         '-w', '--width', type='int', default=80, metavar='N',
-        help='set text width for side-by-side mode, default is 80')
+        help='set text width for side-by-side mode, 0 for auto detection, '
+             'default is 80')
     parser.add_option(
         '-l', '--log', action='store_true',
         help='show log with changes from revision control')

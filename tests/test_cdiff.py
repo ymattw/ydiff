@@ -255,7 +255,8 @@ class DiffMarkupTest(unittest.TestCase):
             '\x1b[0m\x1b[33m4\x1b[0m '
             '\x1b[32m\x1b[4m\x1b[32ma\x1b[0m\x1b[32mgain\x1b[0m\n')
 
-    def test_markup_side_by_side_neg_width(self):
+    # This test is not valid anymore
+    def __test_markup_side_by_side_neg_width(self):
         diff = self._init_diff()
         marker = cdiff.DiffMarker()
         out = list(marker._markup_side_by_side(diff, -1))
