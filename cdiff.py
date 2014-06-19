@@ -619,7 +619,7 @@ def markup_to_pager(stream, opts):
     pager_cmd = ['less']
     if not os.getenv('LESS'):
         # Args stolen from git source: github.com/git/git/blob/master/pager.c
-        pager_cmd.extend(['-FRSX'])
+        pager_cmd.extend(['-FRSX', '--shift 1'])
     pager = subprocess.Popen(
         pager_cmd, stdin=subprocess.PIPE, stdout=sys.stdout)
 
