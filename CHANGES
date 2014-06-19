@@ -2,7 +2,13 @@
 Change log
 ==========
 
+Version 0.9.5 (2014-06-19)
+
+  - Option `--width 0` now fits terminal size automatically
+  - Enable smooth horizontal scrolling with less option `--shift 1`
+
 Version 0.9.4 (2014-06-04)
+
   - Respect the `LESS' environment variable
   - Support python 3.4
   - Fix curl options in document
