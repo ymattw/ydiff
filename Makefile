@@ -53,8 +53,10 @@ build:
 
 dist-test:
 	./setup.py build sdist register upload -r $(TESTPYPI)
+	rm -f ~/.pypirc
 
 dist:
 	./setup.py build sdist register upload -r $(PYPI)
+	rm -f ~/.pypirc
 
 # vim:set noet ts=8 sw=8:
