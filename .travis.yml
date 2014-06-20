@@ -10,6 +10,7 @@ python:
 
 before_install:
     - pip --quiet install docutils
+    - pip --quiet install Pygments
     - pip --quiet install coverage
     - coverage --version
     - sudo apt-get --quiet=2 install patchutils
