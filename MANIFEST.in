@@ -1,4 +1,4 @@
-include CHANGES
+include CHANGES.rst
 include LICENSE
 include Makefile
 include README.rst
