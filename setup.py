@@ -11,7 +11,7 @@ if sys.hexversion < 0x02050000:
 
 with open('README.rst') as doc:
     long_description = doc.read()
-with open('CHANGES') as changes:
+with open('CHANGES.rst') as changes:
     long_description += changes.read()
 
 setup(
