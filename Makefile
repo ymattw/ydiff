@@ -3,7 +3,7 @@
 TESTPYPI = http://testpypi.python.org/pypi
 PYPI = http://pypi.python.org/pypi
 
-.PHONY: dogfood doc-check clean build dist-test dist \
+.PHONY: dogfood doc-check doc-preview clean build dist-test dist \
 	test test3 cov cov3 html reg reg3 profile profile3
 
 dogfood:
@@ -11,14 +11,17 @@ dogfood:
 	git diff | ./cdiff.py -s
 
 doc-check:
+	./setup.py --long-description | rst2html.py --strict > /dev/null
+
+doc-preview:
 	./setup.py --long-description | rst2html.py --strict > output.html
 	python -m webbrowser -n "file://$(shell pwd)/output.html"
 	sleep 1
 	rm -f output.html
 
-test: cov reg
+test: doc-check cov reg
 
-test3: cov3 reg3
+test3: doc-check cov3 reg3
 
 cov:
 	coverage run tests/test_cdiff.py
