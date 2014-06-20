@@ -2,6 +2,10 @@
 Change log
 ==========
 
+Version 0.9.6 (2014-06-20)
+
+  - Fix TypeError exception in auto width logic
+
 Version 0.9.5 (2014-06-19)
 
   - Option ``--width 0`` now fits terminal size automatically
