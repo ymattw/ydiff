@@ -4,12 +4,12 @@ Change log
 
 Version 0.9.5 (2014-06-19)
 
-  - Option `--width 0` now fits terminal size automatically
-  - Enable smooth horizontal scrolling with less option `--shift 1`
+  - Option ``--width 0`` now fits terminal size automatically
+  - Enable smooth horizontal scrolling with less option ``--shift 1``
 
 Version 0.9.4 (2014-06-04)
 
-  - Respect the `LESS' environment variable
+  - Respect the ``LESS`` environment variable
   - Support python 3.4
   - Fix curl options in document
 
@@ -23,11 +23,11 @@ Version 0.9.3 (2013-09-28)
 Version 0.9.2 (2013-06-21)
 
   - Enahanced option parser now pass unknown option to underneath revision
-    control, user can use `cdiff --cached`, `cdiff -U5` directly
+    control, user can use ``cdiff --cached``, ``cdiff -U5`` directly
 
 Version 0.9.1 (2013-05-20)
 
-  - Use `--no-ext-diff` to disable GIT_EXTERNAL_DIFF and diff.external which
+  - Use ``--no-ext-diff`` to disable GIT_EXTERNAL_DIFF and diff.external which
     might break cdiff output
 
 Version 0.9 (2013-03-23)
@@ -101,3 +101,5 @@ Version 0.0.3 (2013-02-04)
     revision tools (thanks to `Steven Myint`_)
 
 .. _Steven Myint: https://github.com/myint
+
+.. vim:set ft=rst et sw=4 sts=4 tw=79:
