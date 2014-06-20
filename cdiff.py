@@ -508,7 +508,7 @@ class DiffMarker(object):
                 # [terminal size minus the line number columns and 3 separating
                 # spaces
                 #
-                width = (terminal_size()[0] - num_width * 2 - 3) / 2
+                width = (terminal_size()[0] - num_width * 2 - 3) // 2
             except Exception:
                 # If terminal detection failed, set back to default
                 width = 80
