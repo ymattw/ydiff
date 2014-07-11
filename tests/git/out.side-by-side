@@ -23,7 +23,7 @@
 [33m148[0m [0m[0m                                                                                 [0m[33m146[0m [0m[0m
 [33m149[0m [0m        # Setup line width and number width[0m                                      [0m[33m147[0m [0m        # Setup line width and number width[0m
 [33m150[0m [31m[7m[31m        if not width: width = 80[0m[31m[0m                                                 [0m[33m148[0m [32m[7m[32m        if width <= 0:[0m[32m[0m
-[33m   [0m                                                                                  [0m[33m149[0m [1;32m            width = 80[0m
+[33m   [0m                                                                                  [0m[33m149[0m [32m            width = 80[0m
 [33m151[0m [0m        (start, offset) = self._hunks[-1].get_old_addr()[0m                         [0m[33m150[0m [0m        (start, offset) = self._hunks[-1].get_old_addr()[0m
 [33m152[0m [0m        max1 = start + offset - 1[0m                                                [0m[33m151[0m [0m        max1 = start + offset - 1[0m
 [33m153[0m [0m        (start, offset) = self._hunks[-1].get_new_addr()[0m                         [0m[33m152[0m [0m        (start, offset) = self._hunks[-1].get_new_addr()[0m

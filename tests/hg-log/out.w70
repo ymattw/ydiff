@@ -17,13 +17,13 @@
 [0m[1;34m@@ -467,6 +467,13 @@
 [0m[33m467[0m [0m        dom.unlink()[0m                                                   [0m[33m467[0m [0m        dom.unlink()[0m
 [33m468[0m [0m        self.confirm(domstr == str.replace("\n", "\r\n"))[0m              [0m[33m468[0m [0m        self.confirm(domstr == str.replace("\n", "\r\n"))[0m
-[33m   [0m                                                                        [0m[33m469[0m [1;32m[0m
-[33m   [0m                                                                        [0m[33m470[0m [1;32m    def testPrettyTextNode(self):[0m
-[33m   [0m                                                                        [0m[33m471[0m [1;32m        str = '<A>B</A>'[0m
-[33m   [0m                                                                        [0m[33m472[0m [1;32m        dom = parseString(str)[0m
-[33m   [0m                                                                        [0m[33m473[0m [1;32m        dom2 = parseString(dom.toprettyxml())[0m
-[33m   [0m                                                                        [0m[33m474[0m [1;32m        self.confirm(dom.childNodes[0].childNodes[0].toxml()==[0m
-[33m   [0m                                                                        [0m[33m475[0m [1;32m                     dom2.childNodes[0].childNodes[0].toxml())[0m
+[33m   [0m                                                                        [0m[33m469[0m [32m[0m
+[33m   [0m                                                                        [0m[33m470[0m [32m    def testPrettyTextNode(self):[0m
+[33m   [0m                                                                        [0m[33m471[0m [32m        str = '<A>B</A>'[0m
+[33m   [0m                                                                        [0m[33m472[0m [32m        dom = parseString(str)[0m
+[33m   [0m                                                                        [0m[33m473[0m [32m        dom2 = parseString(dom.toprettyxml())[0m
+[33m   [0m                                                                        [0m[33m474[0m [32m        self.confirm(dom.childNodes[0].childNodes[0].toxml()==[0m
+[33m   [0m                                                                        [0m[33m475[0m [32m                     dom2.childNodes[0].childNodes[0].toxml())[0m
 [33m469[0m [0m[0m                                                                       [0m[33m476[0m [0m[0m
 [33m470[0m [0m    def testProcessingInstruction(self):[0m                               [0m[33m477[0m [0m    def testProcessingInstruction(self):[0m
 [33m471[0m [0m        dom = parseString('<e><?mypi \t\n data \t\n ?></e>')[0m           [0m[33m478[0m [0m        dom = parseString('<e><?mypi \t\n data \t\n ?></e>')[0m
@@ -36,8 +36,8 @@
 [33m 837[0m [0m            writer.write("\"")[0m                                         [0m[33m 837[0m [0m            writer.write("\"")[0m
 [33m 838[0m [0m        if self.childNodes:[0m                                            [0m[33m 838[0m [0m        if self.childNodes:[0m
 [33m 839[0m [31m            writer.write(">[7m[31m%s[0m[31m"[7m[31m%(newl)[0m[31m)[0m                                 [0m[33m 839[0m [32m            writer.write(">")[0m
-[33m    [0m                                                                        [0m[33m 840[0m [1;32m            if self.childNodes[0].nodeType != Node.TEXT_NODE:[0m
-[33m    [0m                                                                        [0m[33m 841[0m [1;32m                writer.write(newl)[0m
+[33m    [0m                                                                        [0m[33m 840[0m [32m            if self.childNodes[0].nodeType != Node.TEXT_NODE:[0m
+[33m    [0m                                                                        [0m[33m 841[0m [32m                writer.write(newl)[0m
 [33m 840[0m [0m            for node in self.childNodes:[0m                               [0m[33m 842[0m [0m            for node in self.childNodes:[0m
 [33m 841[0m [0m                node.writexml(writer,indent+addindent,addindent,newl)[0m  [0m[33m 843[0m [0m                node.writexml(writer,indent+addindent,addindent,newl)[0m
 [33m 842[0m [0m            writer.write("%s</%s>%s" % (indent,self.tagName,newl))[0m     [0m[33m 844[0m [0m            writer.write("%s</%s>%s" % (indent,self.tagName,newl))[0m

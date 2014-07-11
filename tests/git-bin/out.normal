@@ -6,8 +6,8 @@
 [0m[0m OUTPUT=${INPUT%.html}.pdf
 [0m[0m 
 [0m[0m wkhtmltopdf --page-size A4 $INPUT $OUTPUT  # very very long comments ends here
-[0m[1;32m+
-[0m[1;32m+# EOF
+[0m[32m+
+[0m[32m+# EOF
 [0m[36mdiff --git a/example.pdf b/example.pdf
 [0m[36mindex 1eacfd8..3696851 100644
 [0m[36mBinary files a/example.pdf and b/example.pdf differ
@@ -17,7 +17,7 @@
 [0m[33m+++ b/foo.html
 [0m[1;34m@@ -1,4 +1,4 @@
 [0m[1;31m-[0m[31m[7m[31m<!doctype html>
-[0m[31m[0m[1;32m+[0m[32m[7m[32m<!DOCTYPE html>
+[0m[31m[0m[32m+[0m[32m[7m[32m<!DOCTYPE html>
 [0m[32m[0m[0m <html>
 [0m[0m 
 [0m[0m <head>

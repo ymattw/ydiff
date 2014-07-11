@@ -15,10 +15,10 @@
 [0m[0m ## Usage of coderev.sh
 [0m[0m 
 [0m[1;31m-[0m[31mJust type `./coderev.sh -h` to see the usage.
-[0m[1;32m+[0m[32mJust type `./coderev.sh [7m[32m-[0m[32m-h[7m[32melp[0m[32m` to see the usage.
+[0m[32m+[0m[32mJust type `./coderev.sh [7m[32m-[0m[32m-h[7m[32melp[0m[32m` to see the usage.
 [0m[0m 
 [0m[0m     Usage:
-[0m[1;32m+
+[0m[32m+
 [0m[0m         coderev.sh [-r revision] [-w width] [-o outdir] [-y] [-d name] \
 [0m[0m                 [-F comment-file | -m 'comment...'] [file...]
 [0m[0m 
@@ -26,6 +26,6 @@
 [0m[0m                             specify column number where lines are broken and
 [0m[0m                             wrapped for sdiff, default is no line wrapping
 [0m[0m     -y, --yes             do not prompt for overwriting
-[0m[1;32m+
-[0m[1;32m+# EOF
+[0m[32m+
+[0m[32m+# EOF
 [0m

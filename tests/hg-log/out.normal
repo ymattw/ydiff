@@ -17,13 +17,13 @@
 [0m[1;34m@@ -467,6 +467,13 @@
 [0m[0m         dom.unlink()
 [0m[0m         self.confirm(domstr == str.replace("\n", "\r\n"))
-[0m[1;32m+
-[0m[1;32m+    def testPrettyTextNode(self):
-[0m[1;32m+        str = '<A>B</A>'
-[0m[1;32m+        dom = parseString(str)
-[0m[1;32m+        dom2 = parseString(dom.toprettyxml())
-[0m[1;32m+        self.confirm(dom.childNodes[0].childNodes[0].toxml()==
-[0m[1;32m+                     dom2.childNodes[0].childNodes[0].toxml())
+[0m[32m+
+[0m[32m+    def testPrettyTextNode(self):
+[0m[32m+        str = '<A>B</A>'
+[0m[32m+        dom = parseString(str)
+[0m[32m+        dom2 = parseString(dom.toprettyxml())
+[0m[32m+        self.confirm(dom.childNodes[0].childNodes[0].toxml()==
+[0m[32m+                     dom2.childNodes[0].childNodes[0].toxml())
 [0m[0m 
 [0m[0m     def testProcessingInstruction(self):
 [0m[0m         dom = parseString('<e><?mypi \t\n data \t\n ?></e>')
@@ -36,9 +36,9 @@
 [0m[0m             writer.write("\"")
 [0m[0m         if self.childNodes:
 [0m[1;31m-[0m[31m            writer.write(">[7m[31m%s[0m[31m"[7m[31m%(newl)[0m[31m)
-[0m[1;32m+[0m[32m            writer.write(">")
-[0m[1;32m+            if self.childNodes[0].nodeType != Node.TEXT_NODE:
-[0m[1;32m+                writer.write(newl)
+[0m[32m+[0m[32m            writer.write(">")
+[0m[32m+            if self.childNodes[0].nodeType != Node.TEXT_NODE:
+[0m[32m+                writer.write(newl)
 [0m[0m             for node in self.childNodes:
 [0m[0m                 node.writexml(writer,indent+addindent,addindent,newl)
 [0m[0m             writer.write("%s</%s>%s" % (indent,self.tagName,newl))
@@ -47,7 +47,7 @@
 [0m[0m 
 [0m[0m     def writexml(self, writer, indent="", addindent="", newl=""):
 [0m[1;31m-[0m[31m        _write_data(writer, [7m[31m"%s%s%s"%(indent, [0m[31mself.data[7m[31m, newl)[0m[31m)
-[0m[1;32m+[0m[32m        _write_data(writer, self.data)
+[0m[32m+[0m[32m        _write_data(writer, self.data)
 [0m[0m 
 [0m[0m     # DOM Level 3 (WD 9 April 2002)
 [0m[0m 
