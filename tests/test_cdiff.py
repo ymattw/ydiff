@@ -182,7 +182,7 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(out[0], '\x1b[33m--- old\n\x1b[0m')
         self.assertEqual(out[1], '\x1b[33m+++ new\n\x1b[0m')
         self.assertEqual(out[2], '\x1b[1;34m@@ -0,0 +1 @@\n\x1b[0m')
-        self.assertEqual(out[3], '\x1b[1;32m+spam\n\x1b[0m')
+        self.assertEqual(out[3], '\x1b[32m+spam\n\x1b[0m')
 
     def test_markup_traditional_both_changed(self):
         hunk = cdiff.Hunk([], '@@ -1,2 +1,2 @@\n', (1, 2), (1, 2))
@@ -204,7 +204,7 @@ class DiffMarkupTest(unittest.TestCase):
             '\x1b[4m\x1b[31ma\x1b[0m\x1b[31m\n\x1b[0m')
         self.assertEqual(
             out[4],
-            '\x1b[1;32m+\x1b[0m\x1b[32mhell'
+            '\x1b[32m+\x1b[0m\x1b[32mhell'
             '\x1b[4m\x1b[32mo\x1b[0m\x1b[32m\n\x1b[0m')
         self.assertEqual(out[5], '\x1b[0m common\n\x1b[0m')
 
@@ -235,7 +235,7 @@ class DiffMarkupTest(unittest.TestCase):
             '\x1b[33m '
             '\x1b[0m         '
             '\x1b[0m\x1b[33m2\x1b[0m '
-            '\x1b[1;32mspammm\x1b[0m\n')
+            '\x1b[32mspammm\x1b[0m\n')
         self.assertEqual(
             out[7],
             '\x1b[33m2\x1b[0m '
@@ -279,7 +279,7 @@ class DiffMarkupTest(unittest.TestCase):
             '\x1b[33m '
             '\x1b[0m  ' + (' ' * 80) +
             '\x1b[0m\x1b[33m2\x1b[0m '
-            '\x1b[1;32mspammm\x1b[0m\n')
+            '\x1b[32mspammm\x1b[0m\n')
         self.assertEqual(
             out[7],
             '\x1b[33m2\x1b[0m '
@@ -325,7 +325,7 @@ class DiffMarkupTest(unittest.TestCase):
             out[6],
             '\x1b[33m \x1b[0m        '
             '\x1b[0m\x1b[33m2\x1b[0m '
-            '\x1b[1;32mspammm\x1b[0m\n')
+            '\x1b[32mspammm\x1b[0m\n')
         self.assertEqual(
             out[7],
             '\x1b[33m2\x1b[0m '
@@ -371,7 +371,7 @@ class DiffMarkupTest(unittest.TestCase):
             '\x1b[33m \x1b[0m       '
             '\x1b[0m\x1b[33m2\x1b[0m '
             ''
-            '\x1b[1;32mspam\x1b[0m\x1b[1;35m>\x1b[0m\n')
+            '\x1b[32mspam\x1b[0m\x1b[1;35m>\x1b[0m\n')
         self.assertEqual(
             out[7],
             '\x1b[33m2\x1b[0m '

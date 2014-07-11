@@ -11,7 +11,7 @@ PYTHON=${PYTHON:-python}
 function pass()
 {
     if [[ -t 1 ]]; then
-        echo -e "\x1b[01;32mPASS\x1b[0m" "$*"
+        echo -e "\x1b[032mPASS\x1b[0m" "$*"
     else
         echo "PASS" "$*"
     fi
