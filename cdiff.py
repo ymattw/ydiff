@@ -590,7 +590,7 @@ class DiffMarker(object):
         return colorize(line, 'lightred')
 
     def _markup_new(self, line):
-        return colorize(line, 'lightgreen')
+        return colorize(line, 'green')
 
     def _markup_mix(self, line, base_color):
         del_code = COLORS['reverse'] + COLORS[base_color]
