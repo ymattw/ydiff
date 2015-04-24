@@ -547,11 +547,15 @@ class DiffMarker(object):
                 if changed:
                     if not old[0]:
                         left = '%*s' % (width, ' ')
-                        right = right.lstrip('\x00+').rstrip('\x01')
+                        right = right.rstrip('\x01')
+                        if right.startswith('\x00+'):
+                            right = right[2:]
                         right = _fit_with_marker(
                             right, self._markup_new, width)
                     elif not new[0]:
-                        left = left.lstrip('\x00-').rstrip('\x01')
+                        left = left.rstrip('\x01')
+                        if left.startswith('\x00-'):
+                            left = left[2:]
                         left = _fit_with_marker(left, self._markup_old, width)
                         right = ''
                     else:
