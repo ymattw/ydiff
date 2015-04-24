@@ -2,6 +2,11 @@
 Change log
 ==========
 
+Version 0.9.7 (2015-04-24)
+
+  - Fix unexpected side-by-side output for diff of diff
+  - Better color to work with solarized color scheme
+
 Version 0.9.6 (2014-06-20)
 
   - Fix TypeError exception in auto width logic
