@@ -1,0 +1,38 @@
+[36mIndex: patch-Alias.xs
+[0m[36m===================================================================
+[0m[33m--- patch-Alias.xs	(revision 384635)
+[0m[33m+++ patch-Alias.xs	(revision 384636)
+[0m[1;34m@@ -140,17 +140,21 @@
+[0m[0m  	tmp = kLISTOP->op_first;
+[0m[0m  	if (inside)
+[0m[0m  		op_null(tmp);
+[0m[1;31m-[0m[31m@@ -2001,6 +2035,[4m[31m9[0m[31m @@ STATIC OP *da_ck_entersub(pTHX_ OP *o) {
+[0m[32m+[0m[32m@@ -2001,6 +2035,[4m[32m13[0m[32m @@ STATIC OP *da_ck_entersub(pTHX_ OP *o) {
+[0m[0m  	while (kid->op_sibling != last)
+[0m[0m  		kid = kid->op_sibling;
+[0m[0m  	kid->op_sibling = Nullop;
+[0m[0m +#ifdef op_sibling_splice
+[0m[32m++#if (PERL_COMBI_VERSION >= 5021011)
+[0m[32m++	kid->op_moresib = 0;
+[0m[32m++#else
+[0m[0m +	kid->op_lastsib = 1;
+[0m[32m++#endif
+[0m[0m +#endif
+[0m[0m  	cLISTOPx(cUNOPo->op_first)->op_last = kid;
+[0m[0m  	if (kid->op_type == OP_NULL && inside)
+[0m[0m  		kid->op_flags &= ~OPf_SPECIAL;
+[0m[1;31m-[0m[31m@@ -2008,6 +204[4m[31m5[0m[31m,14 @@ STATIC OP *da_ck_entersub(pTHX_ OP *o) {
+[0m[32m+[0m[32m@@ -2008,6 +204[4m[32m9[0m[32m,14 @@ STATIC OP *da_ck_entersub(pTHX_ OP *o) {
+[0m[0m  	return o;
+[0m[0m  }
+[0m[0m  
+[0m[1;34m@@ -165,7 +169,7 @@
+[0m[0m  
+[0m[0m  MODULE = Data::Alias  PACKAGE = Data::Alias
+[0m[0m  
+[0m[1;31m-[0m[31m@@ -2025,6 +207[4m[31m0[0m[31m,10 @@ BOOT:
+[0m[32m+[0m[32m@@ -2025,6 +207[4m[32m4[0m[32m,10 @@ BOOT:
+[0m[0m  		PL_check[OP_RV2CV] = da_ck_rv2cv;
+[0m[0m  		da_old_ck_entersub = PL_check[OP_ENTERSUB];
+[0m[0m  		PL_check[OP_ENTERSUB] = da_ck_entersub;
+[0m
