@@ -109,6 +109,15 @@ Read log with changes in a *Git/Mercurial/Svn* workspace (output from e.g.
     cdiff -ls -w90              # set text width 90 as well
     cdiff -ls file1 dir2        # see log with changes of given files/dirs only
 
+If you feel more comfortable with a command such as ``git cdiff`` to trigger
+the cdiff command, you may symlink the executable to one named ``git-cdiff``
+as follows:
+
+.. code-block:: bash
+
+    cdiff_dir=$(dirname $(which cdiff))
+    ln -s "${cdiff_dir}/cdiff" "${cdiff_dir}/git-cdiff"
+
 Pipe in a diff:
 
 .. code-block:: bash
