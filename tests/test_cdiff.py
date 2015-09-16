@@ -420,15 +420,15 @@ class UnifiedDiffTest(unittest.TestCase):
 
     def test_parse_hunk_meta_missing(self):
         self.assertEqual(self.diff.parse_hunk_meta('@@ -3 +3,6 @@'),
-                         ((3, 0), (3, 6)))
+                         ((3, 1), (3, 6)))
         self.assertEqual(self.diff.parse_hunk_meta('@@ -3,7 +3 @@'),
-                         ((3, 7), (3, 0)))
+                         ((3, 7), (3, 1)))
         self.assertEqual(self.diff.parse_hunk_meta('@@ -3 +3 @@'),
-                         ((3, 0), (3, 0)))
+                         ((3, 1), (3, 1)))
 
     def test_parse_hunk_meta_svn_prop(self):
         self.assertEqual(self.diff.parse_hunk_meta('## -0,0 +1 ##'),
-                         ((0, 0), (1, 0)))
+                         ((0, 0), (1, 1)))
 
     def test_is_old(self):
         self.assertTrue(self.diff.is_old('-hello world'))
