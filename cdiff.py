@@ -162,14 +162,14 @@ class UnifiedDiff(object):
             old_addr = (int(a[0][1:]), int(a[1]))
         else:
             # @@ -1 +1,2 @@
-            old_addr = (int(a[0][1:]), 0)
+            old_addr = (int(a[0][1:]), 1)
 
         b = hunk_meta.split()[2].split(',')   # +3 6
         if len(b) > 1:
             new_addr = (int(b[0][1:]), int(b[1]))
         else:
             # @@ -0,0 +1 @@
-            new_addr = (int(b[0][1:]), 0)
+            new_addr = (int(b[0][1:]), 1)
 
         return (old_addr, new_addr)
 
