@@ -1,0 +1,18 @@
+--- evil.orig   2013-06-01 16:36:29.676003599 -0500
++++ evil.new    2013-06-01 16:36:28.280056137 -0500
+@@ -1,12 +1,12 @@
+ blah blah blah
+-humbug
++bah humbug
+ one two three
+ four five six
+--- vim73/src/ui.c      2013-06-01 14:48:45.012467754 -0500
++++ vim73/src/ui.c      2013-06-01 14:48:45.012467754 -0500
+ @@ -1,6 +1,6 @@
+ blah blah blah
+ humbug
+ one two three
+ four five six
+-eight nine ten
++seven eight nine ten
+ zero
