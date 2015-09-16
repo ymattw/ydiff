@@ -132,6 +132,11 @@ class Hunk(object):
                 out.append(line)
         return out
 
+    def is_completed(self):
+        old_completed = self._old_addr[1] == len(self._get_old_text())
+        new_completed = self._new_addr[1] == len(self._get_new_text())
+        return old_completed and new_completed
+
 
 class UnifiedDiff(object):
 
@@ -321,15 +326,24 @@ class DiffParser(object):
             line = decode(line)
 
             if diff.is_old_path(line):
-                # FIXME: '--- ' breaks here, better to probe next line
-                if diff._old_path and diff._new_path and diff._hunks:
-                    # See a new diff, yield previous diff if exists
-                    yield diff
-                diff = UnifiedDiff(headers, line, None, [])
-                headers = []
+                # This is a new diff when current hunk is not yet genreated or
+                # is completed.  We yield previous diff if exists and construct
+                # a new one for this case.  Otherwise it's acutally an 'old'
+                # line starts with '--- '.
+                #
+                if (not diff._hunks or diff._hunks[-1].is_completed()):
+                    if diff._old_path and diff._new_path and diff._hunks:
+                        yield diff
+                    diff = UnifiedDiff(headers, line, None, [])
+                    headers = []
+                else:
+                    diff._hunks[-1].append(diff.parse_hunk_line(line))
 
             elif diff.is_new_path(line) and diff._old_path:
-                diff._new_path = line
+                if not diff._new_path:
+                    diff._new_path = line
+                else:
+                    diff._hunks[-1].append(diff.parse_hunk_line(line))
 
             elif diff.is_hunk_meta(line):
                 hunk_meta = line
