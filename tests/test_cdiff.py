@@ -753,7 +753,9 @@ class MainTest(unittest.TestCase):
         os.chdir(self._non_ws)
         ret = cdiff.main()
         os.chdir(self._cwd)
-        self.assertNotEqual(ret, 0)
+        # Travis now runs tests with stdin closed
+        if sys.stdin.isatty():
+            self.assertNotEqual(ret, 0)
 
     def test_read_log(self):
         sys.argv = [sys.argv[0], '--log']
