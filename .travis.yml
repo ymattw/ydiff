@@ -1,22 +1,23 @@
 language: python
 
 python:
-    - "2.6"
-    - "2.7"
-    - "3.2"
-    - "3.3"
-    - "3.4"
-    - "pypy"
+  - "2.6"
+  - "2.7"
+  - "3.2"
+  - "3.3"
+  - "3.4"
+  - "pypy"
 
 before_install:
-    - pip --quiet install docutils
-    - pip --quiet install Pygments==1.6
-    - pip --quiet install coverage
-    - coverage --version
-    - sudo apt-get --quiet=2 install patchutils
+  - pip --quiet install docutils
+  - pip --quiet install Pygments==1.6
+  - pip --quiet install "coverage<4"
+  - coverage --version
+  - sudo apt-get update
+  - sudo apt-get --quiet=2 install patchutils
 
 install:
-    - python setup.py --quiet install
+  - python setup.py --quiet install
 
 script:
-    - make test
+  - make test
