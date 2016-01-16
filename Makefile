@@ -19,7 +19,7 @@ doc-preview:
 	sleep 1
 	rm -f output.html
 
-test: doc-check cov reg
+test: doc-check reg
 
 test3: doc-check cov3 reg3
 
