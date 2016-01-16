@@ -11,7 +11,7 @@ python:
 before_install:
   - pip --quiet install docutils
   - pip --quiet install Pygments==1.6
-  - pip --quiet install coverage
+  - pip --quiet install "coverage<4"
   - coverage --version
   - sudo apt-get update
   - sudo apt-get --quiet=2 install patchutils
