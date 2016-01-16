@@ -2,6 +2,10 @@
 Change log
 ==========
 
+Version 0.9.8 (2016-01-16)
+
+  - More robust parser to tolerate evil unified diff
+
 Version 0.9.7 (2015-04-24)
 
   - Fix unexpected side-by-side output for diff of diff
