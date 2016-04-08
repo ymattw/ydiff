@@ -4,16 +4,13 @@
 """Unit test for cdiff"""
 
 import sys
-if sys.hexversion < 0x02050000:
-    raise SystemExit("*** Requires python >= 2.5.0")    # pragma: no cover
-
 import unittest
 import tempfile
 import subprocess
 import os
 
 sys.path.insert(0, '')
-import cdiff
+import cdiff  # nopep8
 
 
 class Sequential(object):
@@ -130,7 +127,8 @@ class DiffMarkupTest(unittest.TestCase):
         hunk.append(('-', 'garb\n'))
         hunk.append(('-', 'Again\n'))
         hunk.append(('+', 'again\n'))
-        diff = cdiff.UnifiedDiff(['header\n'], '--- old\n', '+++ new\n', [hunk])
+        diff = cdiff.UnifiedDiff(
+            ['header\n'], '--- old\n', '+++ new\n', [hunk])
         return diff
 
     def test_markup_mix(self):
@@ -363,7 +361,7 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(
             out[5],
             '\x1b[33m1\x1b[0m '
-            '\x1b[31m\x1b[7m\x1b[31mh\x1b[0m\x1b[31mhel\x1b[0m\x1b[1;35m>\x1b[0m '
+            '\x1b[31m\x1b[7m\x1b[31mh\x1b[0m\x1b[31mhel\x1b[0m\x1b[1;35m>\x1b[0m '  # nopep8
             '\x1b[0m\x1b[33m1\x1b[0m '
             '\x1b[32mhell\x1b[0m\x1b[1;35m>\x1b[0m\n')
         self.assertEqual(

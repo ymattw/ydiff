@@ -3,12 +3,15 @@
 TESTPYPI = pypitest
 PYPI = pypi
 
-.PHONY: dogfood doc-check doc-preview clean build dist-test dist \
+.PHONY: dogfood lint doc-check doc-preview clean build dist-test dist \
 	test test3 cov cov3 html reg reg3 profile profile3
 
 dogfood:
 	./cdiff.py
 	git diff | ./cdiff.py -s
+
+lint:
+	pep8 --ignore=E203 *.py tests/*.py
 
 doc-check:
 	./setup.py --long-description | rst2html.py --strict > /dev/null
@@ -19,9 +22,9 @@ doc-preview:
 	sleep 1
 	rm -f output.html
 
-test: doc-check cov reg
+test: lint doc-check cov reg
 
-test3: doc-check cov3 reg3
+test3: lint doc-check cov3 reg3
 
 cov:
 	coverage run tests/test_cdiff.py
