@@ -8,15 +8,11 @@ python:
   - "3.4"
   - "pypy"
 
-before_install:
-  - pip --quiet install docutils
-  - pip --quiet install Pygments==1.6
-  - pip --quiet install "coverage<4"
+install:
+  - pip install -r requirements.txt
   - coverage --version
   - sudo apt-get update
   - sudo apt-get --quiet=2 install patchutils
-
-install:
   - python setup.py --quiet install
 
 script:

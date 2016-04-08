@@ -2,6 +2,7 @@
 *.pyc
 *~
 *.tmp
+/envs/
 /.coverage
 /.travis-solo/
 /htmlcov/

@@ -7,6 +7,14 @@ workspace or from stdin, with *side by side* and *auto pager* support. Requires
 python (>= 2.5.0) and ``less``.
 """
 
+import sys
+import os
+import re
+import signal
+import subprocess
+import select
+import difflib
+
 META_INFO = {
     'version'     : '0.9.8',
     'license'     : 'BSD-3',
@@ -18,8 +26,6 @@ META_INFO = {
                      'stdin, with side by side and auto pager support')
 }
 
-import sys
-
 if sys.hexversion < 0x02050000:
     raise SystemExit("*** Requires python >= 2.5.0")    # pragma: no cover
 
@@ -27,21 +33,13 @@ if sys.hexversion < 0x02050000:
 try:
     next
 except NameError:
-    def next(obj): return obj.next()
-
-import os
-import re
-import signal
-import subprocess
-import select
-import difflib
-
+    def next(obj):
+        return obj.next()
 
 try:
     unicode
 except NameError:
     unicode = str
-
 
 COLORS = {
     'reset'         : '\x1b[0m',
@@ -65,19 +63,19 @@ COLORS = {
 # Keys for revision control probe, diff and log with diff
 VCS_INFO = {
     'Git': {
-        'probe' : ['git', 'rev-parse'],
-        'diff'  : ['git', 'diff', '--no-ext-diff'],
-        'log'   : ['git', 'log', '--patch'],
+        'probe': ['git', 'rev-parse'],
+        'diff': ['git', 'diff', '--no-ext-diff'],
+        'log': ['git', 'log', '--patch'],
     },
     'Mercurial': {
-        'probe' : ['hg', 'summary'],
-        'diff'  : ['hg', 'diff'],
-        'log'   : ['hg', 'log', '--patch'],
+        'probe': ['hg', 'summary'],
+        'diff': ['hg', 'diff'],
+        'log': ['hg', 'log', '--patch'],
     },
     'Svn': {
-        'probe' : ['svn', 'info'],
-        'diff'  : ['svn', 'diff'],
-        'log'   : ['svn', 'log', '--diff', '--use-merge-history'],
+        'probe': ['svn', 'info'],
+        'diff': ['svn', 'diff'],
+        'log': ['svn', 'log', '--diff', '--use-merge-history'],
     },
 }
 
@@ -304,8 +302,8 @@ class DiffParser(object):
             return
 
         for n in range(size):
-            if header[n].startswith('--- ') and (n < size - 1) and \
-                    header[n+1].startswith('+++ '):
+            if (header[n].startswith('--- ') and (n < size - 1) and
+                    header[n + 1].startswith('+++ ')):
                 self._type = 'unified'
                 self._stream = stream
                 break
@@ -698,7 +696,9 @@ def terminal_size():
     """
     width, height = None, None
     try:
-        import struct, fcntl, termios
+        import struct
+        import fcntl
+        import termios
         s = struct.pack('HHHH', 0, 0, 0, 0)
         x = fcntl.ioctl(1, termios.TIOCGWINSZ, s)
         height, width = struct.unpack('HHHH', x)[0:2]
