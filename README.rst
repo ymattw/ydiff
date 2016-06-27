@@ -44,6 +44,23 @@ You can also run the setup.py from the source if you don't have ``pip``.
     cd cdiff
     ./setup.py install
 
+Install with Homebrew
+~~~~~~~~~~~~~~~~~~~~~
+
+You can also install with Homebrew on Mac. (Thanks to `@josa42`_,
+`@bfontaine`_, `@hivehand`_ and `@nijikon`_ for contributing to the Homebrew
+`Formula`_).
+
+.. _`@josa42`: https://github.com/josa42
+.. _`@bfontaine`: https://github.com/bfontaine
+.. _`@hivehand`: https://github.com/hivehand
+.. _`@nijikon`: https://github.com/nijikon
+.. _`Formula`: https://github.com/Homebrew/homebrew-core/blob/master/Formula/cdiff.rb
+
+.. code-block:: bash
+
+    brew install cdiff
+
 Download directly
 ~~~~~~~~~~~~~~~~~
 
