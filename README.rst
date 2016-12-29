@@ -97,7 +97,9 @@ Type ``cdiff -h`` to show usage::
 
       Note:
         Option parser will stop on first unknown option and pass them down to
-        underneath revision control
+        underneath revision control. Environment variable CDIFF_OPTIONS may be
+        used to specify default options that will be placed at the beginning
+        of the argument list.
 
 Read diff from local modification in a *Git/Mercurial/Svn* workspace (output
 from e.g. ``git diff``, ``svn diff``):
@@ -125,6 +127,14 @@ Read log with changes in a *Git/Mercurial/Svn* workspace (output from e.g.
     cdiff -ls                   # equivalent to cdiff -l -s, view side by side
     cdiff -ls -w90              # set text width 90 as well
     cdiff -ls file1 dir2        # see log with changes of given files/dirs only
+
+Environment variable ``CDIFF_OPTIONS`` may be used to specify default options
+that will be placed at the beginning of the argument list, for example:
+
+.. code-block:: bash
+
+    export CDIFF_OPTIONS='-s -w0'
+    cdiff foo                   # equivalent to "cdiff -s -w0 foo"
 
 If you feel more comfortable with a command such as ``git cdiff`` to trigger
 the cdiff command, you may symlink the executable to one named ``git-cdiff``

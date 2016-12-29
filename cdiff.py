@@ -755,10 +755,15 @@ def main():
     # Hack: use OptionGroup text for extra help message after option list
     option_group = OptionGroup(
         parser, "Note", ("Option parser will stop on first unknown option "
-                         "and pass them down to underneath revision control"))
+                         "and pass them down to underneath revision control. "
+                         "Environment variable CDIFF_OPTIONS may be used to "
+                         "specify default options that will be placed at the "
+                         "beginning of the argument list."))
     parser.add_option_group(option_group)
 
-    opts, args = parser.parse_args()
+    # Place possible options defined in CDIFF_OPTIONS at the beginning of argv
+    cdiff_opts = [x for x in os.getenv('CDIFF_OPTIONS', '').split(' ') if x]
+    opts, args = parser.parse_args(cdiff_opts + sys.argv[1:])
 
     if opts.log:
         diff_hdl = revision_control_log(args)
