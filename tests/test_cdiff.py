@@ -737,6 +737,11 @@ class MainTest(unittest.TestCase):
                'cd %s; git add foo; git commit foo -m update' % self._ws]
         subprocess.call(cmd, stdout=subprocess.PIPE)
 
+    def test_preset_options(self):
+        os.environ['CDIFF_OPTIONS'] = '--help'
+        self.assertRaises(SystemExit, cdiff.main)
+        os.environ.pop('CDIFF_OPTIONS', None)
+
     def test_read_diff(self):
         sys.argv = sys.argv[:1]
         self._change_file('read_diff')
