@@ -2,6 +2,10 @@
 Change log
 ==========
 
+Version 1.0 (2016-12-31)
+
+  - Use environment variable ``CDIFF_OPTIONS`` to hold default options
+
 Version 0.9.8 (2016-01-16)
 
   - More robust parser to tolerate evil unified diff

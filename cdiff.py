@@ -16,7 +16,7 @@ import select
 import difflib
 
 META_INFO = {
-    'version'     : '0.9.8',
+    'version'     : '1.0',
     'license'     : 'BSD-3',
     'author'      : 'Matthew Wang',
     'email'       : 'mattwyl(@)gmail(.)com',
