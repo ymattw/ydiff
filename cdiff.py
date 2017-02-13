@@ -636,8 +636,13 @@ def markup_to_pager(stream, opts):
     if not os.getenv('LESS'):
         # Args stolen from git source: github.com/git/git/blob/master/pager.c
         pager_cmd.extend(['-FRSX', '--shift 1'])
-    pager = subprocess.Popen(
-        pager_cmd, stdin=subprocess.PIPE, stdout=sys.stdout)
+
+    if not opts.no_pager:
+        pager = subprocess.Popen(
+            pager_cmd, stdin=subprocess.PIPE, stdout=sys.stdout)
+        outfile = pager.stdin
+    else:
+        outfile = sys.stdout
 
     diffs = DiffParser(stream).get_diff_generator()
     marker = DiffMarker()
@@ -645,10 +650,11 @@ def markup_to_pager(stream, opts):
                                width=opts.width)
 
     for line in color_diff:
-        pager.stdin.write(line.encode('utf-8'))
+        outfile.write(line.encode('utf-8'))
 
-    pager.stdin.close()
-    pager.wait()
+    if not opts.no_pager:
+        pager.stdin.close()
+        pager.wait()
 
 
 def check_command_status(arguments):
@@ -751,6 +757,9 @@ def main():
     parser.add_option(
         '-c', '--color', default='auto', metavar='M',
         help="""colorize mode 'auto' (default), 'always', or 'never'""")
+    parser.add_option(
+        '-n', '--no-pager', action='store_true', default=False,
+        help='never use pager')
 
     # Hack: use OptionGroup text for extra help message after option list
     option_group = OptionGroup(
