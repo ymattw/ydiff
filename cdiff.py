@@ -635,7 +635,11 @@ def markup_to_pager(stream, opts):
     pager_cmd = ['less']
     if not os.getenv('LESS'):
         # Args stolen from git source: github.com/git/git/blob/master/pager.c
-        pager_cmd.extend(['-FRSX', '--shift 1'])
+        pager_cmd.extend(['-RSX', '--shift 1'])
+        if opts.force_pager:
+            pager_cmd.extend(['-+F'])
+        else:
+            pager_cmd.extend(['-F'])
     pager = subprocess.Popen(
         pager_cmd, stdin=subprocess.PIPE, stdout=sys.stdout)
 
@@ -751,6 +755,9 @@ def main():
     parser.add_option(
         '-c', '--color', default='auto', metavar='M',
         help="""colorize mode 'auto' (default), 'always', or 'never'""")
+    parser.add_option(
+        '-p', '--force-pager', action='store_true',
+        help='forcedly send output to the pager')
 
     # Hack: use OptionGroup text for extra help message after option list
     option_group = OptionGroup(
