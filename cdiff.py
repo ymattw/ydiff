@@ -398,11 +398,11 @@ class DiffParser(object):
 
 class DiffMarker(object):
 
-    def markup(self, diffs, side_by_side=False, width=0):
+    def markup(self, diffs, side_by_side=False, width=0, tab_width=8):
         """Returns a generator"""
         if side_by_side:
             for diff in diffs:
-                for line in self._markup_side_by_side(diff, width):
+                for line in self._markup_side_by_side(diff, width, tab_width):
                     yield line
         else:
             for diff in diffs:
@@ -442,13 +442,13 @@ class DiffMarker(object):
                 else:
                     yield self._markup_common(' ' + old[1])
 
-    def _markup_side_by_side(self, diff, width):
+    def _markup_side_by_side(self, diff, width, tab_width):
         """Returns a generator"""
         wrap_char = colorize('>', 'lightmagenta')
 
         def _normalize(line):
             return line.replace(
-                '\t', ' ' * 8).replace('\n', '').replace('\r', '')
+                '\t', ' ' * tab_width).replace('\n', '').replace('\r', '')
 
         def _fit_with_marker(text, markup_fn, width, pad=False):
             """Wrap or pad input pure text, then markup"""
@@ -642,7 +642,7 @@ def markup_to_pager(stream, opts):
     diffs = DiffParser(stream).get_diff_generator()
     marker = DiffMarker()
     color_diff = marker.markup(diffs, side_by_side=opts.side_by_side,
-                               width=opts.width)
+                               width=opts.width, tab_width=opts.tab_width)
 
     for line in color_diff:
         pager.stdin.write(line.encode('utf-8'))
@@ -751,6 +751,9 @@ def main():
     parser.add_option(
         '-c', '--color', default='auto', metavar='M',
         help="""colorize mode 'auto' (default), 'always', or 'never'""")
+    parser.add_option(
+        '-t', '--tab-width', type='int', default=8, metavar='N',
+        help="""convert tab characters to this many spcaes (default: 8)""")
 
     # Hack: use OptionGroup text for extra help message after option list
     option_group = OptionGroup(
