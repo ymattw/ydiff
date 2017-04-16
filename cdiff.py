@@ -470,10 +470,10 @@ class DiffMarker(object):
 
             while text and count < width:
                 if text.startswith('\x00-'):    # del
-                    out.append(COLORS['reverse'] + COLORS[base_color])
+                    out.append(COLORS['reverse'])
                     text = text[2:]
                 elif text.startswith('\x00+'):  # add
-                    out.append(COLORS['reverse'] + COLORS[base_color])
+                    out.append(COLORS['reverse'])
                     text = text[2:]
                 elif text.startswith('\x00^'):  # change
                     out.append(COLORS['underline'] + COLORS[base_color])
