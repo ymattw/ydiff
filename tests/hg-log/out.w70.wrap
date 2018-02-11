@@ -1,0 +1,51 @@
+[36m# HG changeset patch
+[0m[36m# User Dan Kenigsberg <danken@redhat.com>
+[0m[36m# Date 1317492169 -10800
+[0m[36m# Node ID a9a87f0e7c509ec6768379c08a0cf56f43d71b4a
+[0m[36m# Parent  b0ef6a5a6dccab0089d287bf6b9bcb8132bdbd0d
+[0m[36mxml.dom.minidom toprettyxml: omit whitespace for Text nodes
+[0m[36m
+[0m[36mhttp://bugs.python.org/issue4147
+[0m[36m
+[0m[36mThis patch was very lightly tested, but I think it is nicer than the former one,
+[0m[36mas Text.writexml() should better know not to wrap its data with whitespace.
+[0m[36mEver.
+[0m[36m
+[0m[36mdiff -r b0ef6a5a6dcc -r a9a87f0e7c50 Lib/test/test_minidom.py
+[0m[33m--- a/Lib/test/test_minidom.py	Fri Sep 30 08:46:25 2011 +0300
+[0m[33m+++ b/Lib/test/test_minidom.py	Sat Oct 01 21:02:49 2011 +0300
+[0m[1;34m@@ -467,6 +467,13 @@
+[0m[33m467[0m [0m        dom.unlink()[0m                                                   [0m[33m467[0m [0m        dom.unlink()[0m
+[33m468[0m [0m        self.confirm(domstr == str.replace("\n", "\r\n"))[0m              [0m[33m468[0m [0m        self.confirm(domstr == str.replace("\n", "\r\n"))[0m
+[33m   [0m                                                                        [0m[33m469[0m [32m[0m
+[33m   [0m                                                                        [0m[33m470[0m [32m    def testPrettyTextNode(self):[0m
+[33m   [0m                                                                        [0m[33m471[0m [32m        str = '<A>B</A>'[0m
+[33m   [0m                                                                        [0m[33m472[0m [32m        dom = parseString(str)[0m
+[33m   [0m                                                                        [0m[33m473[0m [32m        dom2 = parseString(dom.toprettyxml())[0m
+[33m   [0m                                                                        [0m[33m474[0m [32m        self.confirm(dom.childNodes[0].childNodes[0].toxml()==[0m
+[33m   [0m                                                                        [0m[33m475[0m [32m                     dom2.childNodes[0].childNodes[0].toxml())[0m
+[33m469[0m [0m[0m                                                                       [0m[33m476[0m [0m[0m
+[33m470[0m [0m    def testProcessingInstruction(self):[0m                               [0m[33m477[0m [0m    def testProcessingInstruction(self):[0m
+[33m471[0m [0m        dom = parseString('<e><?mypi \t\n data \t\n ?></e>')[0m           [0m[33m478[0m [0m        dom = parseString('<e><?mypi \t\n data \t\n ?></e>')[0m
+[33m472[0m [0m        pi = dom.documentElement.firstChild[0m                            [0m[33m479[0m [0m        pi = dom.documentElement.firstChild[0m
+[36mdiff -r b0ef6a5a6dcc -r a9a87f0e7c50 Lib/xml/dom/minidom.py
+[0m[33m--- a/Lib/xml/dom/minidom.py	Fri Sep 30 08:46:25 2011 +0300
+[0m[33m+++ b/Lib/xml/dom/minidom.py	Sat Oct 01 21:02:49 2011 +0300
+[0m[1;34m@@ -836,7 +836,9 @@
+[0m[33m 836[0m [0m            _write_data(writer, attrs[a_name].value)[0m                   [0m[33m 836[0m [0m            _write_data(writer, attrs[a_name].value)[0m
+[33m 837[0m [0m            writer.write("\"")[0m                                         [0m[33m 837[0m [0m            writer.write("\"")[0m
+[33m 838[0m [0m        if self.childNodes:[0m                                            [0m[33m 838[0m [0m        if self.childNodes:[0m
+[33m 839[0m [31m            writer.write(">[7m[31m%s[0m[31m"[7m[31m%(newl)[0m[31m)[0m                                 [0m[33m 839[0m [32m            writer.write(">")[0m
+[33m    [0m                                                                        [0m[33m 840[0m [32m            if self.childNodes[0].nodeType != Node.TEXT_NODE:[0m
+[33m    [0m                                                                        [0m[33m 841[0m [32m                writer.write(newl)[0m
+[33m 840[0m [0m            for node in self.childNodes:[0m                               [0m[33m 842[0m [0m            for node in self.childNodes:[0m
+[33m 841[0m [0m                node.writexml(writer,indent+addindent,addindent,newl)[0m  [0m[33m 843[0m [0m                node.writexml(writer,indent+addindent,addindent,newl)[0m
+[33m 842[0m [0m            writer.write("%s</%s>%s" % (indent,self.tagName,newl))[0m     [0m[33m 844[0m [0m            writer.write("%s</%s>%s" % (indent,self.tagName,newl))[0m
+[1;34m@@ -1061,7 +1063,7 @@
+[0m[33m1061[0m [0m        return newText[0m                                                 [0m[33m1063[0m [0m        return newText[0m
+[33m1062[0m [0m[0m                                                                       [0m[33m1064[0m [0m[0m
+[33m1063[0m [0m    def writexml(self, writer, indent="", addindent="", newl=""):[0m      [0m[33m1065[0m [0m    def writexml(self, writer, indent="", addindent="", newl=""):[0m
+[33m1064[0m [31m        _write_data(writer, [7m[31m"%s%s%s"%(indent, [0m[31mself.data[7m[31m, newl)[0m[31m)[0m        [0m[33m1066[0m [32m        _write_data(writer, self.data)[0m
+[33m1065[0m [0m[0m                                                                       [0m[33m1067[0m [0m[0m
+[33m1066[0m [0m    # DOM Level 3 (WD 9 April 2002)[0m                                    [0m[33m1068[0m [0m    # DOM Level 3 (WD 9 April 2002)[0m
+[33m1067[0m [0m[0m                                                                       [0m[33m1069[0m [0m[0m

@@ -1,0 +1,50 @@
+[36m------------------------------------------------------------------------
+[0m[36mr1235 | ymattw | 2011-09-01 17:00:02 +0800 (Thu, 01 Sep 2011) | 3 lines
+[0m[36m
+[0m[36mInterpreter fix
+[0m[36m
+[0m[36m
+[0m[36mIndex: src/share/example.sh
+[0m[36m===================================================================
+[0m[33m--- src/share/example.sh	(revision 1234)
+[0m[33m+++ src/share/example.sh	(revision 1235)
+[0m[1;34m@@ -1,3 +1,3 @@
+[0m[33m1[0m [31m#!/bin/sh[0m                                                              [0m[33m1[0m [32m#!/bin/[7m[32mba[0m[32msh[0m
+[33m2[0m [0m#[0m                                                                      [0m[33m2[0m [0m#[0m
+[33m3[0m [0m# Test program, also try run me as yroot (sudo ./example.sh)[0m           [0m[33m3[0m [0m# Test program, also try run me as yroot (sudo ./example.sh)[0m
+[36m
+[0m[36m------------------------------------------------------------------------
+[0m[36mr1234 | ymattw | 2011-09-01 16:00:02 +0800 (Thu, 01 Sep 2011) | 3 lines
+[0m[36m
+[0m[36mImplement common tool to run command as headless account
+[0m[36m
+[0m[36m
+[0m[36mIndex: ChangeLog
+[0m[36m===================================================================
+[0m[33m--- ChangeLog	(revision 1233)
+[0m[33m+++ ChangeLog	(revision 1234)
+[0m[1;34m@@ -1,3 +1,6 @@
+[0m[33m [0m                                                                        [0m[33m1[0m [32mVersion 0.0.4[0m
+[33m [0m                                                                        [0m[33m2[0m [32m    * Add prototype of perl module[0m
+[33m [0m                                                                        [0m[33m3[0m [32m[0m
+[33m1[0m [0mVersion 0.0.3[0m                                                          [0m[33m4[0m [0mVersion 0.0.3[0m
+[33m2[0m [0m    * Implement '-d' option[0m                                            [0m[33m5[0m [0m    * Implement '-d' option[0m
+[33m3[0m [0m    * Add configfile to set global debug flag[0m                          [0m[33m6[0m [0m    * Add configfile to set global debug flag[0m
+[36mIndex: src/share/example.sh
+[0m[36m===================================================================
+[0m[33m--- src/share/example.sh	(revision 0)
+[0m[33m+++ src/share/example.sh	(revision 1234)
+[0m[1;34m@@ -0,0 +1,4 @@
+[0m[33m  [0m                                                                        [0m[33m 1[0m [32m#!/bin/sh[0m
+[33m  [0m                                                                        [0m[33m 2[0m [32m#[0m
+[33m  [0m                                                                        [0m[33m 3[0m [32m# Test program, also try run me as yroot (sudo ./example.sh)[0m
+[33m  [0m                                                                        [0m[33m 4[0m [32m#[0m
+[1;36m
+[0m[1;36mProperty changes on: src/share/example.sh
+[0m[1;36m___________________________________________________________________
+[0m[1;36mAdded: svn:executable
+[0m[1;34m## -0,0 +1 ##
+[0m[33m  [0m                                                                        [0m[33m 1[0m [32m*[0m
+[1;36mAdded: svn:keywords
+[0m[1;34m## -0,0 +1 ##
+[0m[33m  [0m                                                                        [0m[33m 1[0m [32mId[0m

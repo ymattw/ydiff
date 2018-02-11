@@ -1,0 +1,20 @@
+[36mcommit 57263369bd810ba3a2c2dfd32a905f1e7d59cc6d
+[0m[36mAuthor: Matthew Wang <XXXXXXX@gmail.com>
+[0m[36mDate:   Sun Jan 6 21:56:54 2013 +0800
+[0m[36m
+[0m[36m    simplify with seperate node.py
+[0m[36m
+[0m[36mdiff --git a/.gitignore b/.gitignore
+[0m[36mnew file mode 100644
+[0m[36mindex 0000000..0d20b64
+[0m[33m--- /dev/null
+[0m[33m+++ b/.gitignore
+[0m[1;34m@@ -0,0 +1 @@
+[0m[33m  [0m                                                                        [0m[33m 1[0m [32m*.pyc[0m
+[36mdiff --git a/README b/README
+[0m[36mindex 7e70850..b5eb369 100644
+[0m[33m--- a/README
+[0m[33m+++ b/README
+[0m[1;34m@@ -1 +1,2 @@
+[0m[33m1[0m [0mSun Feb  3 13:57:05 CST 2013[0m                                           [0m[33m1[0m [0mSun Feb  3 13:57:05 CST 2013[0m
+[33m [0m                                                                        [0m[33m2[0m [32mSun Feb  3 13:57:15 CST 2013[0m

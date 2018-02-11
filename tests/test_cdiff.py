@@ -214,7 +214,7 @@ class DiffMarkupTest(unittest.TestCase):
         diff = self._init_diff()
         marker = cdiff.DiffMarker()
 
-        out = list(marker._markup_side_by_side(diff, 7, 8))
+        out = list(marker._markup_side_by_side(diff, 7, 8, False))
         self.assertEqual(len(out), 11)
 
         sys.stdout.write('\n')
@@ -261,13 +261,13 @@ class DiffMarkupTest(unittest.TestCase):
             '\x1b[33m5\x1b[0m '
             '\x1b[31m\x1b[7m\x1b[31m      \x1b[0m\x1b[1;35m>\x1b[0m '
             '\x1b[0m\x1b[33m5\x1b[0m '
-            '\x1b[32m\x1b[7m\x1b[32m spaced\x1b[0m\n')
+            '\x1b[32m\x1b[7m\x1b[32m spaced\x1b[0m\x1b[32m\x1b[0m\n')
 
     # This test is not valid anymore
     def __test_markup_side_by_side_neg_width(self):
         diff = self._init_diff()
         marker = cdiff.DiffMarker()
-        out = list(marker._markup_side_by_side(diff, -1, 8))
+        out = list(marker._markup_side_by_side(diff, -1, 8, False))
         self.assertEqual(len(out), 11)
 
         self.assertEqual(out[0], '\x1b[36mheader\n\x1b[0m')
@@ -311,7 +311,7 @@ class DiffMarkupTest(unittest.TestCase):
     def test_markup_side_by_side_off_by_one(self):
         diff = self._init_diff()
         marker = cdiff.DiffMarker()
-        out = list(marker._markup_side_by_side(diff, 6, 8))
+        out = list(marker._markup_side_by_side(diff, 6, 8, False))
         self.assertEqual(len(out), 11)
 
         sys.stdout.write('\n')
@@ -325,10 +325,11 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(out[4], '\x1b[1;34m@@ -1,5 +1,5 @@\n\x1b[0m')
         self.assertEqual(
             out[5],
+
             '\x1b[33m1\x1b[0m '
             '\x1b[31m\x1b[7m\x1b[31mh\x1b[0m\x1b[31mhello\x1b[0m '
             '\x1b[0m\x1b[33m1\x1b[0m '
-            '\x1b[32mhello\x1b[7m\x1b[32mo\x1b[0m\n')
+            '\x1b[32mhello\x1b[7m\x1b[32mo\x1b[0m\x1b[32m\x1b[0m\n')
         self.assertEqual(
             out[6],
             '\x1b[33m \x1b[0m        '
@@ -362,7 +363,7 @@ class DiffMarkupTest(unittest.TestCase):
     def test_markup_side_by_side_wrapped(self):
         diff = self._init_diff()
         marker = cdiff.DiffMarker()
-        out = list(marker._markup_side_by_side(diff, 5, 8))
+        out = list(marker._markup_side_by_side(diff, 5, 8, False))
         self.assertEqual(len(out), 11)
 
         sys.stdout.write('\n')
@@ -414,7 +415,7 @@ class DiffMarkupTest(unittest.TestCase):
     def test_markup_side_by_side_tabbed(self):
         diff = self._init_diff()
         marker = cdiff.DiffMarker()
-        out = list(marker._markup_side_by_side(diff, 8, 2))
+        out = list(marker._markup_side_by_side(diff, 8, 2, False))
         self.assertEqual(len(out), 11)
 
         sys.stdout.write('\n')
@@ -459,7 +460,7 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(
             out[10],
             '\x1b[33m5\x1b[0m '
-            '\x1b[31m\x1b[7m\x1b[31m  tabbed\x1b[0m '
+            '\x1b[31m\x1b[7m\x1b[31m  tabbed\x1b[0m\x1b[31m\x1b[0m '
             '\x1b[0m\x1b[33m5\x1b[0m '
             '\x1b[32m\x1b[7m\x1b[32m spaced\x1b[0m\x1b[32m\x1b[0m\n')
 
