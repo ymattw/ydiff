@@ -59,7 +59,6 @@ COLORS = {
     'lightcyan'     : '\x1b[1;36m',
 }
 
-
 # Keys for revision control probe, diff and log with diff
 VCS_INFO = {
     'Git': {
@@ -82,6 +81,87 @@ VCS_INFO = {
 
 def colorize(text, start_color, end_color='reset'):
     return COLORS[start_color] + text + COLORS[end_color]
+
+
+def strsplit(text, width):
+    r"""strsplit() splits a given string into two substrings, respecting the
+    escape sequences (in a global var COLORS).
+
+    It returns 3-tuple: (first string, second string, number of visible chars
+    in the first string).
+
+    If some color was active at the splitting point, then the first string is
+    appended with the resetting sequence, and the second string is prefixed
+    with all active colors.
+    """
+    first = ''
+    second = ''
+    found_colors = []
+    chars_cnt = 0
+    bytes_cnt = 0
+    while len(text) > 0:
+        # First of all, check if current string begins with any escape
+        # sequence.
+        append_len = 0
+        for color in COLORS:
+            if text.startswith(COLORS[color]):
+                if color == 'reset':
+                    found_colors = []
+                else:
+                    found_colors.append(color)
+                append_len = len(COLORS[color])
+                break
+
+        if append_len == 0:
+            # Current string does not start with any escape sequence, so,
+            # either add one more visible char to the "first" string, or
+            # break if that string is already large enough.
+            if chars_cnt >= width:
+                break
+            chars_cnt += 1
+            append_len = 1
+
+        first += text[:append_len]
+        text = text[append_len:]
+        bytes_cnt += append_len
+
+    second = text
+
+    # If the first string has some active colors at the splitting point,
+    # reset it and append the same colors to the second string
+    if len(found_colors) > 0:
+        first += COLORS['reset']
+        for color in found_colors:
+            second = COLORS[color] + second
+
+    return (first, second, chars_cnt)
+
+
+def strtrim(text, width, wrap_char, pad):
+    r"""strtrim() trims given string respecting the escape sequences (using
+    strsplit), so that if text is larger than width, it's trimmed to have
+    width-1 chars plus wrap_char. Additionally, if pad is True, short strings
+    are padded with space to have exactly needed width.
+
+    Returns resulting string.
+    """
+    text, _, tlen = strsplit(text, width + 1)
+    if tlen > width:
+        text, _, _ = strsplit(text, width - 1)
+
+        # Old code always added trailing 'reset' sequence, but strsplit is
+        # smarter and only adds it when there is something to reset. However,
+        # in order not to distract with changed test data, here's workaround
+        # which keeps output exactly the same. TODO: remove it; it doesn't add
+        # any practical value for the user.
+        if not text.endswith(COLORS['reset']):
+            text += COLORS['reset']
+
+        text += wrap_char
+    elif pad:
+        # The string is short enough, but it might need to be padded.
+        text = "%s%*s" % (text, width - tlen, '')
+    return text
 
 
 class Hunk(object):
@@ -398,11 +478,13 @@ class DiffParser(object):
 
 class DiffMarker(object):
 
-    def markup(self, diffs, side_by_side=False, width=0, tab_width=8):
+    def markup(self, diffs, side_by_side=False, width=0, tab_width=8,
+               wrap=False):
         """Returns a generator"""
         if side_by_side:
             for diff in diffs:
-                for line in self._markup_side_by_side(diff, width, tab_width):
+                for line in self._markup_side_by_side(diff, width, tab_width,
+                                                      wrap):
                     yield line
         else:
             for diff in diffs:
@@ -442,33 +524,21 @@ class DiffMarker(object):
                 else:
                     yield self._markup_common(' ' + old[1])
 
-    def _markup_side_by_side(self, diff, width, tab_width):
+    def _markup_side_by_side(self, diff, width, tab_width, wrap):
         """Returns a generator"""
-        wrap_char = colorize('>', 'lightmagenta')
 
         def _normalize(line):
             return line.replace(
                 '\t', ' ' * tab_width).replace('\n', '').replace('\r', '')
 
-        def _fit_with_marker(text, markup_fn, width, pad=False):
-            """Wrap or pad input pure text, then markup"""
-            if len(text) > width:
-                return markup_fn(text[:(width - 1)]) + wrap_char
-            elif pad:
-                pad_len = width - len(text)
-                return '%s%*s' % (markup_fn(text), pad_len, '')
-            else:
-                return markup_fn(text)
-
-        def _fit_with_marker_mix(text, base_color, width, pad=False):
-            """Wrap or pad input text which contains mdiff tags, markup at the
-            meantime, note only left side need to set `pad`
+        def _fit_with_marker_mix(text, base_color, width):
+            """Wrap input text which contains mdiff tags, markup at the
+            meantime
             """
             out = [COLORS[base_color]]
-            count = 0
             tag_re = re.compile(r'\x00[+^-]|\x01')
 
-            while text and count < width:
+            while text:
                 if text.startswith('\x00-'):    # del
                     out.append(COLORS['reverse'] + COLORS[base_color])
                     text = text[2:]
@@ -479,6 +549,9 @@ class DiffMarker(object):
                     out.append(COLORS['underline'] + COLORS[base_color])
                     text = text[2:]
                 elif text.startswith('\x01'):   # reset
+                    # TODO: Append resetting sequence if only there is some
+                    # text after that. That is, call out.append(...) if only
+                    # len(text) > 1.
                     out.append(COLORS['reset'] + COLORS[base_color])
                     text = text[1:]
                 else:
@@ -488,17 +561,9 @@ class DiffMarker(object):
                     # this tool never put that kind of symbol in their code :-)
                     #
                     out.append(text[0])
-                    count += 1
                     text = text[1:]
 
-            if count == width and tag_re.sub('', text):
-                # Was stripped: output fulfil and still has normal char in text
-                out[-1] = COLORS['reset'] + wrap_char
-            elif count < width and pad:
-                pad_len = width - count
-                out.append('%s%*s' % (COLORS['reset'], pad_len, ''))
-            else:
-                out.append(COLORS['reset'])
+            out.append(COLORS['reset'])
 
             return ''.join(out)
 
@@ -558,31 +623,64 @@ class DiffMarker(object):
 
                 if changed:
                     if not old[0]:
-                        left = '%*s' % (width, ' ')
+                        left = ''
                         right = right.rstrip('\x01')
                         if right.startswith('\x00+'):
                             right = right[2:]
-                        right = _fit_with_marker(
-                            right, self._markup_new, width)
+                        right = self._markup_new(right)
                     elif not new[0]:
                         left = left.rstrip('\x01')
                         if left.startswith('\x00-'):
                             left = left[2:]
-                        left = _fit_with_marker(left, self._markup_old, width)
+                        left = self._markup_old(left)
                         right = ''
                     else:
-                        left = _fit_with_marker_mix(left, 'red', width, 1)
+                        left = _fit_with_marker_mix(left, 'red', width)
                         right = _fit_with_marker_mix(right, 'green', width)
                 else:
-                    left = _fit_with_marker(
-                        left, self._markup_common, width, 1)
-                    right = _fit_with_marker(right, self._markup_common, width)
-                yield line_fmt % {
-                    'left_num': left_num,
-                    'left': left,
-                    'right_num': right_num,
-                    'right': right
-                }
+                    left = self._markup_common(left)
+                    right = self._markup_common(right)
+
+                if wrap:
+                    # Need to wrap long lines, so here we'll iterate,
+                    # shaving off `width` chars from both left and right
+                    # strings, until both are empty. Also, line number needs to
+                    # be printed only for the first part.
+                    lncur = left_num
+                    rncur = right_num
+                    while len(left) > 0 or len(right) > 0:
+                        # Split both left and right lines, preserving escaping
+                        # sequences correctly.
+                        lcur, left, llen = strsplit(left, width)
+                        rcur, right, rlen = strsplit(right, width)
+
+                        # Pad left line with spaces if needed
+                        if llen < width:
+                            lcur = "%s%*s" % (lcur, width - llen, '')
+
+                        yield line_fmt % {
+                            'left_num': lncur,
+                            'left': lcur,
+                            'right_num': rncur,
+                            'right': rcur
+                        }
+
+                        # Clean line numbers for further iterations
+                        lncur = ''
+                        rncur = ''
+                else:
+                    # Don't need to wrap long lines; instead, a trailing '>'
+                    # char needs to be appended.
+                    wrap_char = colorize('>', 'lightmagenta')
+                    left = strtrim(left, width, wrap_char, len(right) > 0)
+                    right = strtrim(right, width, wrap_char, False)
+
+                    yield line_fmt % {
+                        'left_num': left_num,
+                        'left': left,
+                        'right_num': right_num,
+                        'right': right
+                    }
 
     def _markup_header(self, line):
         return colorize(line, 'cyan')
@@ -642,7 +740,8 @@ def markup_to_pager(stream, opts):
     diffs = DiffParser(stream).get_diff_generator()
     marker = DiffMarker()
     color_diff = marker.markup(diffs, side_by_side=opts.side_by_side,
-                               width=opts.width, tab_width=opts.tab_width)
+                               width=opts.width, tab_width=opts.tab_width,
+                               wrap=opts.wrap)
 
     for line in color_diff:
         pager.stdin.write(line.encode('utf-8'))
@@ -754,6 +853,9 @@ def main():
     parser.add_option(
         '-t', '--tab-width', type='int', default=8, metavar='N',
         help="""convert tab characters to this many spcaes (default: 8)""")
+    parser.add_option(
+        '', '--wrap', action='store_true',
+        help='wrap long lines in side-by-side view')
 
     # Hack: use OptionGroup text for extra help message after option list
     option_group = OptionGroup(

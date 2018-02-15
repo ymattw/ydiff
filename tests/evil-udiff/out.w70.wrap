@@ -1,0 +1,15 @@
+[33m--- evil.orig   2013-06-01 16:36:29.676003599 -0500
+[0m[33m+++ evil.new    2013-06-01 16:36:28.280056137 -0500
+[0m[1;34m@@ -1,12 +1,12 @@
+[0m[33m 1[0m [0mblah blah blah[0m                                                         [0m[33m 1[0m [0mblah blah blah[0m
+[33m 2[0m [31mhumbug[0m                                                                 [0m[33m 2[0m [32m[7m[32mbah [0m[32mhumbug[0m
+[33m 3[0m [0mone two three[0m                                                          [0m[33m 3[0m [0mone two three[0m
+[33m 4[0m [0mfour five six[0m                                                          [0m[33m 4[0m [0mfour five six[0m
+[33m 5[0m [31m[4m[31m--[0m[31m vim73/src/ui.c      2013-06-01 14:48:45.012467754 -0500[0m             [0m[33m 5[0m [32m[4m[32m++[0m[32m vim73/src/ui.c      2013-06-01 14:48:45.012467754 -0500[0m
+[33m 6[0m [0m@@ -1,6 +1,6 @@[0m                                                        [0m[33m 6[0m [0m@@ -1,6 +1,6 @@[0m
+[33m 7[0m [0mblah blah blah[0m                                                         [0m[33m 7[0m [0mblah blah blah[0m
+[33m 8[0m [0mhumbug[0m                                                                 [0m[33m 8[0m [0mhumbug[0m
+[33m 9[0m [0mone two three[0m                                                          [0m[33m 9[0m [0mone two three[0m
+[33m10[0m [0mfour five six[0m                                                          [0m[33m10[0m [0mfour five six[0m
+[33m11[0m [31meight nine ten[0m                                                         [0m[33m11[0m [32m[7m[32mseven [0m[32meight nine ten[0m
+[33m12[0m [0mzero[0m                                                                   [0m[33m12[0m [0mzero[0m
