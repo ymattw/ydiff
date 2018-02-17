@@ -34,4 +34,4 @@
 [33m  [0m                                                                        [0m[33m17[0m [32m[0m
 [33m17[0m [0m    """[0m                                                                [0m[33m18[0m [0m    """[0m
 [33m18[0m [0m    # Set up option parser[0m                                             [0m[33m19[0m [0m    # Set up option parser[0m
-[33m19[0m [0m    parser = optparse.OptionParser(usage="modernize [options] file|di[0m[1;35m>[0m [0m[33m20[0m [0m    parser = optparse.OptionParser(usage="modernize [options] file|di[0m[1;35m>[0m
+[33m19[0m [0m    parser = optparse.OptionParser(usage="modernize [options] file|di[1;35m>[0m [0m[33m20[0m [0m    parser = optparse.OptionParser(usage="modernize [options] file|di[1;35m>[0m

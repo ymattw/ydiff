@@ -33,7 +33,7 @@ function cmp_output()
     local cdiff_opt=${3:-""}
     local cmd
 
-    cmd=$(printf "%-8s $CDIFF %-18s <  %-30s " $PYTHON "$cdiff_opt" "$input")
+    cmd=$(printf "%-8s $CDIFF %-24s <  %-30s " $PYTHON "$cdiff_opt" "$input")
     printf "$cmd"
     if eval $cmd 2>/dev/null | diff -ubq $expected_out - >& /dev/null; then
         pass
@@ -56,9 +56,11 @@ function main()
         cmp_output $d/in.diff $d/out.normal "-c always" || ((e++))
         cmp_output $d/in.diff $d/out.side-by-side "-c always -s" || ((e++))
         cmp_output $d/in.diff $d/out.w70 "-c always -s -w70" || ((e++))
+        cmp_output $d/in.diff $d/out.w70.wrap "-c always -s -w70 --wrap" || ((e++))
         cmp_output $d/in.diff $d/in.diff "-c auto" || ((e++))
         cmp_output $d/in.diff $d/in.diff "-c auto -s" || ((e++))
         cmp_output $d/in.diff $d/in.diff "-c auto -s -w70" || ((e++))
+        cmp_output $d/in.diff $d/in.diff "-c auto -s -w70 --wrap" || ((e++))
         (( total += 6 ))
     done
 

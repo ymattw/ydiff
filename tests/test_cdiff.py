@@ -231,7 +231,7 @@ class DiffMarkupTest(unittest.TestCase):
             '\x1b[33m1\x1b[0m '
             '\x1b[31m\x1b[7m\x1b[31mh\x1b[0m\x1b[31mhello\x1b[0m  '
             '\x1b[0m\x1b[33m1\x1b[0m '
-            '\x1b[32mhello\x1b[7m\x1b[32mo\x1b[0m\x1b[32m\x1b[0m\n')
+            '\x1b[32mhello\x1b[7m\x1b[32mo\x1b[0m\n')
         self.assertEqual(
             out[6],
             '\x1b[33m '
@@ -261,7 +261,7 @@ class DiffMarkupTest(unittest.TestCase):
             '\x1b[33m5\x1b[0m '
             '\x1b[31m\x1b[7m\x1b[31m      \x1b[0m\x1b[1;35m>\x1b[0m '
             '\x1b[0m\x1b[33m5\x1b[0m '
-            '\x1b[32m\x1b[7m\x1b[32m spaced\x1b[0m\x1b[32m\x1b[0m\n')
+            '\x1b[32m\x1b[7m\x1b[32m spaced\x1b[0m\n')
 
     # This test is not valid anymore
     def __test_markup_side_by_side_neg_width(self):
@@ -325,11 +325,10 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(out[4], '\x1b[1;34m@@ -1,5 +1,5 @@\n\x1b[0m')
         self.assertEqual(
             out[5],
-
             '\x1b[33m1\x1b[0m '
             '\x1b[31m\x1b[7m\x1b[31mh\x1b[0m\x1b[31mhello\x1b[0m '
             '\x1b[0m\x1b[33m1\x1b[0m '
-            '\x1b[32mhello\x1b[7m\x1b[32mo\x1b[0m\x1b[32m\x1b[0m\n')
+            '\x1b[32mhello\x1b[7m\x1b[32mo\x1b[0m\n')
         self.assertEqual(
             out[6],
             '\x1b[33m \x1b[0m        '
@@ -432,7 +431,7 @@ class DiffMarkupTest(unittest.TestCase):
             '\x1b[33m1\x1b[0m '
             '\x1b[31m\x1b[7m\x1b[31mh\x1b[0m\x1b[31mhello\x1b[0m   '
             '\x1b[0m\x1b[33m1\x1b[0m '
-            '\x1b[32mhello\x1b[7m\x1b[32mo\x1b[0m\x1b[32m\x1b[0m\n')
+            '\x1b[32mhello\x1b[7m\x1b[32mo\x1b[0m\n')
         self.assertEqual(
             out[6],
             '\x1b[33m '
@@ -460,9 +459,9 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(
             out[10],
             '\x1b[33m5\x1b[0m '
-            '\x1b[31m\x1b[7m\x1b[31m  tabbed\x1b[0m\x1b[31m\x1b[0m '
+            '\x1b[31m\x1b[7m\x1b[31m  tabbed\x1b[0m '
             '\x1b[0m\x1b[33m5\x1b[0m '
-            '\x1b[32m\x1b[7m\x1b[32m spaced\x1b[0m\x1b[32m\x1b[0m\n')
+            '\x1b[32m\x1b[7m\x1b[32m spaced\x1b[0m\n')
 
 
 class UnifiedDiffTest(unittest.TestCase):

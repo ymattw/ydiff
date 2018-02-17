@@ -149,14 +149,6 @@ def strtrim(text, width, wrap_char, pad):
     if tlen > width:
         text, _, _ = strsplit(text, width - 1)
 
-        # Old code always added trailing 'reset' sequence, but strsplit is
-        # smarter and only adds it when there is something to reset. However,
-        # in order not to distract with changed test data, here's workaround
-        # which keeps output exactly the same. TODO: remove it; it doesn't add
-        # any practical value for the user.
-        if not text.endswith(COLORS['reset']):
-            text += COLORS['reset']
-
         text += wrap_char
     elif pad:
         # The string is short enough, but it might need to be padded.
@@ -549,10 +541,8 @@ class DiffMarker(object):
                     out.append(COLORS['underline'] + COLORS[base_color])
                     text = text[2:]
                 elif text.startswith('\x01'):   # reset
-                    # TODO: Append resetting sequence if only there is some
-                    # text after that. That is, call out.append(...) if only
-                    # len(text) > 1.
-                    out.append(COLORS['reset'] + COLORS[base_color])
+                    if len(text) > 1:
+                        out.append(COLORS['reset'] + COLORS[base_color])
                     text = text[1:]
                 else:
                     # FIXME: utf-8 wchar might break the rule here, e.g.
