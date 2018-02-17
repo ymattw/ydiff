@@ -87,13 +87,15 @@ Type ``cdiff -h`` to show usage::
     and auto pager support
 
     Options:
-      --version           show program's version number and exit
-      -h, --help          show this help message and exit
-      -s, --side-by-side  enable side-by-side mode
-      -w N, --width=N     set text width for side-by-side mode, 0 for auto
-                          detection, default is 80
-      -l, --log           show log with changes from revision control
-      -c M, --color=M     colorize mode 'auto' (default), 'always', or 'never'
+      --version            show program's version number and exit
+      -h, --help           show this help message and exit
+      -s, --side-by-side   enable side-by-side mode
+      -w N, --width=N      set text width for side-by-side mode, 0 for auto
+                           detection, default is 80
+      -l, --log            show log with changes from revision control
+      -c M, --color=M      colorize mode 'auto' (default), 'always', or 'never'
+      -t N, --tab-width=N  convert tab characters to this many spaces (default: 8)
+      --wrap               wrap long lines in side-by-side view
 
       Note:
         Option parser will stop on first unknown option and pass them down to
@@ -107,15 +109,16 @@ from e.g. ``git diff``, ``svn diff``):
 .. code-block:: bash
 
     cd proj-workspace
-    cdiff                       # view colored incremental diff
-    cdiff -s                    # view side by side, use default text width 80
-    cdiff -s -w 90              # use text width 90 other than default 80
-    cdiff -s -w 0               # auto set text width based on terminal size
-    cdiff -s file1 dir2         # view modification of given files/dirs only
-    cdiff -s -w90 -- -U10       # pass '-U10' to underneath revision diff tool
-    cdiff -s -w90 -U10          # '--' is optional as it's unknown to cdiff
-    cdiff -s --cached           # show git staged diff (git diff --cached)
-    cdiff -s -r1234             # show svn diff to revision 1234
+    cdiff                         # view colored incremental diff
+    cdiff -s                      # view side by side, use default text width 80
+    cdiff -s -w 90                # use text width 90 other than default 80
+    cdiff -s -w 0                 # auto set text width based on terminal size
+    cdiff -s -w 0 --wrap          # same as before, but also wrap long lines
+    cdiff -s file1 dir2           # view modification of given files/dirs only
+    cdiff -s -w90 --wrap -- -U10  # pass '-U10' to underneath revision diff tool
+    cdiff -s -w90 --wrap -U10     # '--' is optional as it's unknown to cdiff
+    cdiff -s --cached             # show git staged diff (git diff --cached)
+    cdiff -s -r1234               # show svn diff to revision 1234
 
 Read log with changes in a *Git/Mercurial/Svn* workspace (output from e.g.
 ``git log -p``, ``svn log --diff``), note *--diff* option is new in svn 1.7.0:
@@ -125,7 +128,7 @@ Read log with changes in a *Git/Mercurial/Svn* workspace (output from e.g.
     cd proj-workspace
     cdiff -l                    # read log along with changes
     cdiff -ls                   # equivalent to cdiff -l -s, view side by side
-    cdiff -ls -w90              # set text width 90 as well
+    cdiff -ls -w90 --wrap       # set text width 90 and enable wrapping as well
     cdiff -ls file1 dir2        # see log with changes of given files/dirs only
 
 Environment variable ``CDIFF_OPTIONS`` may be used to specify default options
@@ -133,8 +136,8 @@ that will be placed at the beginning of the argument list, for example:
 
 .. code-block:: bash
 
-    export CDIFF_OPTIONS='-s -w0'
-    cdiff foo                   # equivalent to "cdiff -s -w0 foo"
+    export CDIFF_OPTIONS='-s -w0 --wrap'
+    cdiff foo                   # equivalent to "cdiff -s -w0 --wrap foo"
 
 If you feel more comfortable with a command such as ``git cdiff`` to trigger
 the cdiff command, you may symlink the executable to one named ``git-cdiff``
