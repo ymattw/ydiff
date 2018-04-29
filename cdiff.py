@@ -460,18 +460,20 @@ class DiffParser(object):
 
 class DiffMarker(object):
 
-    def markup(self, diffs, side_by_side=False, width=0, tab_width=8,
-               wrap=False):
+    def __init__(self, side_by_side=False, width=0, tab_width=8, wrap=False):
+        self._side_by_side = side_by_side
+        self._width = width
+        self._tab_width = tab_width
+        self._wrap = wrap
+
+    def markup(self, diff):
         """Returns a generator"""
-        if side_by_side:
-            for diff in diffs:
-                for line in self._markup_side_by_side(diff, width, tab_width,
-                                                      wrap):
-                    yield line
+        if self._side_by_side:
+            for line in self._markup_side_by_side(diff):
+                yield line
         else:
-            for diff in diffs:
-                for line in self._markup_traditional(diff):
-                    yield line
+            for line in self._markup_traditional(diff):
+                yield line
 
     def _markup_traditional(self, diff):
         """Returns a generator"""
@@ -506,14 +508,16 @@ class DiffMarker(object):
                 else:
                     yield self._markup_common(' ' + old[1])
 
-    def _markup_side_by_side(self, diff, width, tab_width, wrap):
+    def _markup_side_by_side(self, diff):
         """Returns a generator"""
 
         def _normalize(line):
-            return line.replace(
-                '\t', ' ' * tab_width).replace('\n', '').replace('\r', '')
+            return (line
+                    .replace('\t', ' ' * self._tab_width)
+                    .replace('\n', '')
+                    .replace('\r', ''))
 
-        def _fit_with_marker_mix(text, base_color, width):
+        def _fit_with_marker_mix(text, base_color):
             """Wrap input text which contains mdiff tags, markup at the
             meantime
             """
@@ -558,6 +562,7 @@ class DiffMarker(object):
         num_width = max(len(str(max1)), len(str(max2)))
 
         # Set up line width
+        width = self._width
         if width <= 0:
             # Autodetection of text width according to terminal size
             try:
@@ -615,13 +620,13 @@ class DiffMarker(object):
                         left = self._markup_old(left)
                         right = ''
                     else:
-                        left = _fit_with_marker_mix(left, 'red', width)
-                        right = _fit_with_marker_mix(right, 'green', width)
+                        left = _fit_with_marker_mix(left, 'red')
+                        right = _fit_with_marker_mix(right, 'green')
                 else:
                     left = self._markup_common(left)
                     right = self._markup_common(right)
 
-                if wrap:
+                if self._wrap:
                     # Need to wrap long lines, so here we'll iterate,
                     # shaving off `width` chars from both left and right
                     # strings, until both are empty. Also, line number needs to
@@ -718,13 +723,12 @@ def markup_to_pager(stream, opts):
         pager_cmd, stdin=subprocess.PIPE, stdout=sys.stdout)
 
     diffs = DiffParser(stream).get_diff_generator()
-    marker = DiffMarker()
-    color_diff = marker.markup(diffs, side_by_side=opts.side_by_side,
-                               width=opts.width, tab_width=opts.tab_width,
-                               wrap=opts.wrap)
-
-    for line in color_diff:
-        pager.stdin.write(line.encode('utf-8'))
+    for diff in diffs:
+        marker = DiffMarker(side_by_side=opts.side_by_side, width=opts.width,
+                            tab_width=opts.tab_width, wrap=opts.wrap)
+        color_diff = marker.markup(diff)
+        for line in color_diff:
+            pager.stdin.write(line.encode('utf-8'))
 
     pager.stdin.close()
     pager.wait()

@@ -135,22 +135,12 @@ class DiffMarkupTest(unittest.TestCase):
             ['header\n'], '--- old\n', '+++ new\n', [hunk])
         return diff
 
-    def test_markup_mix(self):
-        marker = cdiff.DiffMarker()
-        line = 'foo \x00-del\x01 \x00+add\x01 \x00^chg\x01 bar'
-        base_color = 'red'
-        self.assertEqual(
-            marker._markup_mix(line, base_color),
-            '\x1b[31mfoo \x1b[7m\x1b[31mdel\x1b[0m\x1b[31m '
-            '\x1b[7m\x1b[31madd\x1b[0m\x1b[31m '
-            '\x1b[4m\x1b[31mchg\x1b[0m\x1b[31m bar\x1b[0m')
-
     def test_markup_traditional_hunk_header(self):
         hunk = cdiff.Hunk(['hunk header\n'], '@@ -0 +0 @@\n', (0, 0), (0, 0))
         diff = cdiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
         marker = cdiff.DiffMarker()
 
-        out = list(marker._markup_traditional(diff))
+        out = list(marker.markup(diff))
         self.assertEqual(len(out), 4)
 
         self.assertEqual(out[0], '\x1b[33m--- old\n\x1b[0m')
@@ -164,7 +154,7 @@ class DiffMarkupTest(unittest.TestCase):
         diff = cdiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
         marker = cdiff.DiffMarker()
 
-        out = list(marker._markup_traditional(diff))
+        out = list(marker.markup(diff))
         self.assertEqual(len(out), 4)
 
         self.assertEqual(out[0], '\x1b[33m--- old\n\x1b[0m')
@@ -178,7 +168,7 @@ class DiffMarkupTest(unittest.TestCase):
         diff = cdiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
         marker = cdiff.DiffMarker()
 
-        out = list(marker._markup_traditional(diff))
+        out = list(marker.markup(diff))
         self.assertEqual(len(out), 4)
 
         self.assertEqual(out[0], '\x1b[33m--- old\n\x1b[0m')
@@ -194,7 +184,7 @@ class DiffMarkupTest(unittest.TestCase):
         diff = cdiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
         marker = cdiff.DiffMarker()
 
-        out = list(marker._markup_traditional(diff))
+        out = list(marker.markup(diff))
         self.assertEqual(len(out), 6)
 
         self.assertEqual(out[0], '\x1b[33m--- old\n\x1b[0m')
@@ -212,9 +202,9 @@ class DiffMarkupTest(unittest.TestCase):
 
     def test_markup_side_by_side_padded(self):
         diff = self._init_diff()
-        marker = cdiff.DiffMarker()
+        marker = cdiff.DiffMarker(side_by_side=True, width=7)
 
-        out = list(marker._markup_side_by_side(diff, 7, 8, False))
+        out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
 
         sys.stdout.write('\n')
@@ -266,8 +256,8 @@ class DiffMarkupTest(unittest.TestCase):
     # This test is not valid anymore
     def __test_markup_side_by_side_neg_width(self):
         diff = self._init_diff()
-        marker = cdiff.DiffMarker()
-        out = list(marker._markup_side_by_side(diff, -1, 8, False))
+        marker = cdiff.DiffMarker(side_by_side=True, width=-1)
+        out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
 
         self.assertEqual(out[0], '\x1b[36mheader\n\x1b[0m')
@@ -310,8 +300,8 @@ class DiffMarkupTest(unittest.TestCase):
 
     def test_markup_side_by_side_off_by_one(self):
         diff = self._init_diff()
-        marker = cdiff.DiffMarker()
-        out = list(marker._markup_side_by_side(diff, 6, 8, False))
+        marker = cdiff.DiffMarker(side_by_side=True, width=6)
+        out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
 
         sys.stdout.write('\n')
@@ -361,8 +351,8 @@ class DiffMarkupTest(unittest.TestCase):
 
     def test_markup_side_by_side_wrapped(self):
         diff = self._init_diff()
-        marker = cdiff.DiffMarker()
-        out = list(marker._markup_side_by_side(diff, 5, 8, False))
+        marker = cdiff.DiffMarker(side_by_side=True, width=5)
+        out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
 
         sys.stdout.write('\n')
@@ -413,8 +403,8 @@ class DiffMarkupTest(unittest.TestCase):
 
     def test_markup_side_by_side_tabbed(self):
         diff = self._init_diff()
-        marker = cdiff.DiffMarker()
-        out = list(marker._markup_side_by_side(diff, 8, 2, False))
+        marker = cdiff.DiffMarker(side_by_side=True, width=8, tab_width=2)
+        out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
 
         sys.stdout.write('\n')
