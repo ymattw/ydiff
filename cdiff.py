@@ -27,7 +27,7 @@ META_INFO = {
 }
 
 if sys.hexversion < 0x02050000:
-    raise SystemExit("*** Requires python >= 2.5.0")    # pragma: no cover
+    raise SystemExit('*** Requires python >= 2.5.0')    # pragma: no cover
 
 # Python < 2.6 does not have next()
 try:
@@ -99,7 +99,7 @@ def strsplit(text, width):
     found_colors = []
     chars_cnt = 0
     bytes_cnt = 0
-    while len(text) > 0:
+    while text:
         # First of all, check if current string begins with any escape
         # sequence.
         append_len = 0
@@ -129,7 +129,7 @@ def strsplit(text, width):
 
     # If the first string has some active colors at the splitting point,
     # reset it and append the same colors to the second string
-    if len(found_colors) > 0:
+    if found_colors:
         first += COLORS['reset']
         for color in found_colors:
             second = COLORS[color] + second
@@ -148,11 +148,10 @@ def strtrim(text, width, wrap_char, pad):
     text, _, tlen = strsplit(text, width + 1)
     if tlen > width:
         text, _, _ = strsplit(text, width - 1)
-
         text += wrap_char
     elif pad:
         # The string is short enough, but it might need to be padded.
-        text = "%s%*s" % (text, width - tlen, '')
+        text = '%s%*s' % (text, width - tlen, '')
     return text
 
 
@@ -189,18 +188,10 @@ class Hunk(object):
         return difflib._mdiff(self._get_old_text(), self._get_new_text())
 
     def _get_old_text(self):
-        out = []
-        for (attr, line) in self._hunk_list:
-            if attr != '+':
-                out.append(line)
-        return out
+        return [line for (attr, line) in self._hunk_list if attr != '+']
 
     def _get_new_text(self):
-        out = []
-        for (attr, line) in self._hunk_list:
-            if attr != '-':
-                out.append(line)
-        return out
+        return [line for (attr, line) in self._hunk_list if attr != '-']
 
     def is_completed(self):
         old_completed = self._old_addr[1] == len(self._get_old_text())
@@ -227,8 +218,8 @@ class UnifiedDiff(object):
         might occur after the ending @@, e.g. in git log.  '## ' usually
         indicates svn property changes in output from `svn log --diff`
         """
-        return (line.startswith('@@ -') and line.find(' @@') >= 8) or \
-               (line.startswith('## -') and line.find(' ##') >= 8)
+        return (line.startswith('@@ -') and line.find(' @@') >= 8 or
+                line.startswith('## -') and line.find(' ##') >= 8)
 
     def parse_hunk_meta(self, hunk_meta):
         # @@ -3,7 +3,6 @@
@@ -255,8 +246,8 @@ class UnifiedDiff(object):
         """Exclude old path and header line from svn log --diff output, allow
         '----' likely to see in diff from yaml file
         """
-        return line.startswith('-') and not self.is_old_path(line) and \
-            not re.match(r'^-{72}$', line.rstrip())
+        return (line.startswith('-') and not self.is_old_path(line) and
+                not re.match(r'^-{72}$', line.rstrip()))
 
     def is_new(self, line):
         return line.startswith('+') and not self.is_new_path(line)
@@ -434,8 +425,7 @@ class DiffParser(object):
                 # ignore
                 pass
 
-            elif diff.is_only_in_dir(line) or \
-                    diff.is_binary_differ(line):
+            elif diff.is_only_in_dir(line) or diff.is_binary_differ(line):
                 # 'Only in foo:' and 'Binary files ... differ' are considered
                 # as separate diffs, so yield current diff, then this line
                 #
@@ -509,10 +499,10 @@ class DiffMarker(object):
                         yield self._markup_old(line)
                     else:
                         # DEBUG: yield 'CHG: %s %s\n' % (old, new)
-                        yield self._markup_old('-') + \
-                            self._markup_mix(old[1], 'red')
-                        yield self._markup_new('+') + \
-                            self._markup_mix(new[1], 'green')
+                        yield (self._markup_old('-') +
+                               self._markup_mix(old[1], 'red'))
+                        yield (self._markup_new('+') +
+                               self._markup_mix(new[1], 'green'))
                 else:
                     yield self._markup_common(' ' + old[1])
 
@@ -571,7 +561,7 @@ class DiffMarker(object):
         if width <= 0:
             # Autodetection of text width according to terminal size
             try:
-                # Each line is like "nnn TEXT nnn TEXT\n", so width is half of
+                # Each line is like 'nnn TEXT nnn TEXT\n', so width is half of
                 # [terminal size minus the line number columns and 3 separating
                 # spaces
                 #
@@ -583,8 +573,8 @@ class DiffMarker(object):
         # Setup lineno and line format
         left_num_fmt = colorize('%%(left_num)%ds' % num_width, 'yellow')
         right_num_fmt = colorize('%%(right_num)%ds' % num_width, 'yellow')
-        line_fmt = left_num_fmt + ' %(left)s ' + COLORS['reset'] + \
-            right_num_fmt + ' %(right)s\n'
+        line_fmt = (left_num_fmt + ' %(left)s ' + COLORS['reset'] +
+                    right_num_fmt + ' %(right)s\n')
 
         # yield header, old path and new path
         for line in diff._headers:
@@ -638,7 +628,7 @@ class DiffMarker(object):
                     # be printed only for the first part.
                     lncur = left_num
                     rncur = right_num
-                    while len(left) > 0 or len(right) > 0:
+                    while left or right:
                         # Split both left and right lines, preserving escaping
                         # sequences correctly.
                         lcur, left, llen = strsplit(left, width)
@@ -646,7 +636,7 @@ class DiffMarker(object):
 
                         # Pad left line with spaces if needed
                         if llen < width:
-                            lcur = "%s%*s" % (lcur, width - llen, '')
+                            lcur = '%s%*s' % (lcur, width - llen, '')
 
                         yield line_fmt % {
                             'left_num': lncur,
@@ -849,11 +839,11 @@ def main():
 
     # Hack: use OptionGroup text for extra help message after option list
     option_group = OptionGroup(
-        parser, "Note", ("Option parser will stop on first unknown option "
-                         "and pass them down to underneath revision control. "
-                         "Environment variable CDIFF_OPTIONS may be used to "
-                         "specify default options that will be placed at the "
-                         "beginning of the argument list."))
+        parser, 'Note', ('Option parser will stop on first unknown option '
+                         'and pass them down to underneath revision control. '
+                         'Environment variable CDIFF_OPTIONS may be used to '
+                         'specify default options that will be placed at the '
+                         'beginning of the argument list.'))
     parser.add_option_group(option_group)
 
     # Place possible options defined in CDIFF_OPTIONS at the beginning of argv
@@ -883,8 +873,8 @@ def main():
     if stream.is_empty():
         return 0
 
-    if opts.color == 'always' or \
-            (opts.color == 'auto' and sys.stdout.isatty()):
+    if (opts.color == 'always' or
+            (opts.color == 'auto' and sys.stdout.isatty())):
         markup_to_pager(stream, opts)
     else:
         # pipe out stream untouched to make sure it is still a patch
