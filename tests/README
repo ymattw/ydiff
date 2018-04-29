@@ -4,3 +4,4 @@
 ../../cdiff.py -c always < in.diff > out.normal
 ../../cdiff.py -c always -s < in.diff > out.side-by-side
 ../../cdiff.py -c always -s < in.diff -w70 > out.w70
+../../cdiff.py -c always -s < in.diff -w70 --wrap > out.w70.wrap

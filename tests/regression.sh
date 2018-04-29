@@ -33,9 +33,9 @@ function cmp_output()
     local cdiff_opt=${3:-""}
     local cmd
 
-    cmd=$(printf "%-8s $CDIFF %-24s <  %-30s " $PYTHON "$cdiff_opt" "$input")
+    cmd=$(printf "%-7s $CDIFF %-24s < %-30s " $PYTHON "$cdiff_opt" "$input")
     printf "$cmd"
-    if eval $cmd 2>/dev/null | diff -ubq $expected_out - >& /dev/null; then
+    if eval $cmd 2>/dev/null | cmp --silent $expected_out -; then
         pass
         return 0
     else
