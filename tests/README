@@ -1,7 +1,7 @@
 # To generate expected output, chdir to a subdir and use following command, then
 # review with `less -R`
 #
-../../cdiff.py -c always < in.diff > out.normal
-../../cdiff.py -c always -s < in.diff > out.side-by-side
-../../cdiff.py -c always -s < in.diff -w70 > out.w70
-../../cdiff.py -c always -s < in.diff -w70 --wrap > out.w70.wrap
+../../ydiff.py -c always < in.diff > out.normal
+../../ydiff.py -c always -s < in.diff > out.side-by-side
+../../ydiff.py -c always -s < in.diff -w70 > out.w70
+../../ydiff.py -c always -s < in.diff -w70 --wrap > out.w70.wrap

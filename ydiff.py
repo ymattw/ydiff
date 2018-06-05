@@ -16,11 +16,11 @@ import select
 import difflib
 
 META_INFO = {
-    'version'     : '1.0',
+    'version'     : '1.1',
     'license'     : 'BSD-3',
     'author'      : 'Matthew Wang',
     'email'       : 'mattwyl(@)gmail(.)com',
-    'url'         : 'https://github.com/ymattw/cdiff',
+    'url'         : 'https://github.com/ymattw/ydiff',
     'keywords'    : 'colored incremental side-by-side diff',
     'description' : ('View colored, incremental diff in a workspace or from '
                      'stdin, with side by side and auto pager support')
@@ -372,7 +372,7 @@ class DiffParser(object):
                 break
         else:
             # `filterdiff` translates unknown diff to nothing, fall through to
-            # unified diff give cdiff a chance to show everything as headers
+            # unified diff give ydiff a chance to show everything as headers
             #
             sys.stderr.write("*** unknown format, fall through to 'unified'\n")
             self._type = 'unified'
@@ -712,7 +712,7 @@ def markup_to_pager(stream, opts):
     ended), most likely python bug 12607 (http://bugs.python.org/issue12607)
     which was fixed in python 2.7.3.
 
-    See issue #30 (https://github.com/ymattw/cdiff/issues/30) for more
+    See issue #30 (https://github.com/ymattw/ydiff/issues/30) for more
     information.
     """
     pager_cmd = ['less']
@@ -770,7 +770,7 @@ def decode(line):
         except UnicodeDecodeError:
             pass
 
-    return '*** cdiff: undecodable bytes ***\n'
+    return '*** ydiff: undecodable bytes ***\n'
 
 
 def terminal_size():
@@ -845,14 +845,24 @@ def main():
     option_group = OptionGroup(
         parser, 'Note', ('Option parser will stop on first unknown option '
                          'and pass them down to underneath revision control. '
-                         'Environment variable CDIFF_OPTIONS may be used to '
+                         'Environment variable YDIFF_OPTIONS may be used to '
                          'specify default options that will be placed at the '
                          'beginning of the argument list.'))
     parser.add_option_group(option_group)
 
-    # Place possible options defined in CDIFF_OPTIONS at the beginning of argv
-    cdiff_opts = [x for x in os.getenv('CDIFF_OPTIONS', '').split(' ') if x]
-    opts, args = parser.parse_args(cdiff_opts + sys.argv[1:])
+    # Place possible options defined in YDIFF_OPTIONS at the beginning of argv
+    ydiff_opts = [x for x in os.getenv('YDIFF_OPTIONS', '').split(' ') if x]
+
+    # TODO: Deprecate CDIFF_OPTIONS. Fall back to it and warn (for now).
+    if not ydiff_opts:
+        cdiff_opts = [x for x in os.getenv('CDIFF_OPTIONS', '').split(' ')
+                      if x]
+        if cdiff_opts:
+            sys.stderr.write('*** CDIFF_OPTIONS will be depreated soon, '
+                             'please use YDIFF_OPTIONS instead\n')
+            ydiff_opts = cdiff_opts
+
+    opts, args = parser.parse_args(ydiff_opts + sys.argv[1:])
 
     if opts.log:
         diff_hdl = revision_control_log(args)

@@ -3,7 +3,7 @@
 TOP_DIR=$(cd $(dirname $0)/.. && pwd) || exit 1
 cd $TOP_DIR || exit 1
 
-CDIFF=./cdiff
+YDIFF=./ydiff
 
 # To test with py3k: PYTHON=python3 make test
 PYTHON=${PYTHON:-python}
@@ -30,10 +30,10 @@ function cmp_output()
 {
     local input=${1:?}
     local expected_out=${2:?}
-    local cdiff_opt=${3:-""}
+    local ydiff_opt=${3:-""}
     local cmd
 
-    cmd=$(printf "%-7s $CDIFF %-24s < %-30s " $PYTHON "$cdiff_opt" "$input")
+    cmd=$(printf "%-7s $YDIFF %-24s < %-30s " $PYTHON "$ydiff_opt" "$input")
     printf "$cmd"
     if eval $cmd 2>/dev/null | cmp --silent $expected_out -; then
         pass

@@ -7,8 +7,8 @@ PYPI = pypi
 	test test3 cov cov3 html reg reg3 profile profile3
 
 dogfood:
-	./cdiff.py
-	git diff | ./cdiff.py -s
+	./ydiff.py
+	git diff | ./ydiff.py -s
 
 lint:
 	pep8 --ignore=E203 *.py tests/*.py
@@ -27,11 +27,11 @@ test: lint doc-check cov reg
 test3: lint doc-check cov3 reg3
 
 cov:
-	coverage run tests/test_cdiff.py
+	coverage run tests/test_ydiff.py
 	coverage report --show-missing
 
 cov3:
-	python3 `which coverage` run tests/test_cdiff.py
+	python3 `which coverage` run tests/test_ydiff.py
 	python3 `which coverage` report --show-missing
 
 html:
@@ -52,17 +52,17 @@ profile3:
 
 clean:
 	rm -f MANIFEST profile*.tmp* .coverage
-	rm -rf build/ cdiff.egg-info/ dist/ __pycache__/ htmlcov/
+	rm -rf build/ ydiff.egg-info/ dist/ __pycache__/ htmlcov/
 
 build:
 	./setup.py build sdist
 
-dist-test:
-	./setup.py build sdist register upload -r $(TESTPYPI)
+dist-test: clean build
+	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 	rm -f ~/.pypirc
 
-dist:
-	./setup.py build sdist register upload -r $(PYPI)
+dist: clean build
+	twine upload dist/*
 	rm -f ~/.pypirc
 
 # vim:set noet ts=8 sw=8:

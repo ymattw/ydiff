@@ -3,7 +3,7 @@
 OUTPUT=${1:?"output file required"}
 
 SELF_DIR=$(cd $(dirname $0) && pwd) || exit 1
-CDIFF_PY=$SELF_DIR/../cdiff.py
+YDIFF_PY=$SELF_DIR/../ydiff.py
 
 # To test with py3k: PYTHON=python3 make test
 PYTHON=${PYTHON:-python}
@@ -12,11 +12,11 @@ set -o errexit
 STATS="stats.$$.tmp"
 
 for i in {1..100}; do cat "tests/svn/in.diff"; done \
-    | $PYTHON -m cProfile -o $STATS $CDIFF_PY -c always -s -w 60 \
+    | $PYTHON -m cProfile -o $STATS $YDIFF_PY -c always -s -w 60 \
     > /dev/null
 
 $PYTHON -c "import pstats;  p = pstats.Stats('$STATS'); \
-    p.strip_dirs().sort_stats('time').print_stats('cdiff')" \
+    p.strip_dirs().sort_stats('time').print_stats('ydiff')" \
     | tee $OUTPUT
 
 rm -f $STATS
