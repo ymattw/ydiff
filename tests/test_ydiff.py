@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Unit test for cdiff"""
+"""Unit test for ydiff"""
 
 import sys
 import unittest
@@ -10,7 +10,7 @@ import subprocess
 import os
 
 sys.path.insert(0, '')
-import cdiff  # nopep8
+import ydiff  # nopep8
 
 
 class Sequential(object):
@@ -41,27 +41,27 @@ class Sequential(object):
 class PatchStreamTest(unittest.TestCase):
 
     def test_is_empty(self):
-        stream = cdiff.PatchStream(Sequential([]))
+        stream = ydiff.PatchStream(Sequential([]))
         self.assertTrue(stream.is_empty())
 
-        stream = cdiff.PatchStream(Sequential(['hello', 'world']))
+        stream = ydiff.PatchStream(Sequential(['hello', 'world']))
         self.assertFalse(stream.is_empty())
 
     def test_read_stream_header(self):
-        stream = cdiff.PatchStream(Sequential([]))
+        stream = ydiff.PatchStream(Sequential([]))
         self.assertEqual(stream.read_stream_header(1), [])
 
         items = ['hello', 'world', 'again']
 
-        stream = cdiff.PatchStream(Sequential(items))
+        stream = ydiff.PatchStream(Sequential(items))
         self.assertEqual(stream.read_stream_header(2), items[:2])
 
-        stream = cdiff.PatchStream(Sequential(items))
+        stream = ydiff.PatchStream(Sequential(items))
         self.assertEqual(stream.read_stream_header(4), items[:])
 
     def test_iter_after_read_stream_header(self):
         items = ['hello', 'world', 'again', 'and', 'again']
-        stream = cdiff.PatchStream(Sequential(items))
+        stream = ydiff.PatchStream(Sequential(items))
 
         _ = stream.read_stream_header(2)
         out = list(stream)
@@ -72,7 +72,7 @@ class DecodeTest(unittest.TestCase):
 
     def test_normal(self):
         utext = 'hello'.encode('utf-8')
-        self.assertEqual('hello', cdiff.decode(utext))
+        self.assertEqual('hello', ydiff.decode(utext))
 
     def test_latin_1(self):
         text = '\x80\x02q\x01(U'
@@ -80,20 +80,20 @@ class DecodeTest(unittest.TestCase):
             decoded_text = text.decode('latin-1')
         else:
             decoded_text = text
-        self.assertEqual(decoded_text, cdiff.decode(text))
+        self.assertEqual(decoded_text, ydiff.decode(text))
 
 
 class HunkTest(unittest.TestCase):
 
     def test_get_old_text(self):
-        hunk = cdiff.Hunk([], '@@ -1,2 +1,2 @@', (1, 2), (1, 2))
+        hunk = ydiff.Hunk([], '@@ -1,2 +1,2 @@', (1, 2), (1, 2))
         hunk.append(('-', 'foo\n'))
         hunk.append(('+', 'bar\n'))
         hunk.append((' ', 'common\n'))
         self.assertEqual(hunk._get_old_text(), ['foo\n', 'common\n'])
 
     def test_get_new_text(self):
-        hunk = cdiff.Hunk([], '@@ -1,2 +1,2 @@', (1, 2), (1, 2))
+        hunk = ydiff.Hunk([], '@@ -1,2 +1,2 @@', (1, 2), (1, 2))
         hunk.append(('-', 'foo\n'))
         hunk.append(('+', 'bar\n'))
         hunk.append((' ', 'common\n'))
@@ -120,7 +120,7 @@ class DiffMarkupTest(unittest.TestCase):
             + spaced
         """
 
-        hunk = cdiff.Hunk(['hunk header\n'], '@@ -1,5 +1,5 @@\n',
+        hunk = ydiff.Hunk(['hunk header\n'], '@@ -1,5 +1,5 @@\n',
                           (1, 5), (1, 5))
         hunk.append(('-', 'hhello\n'))
         hunk.append(('+', 'helloo\n'))
@@ -131,14 +131,14 @@ class DiffMarkupTest(unittest.TestCase):
         hunk.append(('-', '	tabbed\n'))
         hunk.append(('+', 'again\n'))
         hunk.append(('+', ' spaced\n'))
-        diff = cdiff.UnifiedDiff(
+        diff = ydiff.UnifiedDiff(
             ['header\n'], '--- old\n', '+++ new\n', [hunk])
         return diff
 
     def test_markup_traditional_hunk_header(self):
-        hunk = cdiff.Hunk(['hunk header\n'], '@@ -0 +0 @@\n', (0, 0), (0, 0))
-        diff = cdiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
-        marker = cdiff.DiffMarker()
+        hunk = ydiff.Hunk(['hunk header\n'], '@@ -0 +0 @@\n', (0, 0), (0, 0))
+        diff = ydiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
+        marker = ydiff.DiffMarker()
 
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 4)
@@ -149,10 +149,10 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(out[3], '\x1b[1;34m@@ -0 +0 @@\n\x1b[0m')
 
     def test_markup_traditional_old_changed(self):
-        hunk = cdiff.Hunk([], '@@ -1 +0,0 @@\n', (1, 0), (0, 0))
+        hunk = ydiff.Hunk([], '@@ -1 +0,0 @@\n', (1, 0), (0, 0))
         hunk.append(('-', 'spam\n'))
-        diff = cdiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
-        marker = cdiff.DiffMarker()
+        diff = ydiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
+        marker = ydiff.DiffMarker()
 
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 4)
@@ -163,10 +163,10 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(out[3], '\x1b[1;31m-spam\n\x1b[0m')
 
     def test_markup_traditional_new_changed(self):
-        hunk = cdiff.Hunk([], '@@ -0,0 +1 @@\n', (0, 0), (1, 0))
+        hunk = ydiff.Hunk([], '@@ -0,0 +1 @@\n', (0, 0), (1, 0))
         hunk.append(('+', 'spam\n'))
-        diff = cdiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
-        marker = cdiff.DiffMarker()
+        diff = ydiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
+        marker = ydiff.DiffMarker()
 
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 4)
@@ -177,12 +177,12 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(out[3], '\x1b[32m+spam\n\x1b[0m')
 
     def test_markup_traditional_both_changed(self):
-        hunk = cdiff.Hunk([], '@@ -1,2 +1,2 @@\n', (1, 2), (1, 2))
+        hunk = ydiff.Hunk([], '@@ -1,2 +1,2 @@\n', (1, 2), (1, 2))
         hunk.append(('-', 'hella\n'))
         hunk.append(('+', 'hello\n'))
         hunk.append((' ', 'common\n'))
-        diff = cdiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
-        marker = cdiff.DiffMarker()
+        diff = ydiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
+        marker = ydiff.DiffMarker()
 
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 6)
@@ -202,7 +202,7 @@ class DiffMarkupTest(unittest.TestCase):
 
     def test_markup_side_by_side_padded(self):
         diff = self._init_diff()
-        marker = cdiff.DiffMarker(side_by_side=True, width=7)
+        marker = ydiff.DiffMarker(side_by_side=True, width=7)
 
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
@@ -256,7 +256,7 @@ class DiffMarkupTest(unittest.TestCase):
     # This test is not valid anymore
     def __test_markup_side_by_side_neg_width(self):
         diff = self._init_diff()
-        marker = cdiff.DiffMarker(side_by_side=True, width=-1)
+        marker = ydiff.DiffMarker(side_by_side=True, width=-1)
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
 
@@ -300,7 +300,7 @@ class DiffMarkupTest(unittest.TestCase):
 
     def test_markup_side_by_side_off_by_one(self):
         diff = self._init_diff()
-        marker = cdiff.DiffMarker(side_by_side=True, width=6)
+        marker = ydiff.DiffMarker(side_by_side=True, width=6)
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
 
@@ -351,7 +351,7 @@ class DiffMarkupTest(unittest.TestCase):
 
     def test_markup_side_by_side_wrapped(self):
         diff = self._init_diff()
-        marker = cdiff.DiffMarker(side_by_side=True, width=5)
+        marker = ydiff.DiffMarker(side_by_side=True, width=5)
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
 
@@ -403,7 +403,7 @@ class DiffMarkupTest(unittest.TestCase):
 
     def test_markup_side_by_side_tabbed(self):
         diff = self._init_diff()
-        marker = cdiff.DiffMarker(side_by_side=True, width=8, tab_width=2)
+        marker = ydiff.DiffMarker(side_by_side=True, width=8, tab_width=2)
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
 
@@ -456,7 +456,7 @@ class DiffMarkupTest(unittest.TestCase):
 
 class UnifiedDiffTest(unittest.TestCase):
 
-    diff = cdiff.UnifiedDiff(None, None, None, None)
+    diff = ydiff.UnifiedDiff(None, None, None, None)
 
     def test_is_hunk_meta_normal(self):
         self.assertTrue(self.diff.is_hunk_meta('@@ -1 +1 @@'))
@@ -518,8 +518,8 @@ spam
 @@ -1,2 +1,2 @@
 """
         items = patch.splitlines(True)
-        stream = cdiff.PatchStream(Sequential(items))
-        parser = cdiff.DiffParser(stream)
+        stream = ydiff.PatchStream(Sequential(items))
+        parser = ydiff.DiffParser(stream)
         self.assertEqual(parser._type, 'unified')
 
     def test_type_detect_context(self):
@@ -533,8 +533,8 @@ spam
   This part of the
 """
         items = patch.splitlines(True)
-        stream = cdiff.PatchStream(Sequential(items))
-        parser = cdiff.DiffParser(stream)
+        stream = ydiff.PatchStream(Sequential(items))
+        parser = ydiff.DiffParser(stream)
         self.assertEqual(parser._type, 'context')
 
     def test_type_detect_neg(self):
@@ -546,8 +546,8 @@ spam
 
 """
         items = patch.splitlines(True)
-        stream = cdiff.PatchStream(Sequential(items))
-        parser = cdiff.DiffParser(stream)
+        stream = ydiff.PatchStream(Sequential(items))
+        parser = ydiff.DiffParser(stream)
         self.assertEqual(parser._type, 'unified')
 
     def test_parse_invalid_hunk_meta(self):
@@ -559,8 +559,8 @@ spam
 @@ -a,a +0 @@
 """
         items = patch.splitlines(True)
-        stream = cdiff.PatchStream(Sequential(items))
-        parser = cdiff.DiffParser(stream)
+        stream = ydiff.PatchStream(Sequential(items))
+        parser = ydiff.DiffParser(stream)
         self.assertRaises(RuntimeError, list, parser.get_diff_generator())
 
     def test_parse_dangling_header(self):
@@ -574,8 +574,8 @@ spam
 spam
 """
         items = patch.splitlines(True)
-        stream = cdiff.PatchStream(Sequential(items))
-        parser = cdiff.DiffParser(stream)
+        stream = ydiff.PatchStream(Sequential(items))
+        parser = ydiff.DiffParser(stream)
 
         out = list(parser.get_diff_generator())
         self.assertEqual(len(out), 2)
@@ -596,8 +596,8 @@ spam
 --- c
 """
         items = patch.splitlines(True)
-        stream = cdiff.PatchStream(Sequential(items))
-        parser = cdiff.DiffParser(stream)
+        stream = ydiff.PatchStream(Sequential(items))
+        parser = ydiff.DiffParser(stream)
         self.assertRaises(AssertionError, list, parser.get_diff_generator())
 
     def test_parse_missing_hunk_meta(self):
@@ -612,8 +612,8 @@ spam
 +++ d
 """
         items = patch.splitlines(True)
-        stream = cdiff.PatchStream(Sequential(items))
-        parser = cdiff.DiffParser(stream)
+        stream = ydiff.PatchStream(Sequential(items))
+        parser = ydiff.DiffParser(stream)
 
         out = list(parser.get_diff_generator())
         self.assertEqual(len(out), 2)
@@ -635,8 +635,8 @@ spam
 @@ -1,2 +1,2 @@
 """
         items = patch.splitlines(True)
-        stream = cdiff.PatchStream(Sequential(items))
-        parser = cdiff.DiffParser(stream)
+        stream = ydiff.PatchStream(Sequential(items))
+        parser = ydiff.DiffParser(stream)
         self.assertRaises(AssertionError, list, parser.get_diff_generator())
 
     def test_parse_only_in_dir(self):
@@ -656,8 +656,8 @@ Only in foo: foo
  common
 """
         items = patch.splitlines(True)
-        stream = cdiff.PatchStream(Sequential(items))
-        parser = cdiff.DiffParser(stream)
+        stream = ydiff.PatchStream(Sequential(items))
+        parser = ydiff.DiffParser(stream)
 
         out = list(parser.get_diff_generator())
         self.assertEqual(len(out), 3)
@@ -677,8 +677,8 @@ Only in foo: foo
 Only in foo: foo
 """
         items = patch.splitlines(True)
-        stream = cdiff.PatchStream(Sequential(items))
-        parser = cdiff.DiffParser(stream)
+        stream = ydiff.PatchStream(Sequential(items))
+        parser = ydiff.DiffParser(stream)
 
         out = list(parser.get_diff_generator())
         self.assertEqual(len(out), 2)
@@ -702,8 +702,8 @@ Binary files a/1.pdf and b/1.pdf differ
  common
 """
         items = patch.splitlines(True)
-        stream = cdiff.PatchStream(Sequential(items))
-        parser = cdiff.DiffParser(stream)
+        stream = ydiff.PatchStream(Sequential(items))
+        parser = ydiff.DiffParser(stream)
 
         out = list(parser.get_diff_generator())
         self.assertEqual(len(out), 3)
@@ -738,8 +738,8 @@ index 529e8a3..ad71921 100755
  common
 """
         items = patch.splitlines(True)
-        stream = cdiff.PatchStream(Sequential(items))
-        parser = cdiff.DiffParser(stream)
+        stream = ydiff.PatchStream(Sequential(items))
+        parser = ydiff.DiffParser(stream)
 
         out = list(parser.get_diff_generator())
         self.assertEqual(len(out), 3)
@@ -764,8 +764,8 @@ Added: svn:keywords
 +Id
 """
         items = patch.splitlines(True)
-        stream = cdiff.PatchStream(Sequential(items))
-        parser = cdiff.DiffParser(stream)
+        stream = ydiff.PatchStream(Sequential(items))
+        parser = ydiff.DiffParser(stream)
         out = list(parser.get_diff_generator())
         self.assertEqual(len(out), 1)
         self.assertEqual(len(out[0]._hunks), 2)
@@ -779,8 +779,8 @@ class MainTest(unittest.TestCase):
 
     def setUp(self):
         self._cwd = os.getcwd()
-        self._ws = tempfile.mkdtemp(prefix='test_cdiff')
-        self._non_ws = tempfile.mkdtemp(prefix='test_cdiff')
+        self._ws = tempfile.mkdtemp(prefix='test_ydiff')
+        self._non_ws = tempfile.mkdtemp(prefix='test_ydiff')
         cmd = ('cd %s; git init; git config user.name me; '
                'git config user.email me@example.org') % self._ws
         subprocess.call(cmd, shell=True, stdout=subprocess.PIPE)
@@ -802,16 +802,16 @@ class MainTest(unittest.TestCase):
         subprocess.call(cmd, stdout=subprocess.PIPE)
 
     def test_preset_options(self):
-        os.environ['CDIFF_OPTIONS'] = '--help'
-        self.assertRaises(SystemExit, cdiff.main)
-        os.environ.pop('CDIFF_OPTIONS', None)
+        os.environ['YDIFF_OPTIONS'] = '--help'
+        self.assertRaises(SystemExit, ydiff.main)
+        os.environ.pop('YDIFF_OPTIONS', None)
 
     def test_read_diff(self):
         sys.argv = sys.argv[:1]
         self._change_file('read_diff')
 
         os.chdir(self._ws)
-        ret = cdiff.main()
+        ret = ydiff.main()
         os.chdir(self._cwd)
         self.assertEqual(ret, 0)
 
@@ -823,21 +823,21 @@ class MainTest(unittest.TestCase):
         self._commit_file()
 
         os.chdir(self._ws)
-        ret = cdiff.main()
+        ret = ydiff.main()
         os.chdir(self._cwd)
         self.assertEqual(ret, 0)
 
     def _test_read_diff_neg(self):
         sys.argv = sys.argv[:1]
         os.chdir(self._non_ws)
-        ret = cdiff.main()
+        ret = ydiff.main()
         os.chdir(self._cwd)
         self.assertNotEqual(ret, 0)
 
     def _test_read_log_neg(self):
         sys.argv = [sys.argv[0], '--log']
         os.chdir(self._non_ws)
-        ret = cdiff.main()
+        ret = ydiff.main()
         os.chdir(self._cwd)
         self.assertNotEqual(ret, 0)
 

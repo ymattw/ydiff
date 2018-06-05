@@ -2,6 +2,12 @@
 Change log
 ==========
 
+Version 1.1 (2018-06-05)
+
+  - Rename from ``cdiff`` to ``ydiff`` to avoid binary name conflict on major
+    distributions, ``CDIFF_OPTIONS`` still works but will be deprepated soon
+  - New option ``--wrap`` to wrap long lines in side-by-side view
+
 Version 1.0 (2016-12-31)
 
   - Use environment variable ``CDIFF_OPTIONS`` to hold default options

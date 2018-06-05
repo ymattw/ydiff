@@ -4,7 +4,7 @@
 from __future__ import with_statement
 import sys
 from distutils.core import setup
-from cdiff import META_INFO as _meta
+from ydiff import META_INFO as _meta
 
 if sys.hexversion < 0x02050000:
     raise SystemExit("*** Requires python >= 2.5.0")
@@ -15,10 +15,10 @@ with open('CHANGES.rst') as changes:
     long_description += changes.read()
 
 setup(
-    name='cdiff',
+    name='ydiff',
     version=_meta['version'],
     author=_meta['author'],
-    author_email=_meta['email'],
+    author_email=_meta['email'].replace('(', '').replace(')', ''),
     license=_meta['license'],
     description=_meta['description'],
     long_description=long_description,
@@ -38,8 +38,8 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
     ],
-    py_modules=['cdiff'],
-    scripts=['cdiff'],
+    py_modules=['ydiff'],
+    scripts=['ydiff'],
 )
 
 # vim:set et sts=4 sw=4 tw=79:
