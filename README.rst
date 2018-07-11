@@ -5,9 +5,10 @@ Ydiff
    :target: https://travis-ci.org/ymattw/ydiff
    :alt: Build status
 
-Term based tool to view *colored*, *incremental* diff in a *Git/Mercurial/Svn*
-workspace or from stdin, with *side by side* (similar to ``diff -y``) and *auto
-pager* support. Requires python (>= 2.5.0) and ``less``.
+Term based tool to view *colored*, *incremental* diff in a version controlled
+workspace (supports Git, Mercurial, Perforce and Svn so far) or from stdin,
+with *side by side* (similar to ``diff -y``) and *auto pager* support. Requires
+python (>= 2.5.0) and ``less``.
 
 .. image:: https://raw.github.com/ymattw/ydiff/gh-pages/img/default.png
    :alt: default

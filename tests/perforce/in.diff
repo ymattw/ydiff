@@ -1,0 +1,45 @@
+==== //depot/ymattw3/experimental/profiles/profiles.d/prompt.sh#1 - /ymattw/src/cloud/wyl/experimental/ymattw3/experimental/profiles/profiles.d/prompt.sh ====
+--- /ymattw/src/files/192952658/depot/ymattw3/experimental/profiles/profiles.d/prompt.sh	2018-04-15 16:49:36.000000000 +0200
++++ /ymattw/src/cloud/wyl/experimental/ymattw3/experimental/profiles/profiles.d/prompt.sh	2018-06-27 16:33:57.000000000 +0200
+@@ -1,15 +1,15 @@
+ # Decorate citc client path.
+ function _source_control_cwd
+ {
+-    local head="/doogle/src/cloud/$USER/"  # NOTE: keep the ending slash
++    local head="/ymattw/src/cloud/$USER/"  # keep the ending slash
+ 
+     if [[ $PWD == ${head}* ]]; then
+-      local tail=${PWD#$head}  # strip the head component
++      local tail=${PWD#$head}  # strip the leading component
+       local client=${tail%%/*}
+       local srcdir=${tail#$client/}
+ 
+-      if [[ $srcdir == doogle3/* ]]; then
+-        echo "//${srcdir#doogle3/}"
++      if [[ $srcdir == ymattw3/* ]]; then
++        echo "//${srcdir#ymattw3/}"
+       else
+         echo "//depot/$srcdir"
+       fi
+@@ -21,10 +21,10 @@
+ # Decorate citc client name or git info.
+ function _source_control_info
+ {
+-    local head="/doogle/src/cloud/$USER/"  # NOTE: keep the ending slash
++    local head="/ymattw/src/cloud/$USER/"  # keep the ending slash
+ 
+     if [[ $PWD == ${head}* ]]; then
+-      local tail=${PWD#$head}  # strip the head component
++      local tail=${PWD#$head}  # strip the leading component
+       local client=${tail%%/*}
+ 
+       if [[ $0 == zsh ]]; then
+@@ -32,7 +32,7 @@
+       else  # assume bash
+         echo -ne $'\e[35m'" ($client)"
+       fi
+-    elif [[ $(git rev-parse --is-inside-work-tree 2>/dev/null) == true ]]; then
++    elif [[ $(git rev-parse --is-inside-work-tree) == true ]]; then
+       _git_active_branch
+     fi
+ }

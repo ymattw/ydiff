@@ -71,12 +71,38 @@ VCS_INFO = {
         'diff': ['hg', 'diff'],
         'log': ['hg', 'log', '--patch'],
     },
+    'Perforce': {
+        'probe': ['p4', 'dirs', '.'],
+        'diff': ['p4', 'diff'],
+        'log': None,
+    },
     'Svn': {
         'probe': ['svn', 'info'],
         'diff': ['svn', 'diff'],
         'log': ['svn', 'log', '--diff', '--use-merge-history'],
     },
 }
+
+
+def revision_control_probe():
+    """Returns version control name (key in VCS_INFO) or None."""
+    for vcs_name, ops in VCS_INFO.items():
+        if check_command_status(ops.get('probe')):
+            return vcs_name
+
+
+def revision_control_diff(vcs_name, args):
+    """Return diff from revision control system or None."""
+    cmd = VCS_INFO.get(vcs_name, {}).get('diff')
+    if cmd is not None:
+        return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
+
+
+def revision_control_log(vcs_name, args):
+    """Return log from revision control system or None."""
+    cmd = VCS_INFO.get(vcs_name, {}).get('log')
+    if cmd is not None:
+        return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
 
 
 def colorize(text, start_color, end_color='reset'):
@@ -743,22 +769,6 @@ def check_command_status(arguments):
         return False
 
 
-def revision_control_diff(args):
-    """Return diff from revision control system."""
-    for _, ops in VCS_INFO.items():
-        if check_command_status(ops['probe']):
-            return subprocess.Popen(
-                ops['diff'] + args, stdout=subprocess.PIPE).stdout
-
-
-def revision_control_log(args):
-    """Return log from revision control system."""
-    for _, ops in VCS_INFO.items():
-        if check_command_status(ops['probe']):
-            return subprocess.Popen(
-                ops['log'] + args, stdout=subprocess.PIPE).stdout
-
-
 def decode(line):
     """Decode UTF-8 if necessary."""
     if isinstance(line, unicode):
@@ -815,8 +825,6 @@ def main():
                 rargs.insert(parsed_num, '--')
             OptionParser._process_args(self, largs, rargs, values)
 
-    supported_vcs = sorted(VCS_INFO.keys())
-
     usage = """%prog [options] [file|dir ...]"""
     parser = PassThroughOptionParser(
         usage=usage, description=META_INFO['description'],
@@ -864,18 +872,24 @@ def main():
 
     opts, args = parser.parse_args(ydiff_opts + sys.argv[1:])
 
+    vcs_name = revision_control_probe()
+    if vcs_name is None:
+        supported_vcs = ', '.join(sorted(VCS_INFO.keys()))
+        sys.stderr.write('*** Not in a supported workspace, supported are: '
+                         '%s\n' % supported_vcs)
+        return 1
+
     if opts.log:
-        diff_hdl = revision_control_log(args)
-        if not diff_hdl:
-            sys.stderr.write(('*** Not in a supported workspace, supported '
-                              'are: %s\n') % ', '.join(supported_vcs))
+        diff_hdl = revision_control_log(vcs_name, args)
+        if diff_hdl is None:
+            sys.stderr.write('*** %s does not support log command.\n' %
+                             vcs_name)
             return 1
     elif sys.stdin.isatty():
-        diff_hdl = revision_control_diff(args)
-        if not diff_hdl:
-            sys.stderr.write(('*** Not in a supported workspace, supported '
-                              'are: %s\n\n') % ', '.join(supported_vcs))
-            parser.print_help()
+        diff_hdl = revision_control_diff(vcs_name, args)
+        if diff_hdl is None:
+            sys.stderr.write('*** %s does not support diff command.\n' %
+                             vcs_name)
             return 1
     else:
         diff_hdl = (sys.stdin.buffer if hasattr(sys.stdin, 'buffer')
