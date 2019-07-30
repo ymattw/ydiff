@@ -132,6 +132,8 @@ Read log with changes in a *Git/Mercurial/Svn* workspace (output from e.g.
     ydiff -ls -w90 --wrap       # set text width 90 and enable wrapping as well
     ydiff -ls file1 dir2        # see log with changes of given files/dirs only
 
+Defualts
+~~~~~~~~~~~~~~~~
 Environment variable ``YDIFF_OPTIONS`` may be used to specify default options
 that will be placed at the beginning of the argument list, for example:
 
