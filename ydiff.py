@@ -741,10 +741,14 @@ def markup_to_pager(stream, opts):
     See issue #30 (https://github.com/ymattw/ydiff/issues/30) for more
     information.
     """
-    pager_cmd = ['less']
-    if not os.getenv('LESS'):
-        # Args stolen from git source: github.com/git/git/blob/master/pager.c
-        pager_cmd.extend(['-FRSX', '--shift 1'])
+    if (opts.pager == 'never'):
+        pager_cmd = ['cat']
+    else:
+        pager_cmd = ['less']
+        if not os.getenv('LESS'):
+            # Args stolen from git source:
+            # github.com/git/git/blob/master/pager.c
+            pager_cmd.extend(['-FRSX', '--shift 1'])
     pager = subprocess.Popen(
         pager_cmd, stdin=subprocess.PIPE, stdout=sys.stdout)
 
@@ -848,6 +852,9 @@ def main():
     parser.add_option(
         '', '--wrap', action='store_true',
         help='wrap long lines in side-by-side view')
+    parser.add_option(
+        '-p', '--pager', default='auto', metavar='M',
+        help="""pager mode 'auto' (default), 'always', or 'never'""")
 
     # Hack: use OptionGroup text for extra help message after option list
     option_group = OptionGroup(
