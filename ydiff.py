@@ -324,8 +324,11 @@ class PatchStream(object):
     def __iter__(self):
         for line in self._stream_header:
             yield line
-        for line in self._diff_hdl:
-            yield line
+        try:
+            for line in self._diff_hdl:
+                yield line
+        except RuntimeError:
+            return
 
 
 class PatchStreamForwarder(object):
