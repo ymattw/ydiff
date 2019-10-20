@@ -59,7 +59,7 @@ COLORS = {
     'lightcyan'     : '\x1b[1;36m',
 }
 
-# Keys for revision control probe, diff and log with diff
+# Keys for revision control probe, diff and log (optional) with diff
 VCS_INFO = {
     'Git': {
         'probe': ['git', 'rev-parse'],
@@ -92,15 +92,14 @@ def revision_control_probe():
 
 
 def revision_control_diff(vcs_name, args):
-    """Return diff from revision control system or None."""
-    cmd = VCS_INFO.get(vcs_name, {}).get('diff')
-    if cmd is not None:
-        return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
+    """Return diff from revision control system."""
+    cmd = VCS_INFO[vcs_name]['diff']
+    return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
 
 
 def revision_control_log(vcs_name, args):
     """Return log from revision control system or None."""
-    cmd = VCS_INFO.get(vcs_name, {}).get('log')
+    cmd = VCS_INFO[vcs_name].get('log')
     if cmd is not None:
         return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
 
@@ -872,28 +871,26 @@ def main():
 
     opts, args = parser.parse_args(ydiff_opts + sys.argv[1:])
 
-    vcs_name = revision_control_probe()
-    if vcs_name is None:
-        supported_vcs = ', '.join(sorted(VCS_INFO.keys()))
-        sys.stderr.write('*** Not in a supported workspace, supported are: '
-                         '%s\n' % supported_vcs)
-        return 1
-
-    if opts.log:
-        diff_hdl = revision_control_log(vcs_name, args)
-        if diff_hdl is None:
-            sys.stderr.write('*** %s does not support log command.\n' %
-                             vcs_name)
-            return 1
-    elif sys.stdin.isatty():
-        diff_hdl = revision_control_diff(vcs_name, args)
-        if diff_hdl is None:
-            sys.stderr.write('*** %s does not support diff command.\n' %
-                             vcs_name)
-            return 1
-    else:
+    if not sys.stdin.isatty():
         diff_hdl = (sys.stdin.buffer if hasattr(sys.stdin, 'buffer')
                     else sys.stdin)
+    else:
+        vcs_name = revision_control_probe()
+        if vcs_name is None:
+            supported_vcs = ', '.join(sorted(VCS_INFO.keys()))
+            sys.stderr.write('*** Not in a supported workspace, supported are:'
+                             ' %s\n' % supported_vcs)
+            return 1
+
+        if opts.log:
+            diff_hdl = revision_control_log(vcs_name, args)
+            if diff_hdl is None:
+                sys.stderr.write('*** %s does not support log command.\n' %
+                                 vcs_name)
+                return 1
+        else:
+            # 'diff' is a must have feature.
+            diff_hdl = revision_control_diff(vcs_name, args)
 
     stream = PatchStream(diff_hdl)
 
