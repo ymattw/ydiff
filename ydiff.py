@@ -59,7 +59,7 @@ COLORS = {
     'lightcyan'     : '\x1b[1;36m',
 }
 
-# Keys for revision control probe, diff and log with diff
+# Keys for revision control probe, diff and log (optional) with diff
 VCS_INFO = {
     'Git': {
         'probe': ['git', 'rev-parse'],
@@ -92,15 +92,14 @@ def revision_control_probe():
 
 
 def revision_control_diff(vcs_name, args):
-    """Return diff from revision control system or None."""
-    cmd = VCS_INFO.get(vcs_name, {}).get('diff')
-    if cmd is not None:
-        return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
+    """Return diff from revision control system."""
+    cmd = VCS_INFO[vcs_name]['diff']
+    return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
 
 
 def revision_control_log(vcs_name, args):
     """Return log from revision control system or None."""
-    cmd = VCS_INFO.get(vcs_name, {}).get('log')
+    cmd = VCS_INFO[vcs_name].get('log')
     if cmd is not None:
         return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
 
@@ -325,8 +324,11 @@ class PatchStream(object):
     def __iter__(self):
         for line in self._stream_header:
             yield line
-        for line in self._diff_hdl:
-            yield line
+        try:
+            for line in self._diff_hdl:
+                yield line
+        except RuntimeError:
+            return
 
 
 class PatchStreamForwarder(object):
@@ -741,14 +743,20 @@ def markup_to_pager(stream, opts):
     See issue #30 (https://github.com/ymattw/ydiff/issues/30) for more
     information.
     """
-    if (opts.pager == 'never'):
-        pager_cmd = ['cat']
-    else:
-        pager_cmd = ['less']
-        if not os.getenv('LESS'):
-            # Args stolen from git source:
-            # github.com/git/git/blob/master/pager.c
-            pager_cmd.extend(['-FRSX', '--shift 1'])
+    pager_cmd = [opts.pager]
+    pager_opts = (opts.pager_options.split(' ')
+        if opts.pager_options is not None
+        else None)
+
+    if (opts.pager.lower() == 'less'
+        and not os.getenv('LESS')
+        and opts.pager_options is None):
+        # Args stolen from git source:
+        # github.com/git/git/blob/master/pager.c
+        pager_opts = ['-FRSX', '--shift 1']
+
+    pager_opts = pager_opts if pager_opts is not None else []
+    pager_cmd.extend(pager_opts)
     pager = subprocess.Popen(
         pager_cmd, stdin=subprocess.PIPE, stdout=sys.stdout)
 
@@ -853,8 +861,11 @@ def main():
         '', '--wrap', action='store_true',
         help='wrap long lines in side-by-side view')
     parser.add_option(
-        '-p', '--pager', default='auto', metavar='M',
-        help="""pager mode 'auto' (default), 'always', or 'never'""")
+        '-p', '--pager', default='less', metavar='M',
+        help="""pager application, suggested values are 'less' (default), or 'cat'""")
+    parser.add_option(
+        '', '--pager-options', metavar='M',
+        help="""options to supply to pager application""")
 
     # Hack: use OptionGroup text for extra help message after option list
     option_group = OptionGroup(
@@ -879,28 +890,26 @@ def main():
 
     opts, args = parser.parse_args(ydiff_opts + sys.argv[1:])
 
-    vcs_name = revision_control_probe()
-    if vcs_name is None:
-        supported_vcs = ', '.join(sorted(VCS_INFO.keys()))
-        sys.stderr.write('*** Not in a supported workspace, supported are: '
-                         '%s\n' % supported_vcs)
-        return 1
-
-    if opts.log:
-        diff_hdl = revision_control_log(vcs_name, args)
-        if diff_hdl is None:
-            sys.stderr.write('*** %s does not support log command.\n' %
-                             vcs_name)
-            return 1
-    elif sys.stdin.isatty():
-        diff_hdl = revision_control_diff(vcs_name, args)
-        if diff_hdl is None:
-            sys.stderr.write('*** %s does not support diff command.\n' %
-                             vcs_name)
-            return 1
-    else:
+    if not sys.stdin.isatty():
         diff_hdl = (sys.stdin.buffer if hasattr(sys.stdin, 'buffer')
                     else sys.stdin)
+    else:
+        vcs_name = revision_control_probe()
+        if vcs_name is None:
+            supported_vcs = ', '.join(sorted(VCS_INFO.keys()))
+            sys.stderr.write('*** Not in a supported workspace, supported are:'
+                             ' %s\n' % supported_vcs)
+            return 1
+
+        if opts.log:
+            diff_hdl = revision_control_log(vcs_name, args)
+            if diff_hdl is None:
+                sys.stderr.write('*** %s does not support log command.\n' %
+                                 vcs_name)
+                return 1
+        else:
+            # 'diff' is a must have feature.
+            diff_hdl = revision_control_diff(vcs_name, args)
 
     stream = PatchStream(diff_hdl)
 
