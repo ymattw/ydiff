@@ -97,6 +97,9 @@ Type ``ydiff -h`` to show usage::
       -c M, --color=M      colorize mode 'auto' (default), 'always', or 'never'
       -t N, --tab-width=N  convert tab characters to this many spaces (default: 8)
       --wrap               wrap long lines in side-by-side view
+      -p M, --pager=M      pager application, suggested values are 'less' or 'cat'
+      -o M, --pager-options=M
+                           options to supply to pager application
 
       Note:
         Option parser will stop on first unknown option and pass them down to
@@ -148,6 +151,16 @@ as follows:
 
     ydiff_dir=$(dirname $(which ydiff))
     ln -s "${ydiff_dir}/ydiff" "${ydiff_dir}/git-ydiff"
+
+Utilize a specific pager application:
+
+.. code-block:: bash
+
+    ydiff                           # default pager - less
+    LESS_OPTS='-FRSX --shift 1'
+    ydiff -p less -o "${LESS_OPTS}" # emulate default pager
+    ydiff -p /usr/bin/less          # custom pager
+    ydiff -p cat                    # non-paging ANSI processor for colorizing
 
 Pipe in a diff:
 
