@@ -748,9 +748,9 @@ def markup_to_pager(stream, opts):
                   if opts.pager_options is not None
                   else None)
 
-    if (opts.pager.lower() == 'less'
-            and not os.getenv('LESS')
-            and opts.pager_options is None):
+    if (opts.pager.lower() == 'less' and
+            not os.getenv('LESS') and
+            opts.pager_options is None):
         # Args stolen from git source:
         # github.com/git/git/blob/master/pager.c
         pager_opts = ['-FRSX', '--shift 1']
