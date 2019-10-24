@@ -743,10 +743,20 @@ def markup_to_pager(stream, opts):
     See issue #30 (https://github.com/ymattw/ydiff/issues/30) for more
     information.
     """
-    pager_cmd = ['less']
-    if not os.getenv('LESS'):
-        # Args stolen from git source: github.com/git/git/blob/master/pager.c
-        pager_cmd.extend(['-FRSX', '--shift 1'])
+    pager_cmd = [opts.pager]
+    pager_opts = (opts.pager_options.split(' ')
+                  if opts.pager_options is not None
+                  else None)
+
+    if (opts.pager.lower() == 'less'
+            and not os.getenv('LESS')
+            and opts.pager_options is None):
+        # Args stolen from git source:
+        # github.com/git/git/blob/master/pager.c
+        pager_opts = ['-FRSX', '--shift 1']
+
+    pager_opts = pager_opts if pager_opts is not None else []
+    pager_cmd.extend(pager_opts)
     pager = subprocess.Popen(
         pager_cmd, stdin=subprocess.PIPE, stdout=sys.stdout)
 
@@ -850,6 +860,13 @@ def main():
     parser.add_option(
         '', '--wrap', action='store_true',
         help='wrap long lines in side-by-side view')
+    parser.add_option(
+        '-p', '--pager', default='less', metavar='M',
+        help="""pager application, suggested values are 'less' (default), """
+             """or 'cat'""")
+    parser.add_option(
+        '', '--pager-options', metavar='M',
+        help="""options to supply to pager application""")
 
     # Hack: use OptionGroup text for extra help message after option list
     option_group = OptionGroup(
