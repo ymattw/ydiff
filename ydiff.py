@@ -745,12 +745,12 @@ def markup_to_pager(stream, opts):
     """
     pager_cmd = [opts.pager]
     pager_opts = (opts.pager_options.split(' ')
-        if opts.pager_options is not None
-        else None)
+                  if opts.pager_options is not None
+                  else None)
 
     if (opts.pager.lower() == 'less'
-        and not os.getenv('LESS')
-        and opts.pager_options is None):
+            and not os.getenv('LESS')
+            and opts.pager_options is None):
         # Args stolen from git source:
         # github.com/git/git/blob/master/pager.c
         pager_opts = ['-FRSX', '--shift 1']
@@ -862,7 +862,8 @@ def main():
         help='wrap long lines in side-by-side view')
     parser.add_option(
         '-p', '--pager', default='less', metavar='M',
-        help="""pager application, suggested values are 'less' (default), or 'cat'""")
+        help="""pager application, suggested values are 'less' (default), """
+             """or 'cat'""")
     parser.add_option(
         '', '--pager-options', metavar='M',
         help="""options to supply to pager application""")
