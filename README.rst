@@ -62,6 +62,16 @@ You can also install with Homebrew on Mac. (Thanks to `@josa42`_,
 
     brew install ydiff
 
+
+Install on Fedora
+~~~~~~~~~~~~~~~~~
+
+On Fedora, you can install ydiff with dnf.
+
+.. code-block:: bash
+
+    dnf install ydiff
+
 Download directly
 ~~~~~~~~~~~~~~~~~
 
