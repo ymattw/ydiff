@@ -71,6 +71,15 @@ On Fedora, you can install ydiff with dnf.
 .. code-block:: bash
 
     dnf install ydiff
+    
+Install on FreeBSD
+~~~~~~~~~~~~~~~~~~
+
+On FreeBSD, you can install ydiff with pkg.
+
+.. code-block:: bash
+
+    pkg install ydiff
 
 Download directly
 ~~~~~~~~~~~~~~~~~
