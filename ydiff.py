@@ -540,8 +540,18 @@ class DiffMarker(object):
         """Returns a generator"""
 
         def _normalize(line):
+            index = 0
+            while True:
+                index = line.find('\t', index)
+                if (index == -1):
+                    break
+                # ignore special codes
+                offset = (line.count('\x00', 0, index) * 2 +
+                          line.count('\x01', 0, index))
+                # next stop modulo tab width
+                width = self._tab_width - (index - offset) % self._tab_width
+                line = line[:index] + ' ' * width + line[(index + 1):]
             return (line
-                    .replace('\t', ' ' * self._tab_width)
                     .replace('\n', '')
                     .replace('\r', ''))
 
