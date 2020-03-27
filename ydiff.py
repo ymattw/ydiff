@@ -867,6 +867,9 @@ def main():
     parser.add_option(
         '-o', '--pager-options', metavar='M',
         help="""options to supply to pager application""")
+    parser.add_option(
+        '-v', '--vcs', type='string', metavar='VCS', default=None,
+        help="""set version control software to use""")
 
     # Hack: use OptionGroup text for extra help message after option list
     option_group = OptionGroup(
@@ -895,11 +898,19 @@ def main():
         diff_hdl = (sys.stdin.buffer if hasattr(sys.stdin, 'buffer')
                     else sys.stdin)
     else:
-        vcs_name = revision_control_probe()
-        if vcs_name is None:
+        if opts.vcs is None:
+            vcs_name = revision_control_probe()
+            if vcs_name is None:
+                supported_vcs = ', '.join(sorted(VCS_INFO.keys()))
+                sys.stderr.write('*** Not in a supported workspace, supported '
+                                 'are: %s\n' % supported_vcs)
+                return 1
+        elif opts.vcs in VCS_INFO.keys():
+            vcs_name = opts.vcs
+        else:
             supported_vcs = ', '.join(sorted(VCS_INFO.keys()))
-            sys.stderr.write('*** Not in a supported workspace, supported are:'
-                             ' %s\n' % supported_vcs)
+            sys.stderr.write('*** Unsupported VCS (%s); select one of these '
+                             'instead: %s\n' % (opts.vcs, supported_vcs))
             return 1
 
         if opts.log:
