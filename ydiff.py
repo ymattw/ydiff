@@ -856,7 +856,7 @@ def main():
         help="""colorize mode 'auto' (default), 'always', or 'never'""")
     parser.add_option(
         '-t', '--tab-width', type='int', default=8, metavar='N',
-        help="""convert tab characters to this many spcaes (default: 8)""")
+        help="""convert tab characters to this many spaces (default: 8)""")
     parser.add_option(
         '', '--wrap', action='store_true',
         help='wrap long lines in side-by-side view')
