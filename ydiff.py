@@ -129,7 +129,7 @@ def strsplit(text, width):
         if text[0] == "\x1b":
             color_end = text.find("m")
             if color_end != -1:
-                color = text[:color_end+1]
+                color = text[:color_end + 1]
                 if color == COLORS["reset"]:
                     found_colors = ""
                 else:
