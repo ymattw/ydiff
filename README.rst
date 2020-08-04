@@ -71,7 +71,7 @@ On Fedora, you can install ydiff with dnf.
 .. code-block:: bash
 
     dnf install ydiff
-    
+
 Install on FreeBSD
 ~~~~~~~~~~~~~~~~~~
 
@@ -154,23 +154,6 @@ Read log with changes in a *Git/Mercurial/Svn* workspace (output from e.g.
     ydiff -ls -w90 --wrap       # set text width 90 and enable wrapping as well
     ydiff -ls file1 dir2        # see log with changes of given files/dirs only
 
-Environment variable ``YDIFF_OPTIONS`` may be used to specify default options
-that will be placed at the beginning of the argument list, for example:
-
-.. code-block:: bash
-
-    export YDIFF_OPTIONS='-s -w0 --wrap'
-    ydiff foo                   # equivalent to "ydiff -s -w0 --wrap foo"
-
-If you feel more comfortable with a command such as ``git ydiff`` to trigger
-the ydiff command, you may symlink the executable to one named ``git-ydiff``
-as follows:
-
-.. code-block:: bash
-
-    ydiff_dir=$(dirname $(which ydiff))
-    ln -s "${ydiff_dir}/ydiff" "${ydiff_dir}/git-ydiff"
-
 Utilize a specific pager application:
 
 .. code-block:: bash
@@ -205,6 +188,32 @@ Redirect output to another patch file is safe:
 .. code-block:: bash
 
     svn diff -r PREV | ydiff -s > my.patch
+
+Environment variable
+--------------------
+
+Environment variable ``YDIFF_OPTIONS`` may be used to specify default options
+that will be placed at the beginning of the argument list, for example:
+
+.. code-block:: bash
+
+    export YDIFF_OPTIONS='-s -w0 --wrap'
+    ydiff foo                   # equivalent to "ydiff -s -w0 --wrap foo"
+
+Note the default pager ``less`` takes options from the environment variable
+``LESS``.
+
+Notes
+-----
+
+If you feel more comfortable with a command such as ``git ydiff`` to trigger
+the ydiff command, you may symlink the executable to one named ``git-ydiff``
+as follows:
+
+.. code-block:: bash
+
+    ydiff_dir=$(dirname $(which ydiff))
+    ln -s "${ydiff_dir}/ydiff" "${ydiff_dir}/git-ydiff"
 
 Notes
 -----
