@@ -1,19 +1,57 @@
 language: python
 
-python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "3.7"
-  - "pypy"
-  - "pypy3"
+jobs:
+  include:
+    - name: "Python 2.7 on Linux"
+      os: linux
+      python: "2.7"
+    - name: "Python 3.4 on Linux"
+      os: linux
+      python: "3.4"
+    - name: "Python 3.5 on Linux"
+      os: linux
+      python: "3.5"
+    - name: "Python 3.6 on Linux"
+      os: linux
+      python: "3.6"
+    - name: "Python 3.7 on Linux"
+      os: linux
+      python: "3.7"
+    - name: "Pypy on Linux"
+      os: linux
+      python: "pypy"
+    - name: "Pypy3 on Linux"
+      os: linux
+      python: "pypy3"
+    - name: "Python 3.7 on macOS"
+      os: osx
+      osx_image: xcode11.2  # Python 3.7.4 running on macOS 10.14.4
+      language: shell       # 'language: python' is an error on Travis CI macOS
+    - name: "Python 3.8 on Windows"
+      os: windows           # Windows 10.0.17134 N/A Build 17134
+      language: shell       # Otherwise is an error on Travis CI Windows
+      before_install:
+        - choco install python --version 3.8.0
+        - python -m pip install --upgrade pip
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
 
 install:
+  - |-
+    case $TRAVIS_OS_NAME in
+      linux)
+        sudo apt-get update
+        sudo apt-get --quiet=2 install patchutils
+        ;;
+      osx)
+        brew update
+        brew install patchutils
+        ;;
+      windows)
+        echo "Nothing to install on Windows."
+        ;;
+    esac
   - pip install -r requirements.txt
   - coverage --version
-  - sudo apt-get update
-  - sudo apt-get --quiet=2 install patchutils
   - python setup.py --quiet install
 
 script:
