@@ -35,7 +35,14 @@ function cmp_output()
 
     cmd=$(printf "%-7s $YDIFF %-24s < %-30s " $PYTHON "$ydiff_opt" "$input")
     printf "$cmd"
-    if eval $cmd 2>/dev/null | cmp --silent $expected_out -; then
+
+    if [[ $TRAVIS_OS_NAME == windows ]]; then
+        cmp_tool="diff --strip-trailing-cr -q"
+    else
+        cmp_tool="cmp --silent"
+    fi
+
+    if eval $cmd 2>/dev/null | eval $cmp_tool $expected_out - > /dev/null; then
         pass
         return 0
     else
