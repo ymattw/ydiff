@@ -119,9 +119,9 @@ def strsplit(text, width):
     appended with the resetting sequence, and the second string is prefixed
     with all active colors.
     """
-    first = ''
-    second = ''
-    found_colors = []
+    first = ""
+    second = ""
+    found_colors = ""
     chars_cnt = 0
     bytes_cnt = 0
     while text:
@@ -154,9 +154,7 @@ def strsplit(text, width):
     # If the first string has some active colors at the splitting point,
     # reset it and append the same colors to the second string
     if found_colors:
-        first += COLORS['reset']
-        for color in found_colors:
-            second = COLORS[color] + second
+        return first + COLORS['reset'], found_colors + second, chars_cnt
 
     return (first, second, chars_cnt)
 
