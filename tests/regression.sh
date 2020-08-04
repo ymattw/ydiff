@@ -52,7 +52,7 @@ function main()
 
     for d in tests/*/; do
         d=${d%/}
-        if [[ $d == tests/context ]] && [[ $(uname -s) == Windows_NT ]]; then
+        if [[ $d == tests/context ]] && [[ $TRAVIS_OS_NAME == windows ]]; then
             echo "Ignored $d, patchutils (filterdiff) unavailable on windows."
             continue
         fi

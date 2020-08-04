@@ -522,6 +522,7 @@ spam
         parser = ydiff.DiffParser(stream)
         self.assertEqual(parser._type, 'unified')
 
+    @unittest.skipIf(os.name == 'nt', 'patchutils (filterdiff) unavailable')
     def test_type_detect_context(self):
         patch = """\
 *** /path/to/original timestamp
@@ -775,6 +776,7 @@ Added: svn:keywords
         self.assertEqual(hunk._hunk_list, [('+', 'Id\n')])
 
 
+@unittest.skipIf(os.name == 'nt', 'Travis CI Windows not ready for shell cmds')
 class MainTest(unittest.TestCase):
 
     def setUp(self):
