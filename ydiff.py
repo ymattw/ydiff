@@ -125,17 +125,16 @@ def strsplit(text, width):
     chars_cnt = 0
     bytes_cnt = 0
     while text:
-        # First of all, check if current string begins with any escape
-        # sequence.
         append_len = 0
-        for color in COLORS:
-            if text.startswith(COLORS[color]):
-                if color == 'reset':
-                    found_colors = []
+        if text[0] == "\x1b":
+            color_end = text.find("m")
+            if color_end != -1:
+                color = text[:color_end+1]
+                if color == COLORS["reset"]:
+                    found_colors = ""
                 else:
-                    found_colors.append(color)
-                append_len = len(COLORS[color])
-                break
+                    found_colors += color
+                append_len = len(color)
 
         if append_len == 0:
             # Current string does not start with any escape sequence, so,
