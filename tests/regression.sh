@@ -35,7 +35,14 @@ function cmp_output()
 
     cmd=$(printf "%-7s $YDIFF %-24s < %-30s " $PYTHON "$ydiff_opt" "$input")
     printf "$cmd"
-    if eval $cmd 2>/dev/null | cmp --silent $expected_out -; then
+
+    if [[ $TRAVIS_OS_NAME == windows ]]; then
+        cmp_tool="diff --strip-trailing-cr -q"
+    else
+        cmp_tool="cmp --silent"
+    fi
+
+    if eval $cmd 2>/dev/null | eval $cmp_tool $expected_out - > /dev/null; then
         pass
         return 0
     else
@@ -52,6 +59,11 @@ function main()
 
     for d in tests/*/; do
         d=${d%/}
+        if [[ $d == tests/context ]] && [[ $TRAVIS_OS_NAME == windows ]]; then
+            echo "Ignored $d, patchutils (filterdiff) unavailable on windows."
+            continue
+        fi
+
         [[ -f $d/in.diff ]] || continue
         cmp_output $d/in.diff $d/out.normal "-c always" || ((e++))
         cmp_output $d/in.diff $d/out.side-by-side "-c always -s" || ((e++))

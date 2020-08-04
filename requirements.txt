@@ -1,4 +1,4 @@
 docutils
 pep8
 Pygments==1.6
-coverage<4
+coverage==5.2.1
