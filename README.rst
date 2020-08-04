@@ -215,8 +215,8 @@ as follows:
     ydiff_dir=$(dirname $(which ydiff))
     ln -s "${ydiff_dir}/ydiff" "${ydiff_dir}/git-ydiff"
 
-Notes
------
+Known issues
+------------
 
 Ydiff has following known issues:
 
