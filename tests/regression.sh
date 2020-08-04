@@ -52,6 +52,11 @@ function main()
 
     for d in tests/*/; do
         d=${d%/}
+        if [[ $d == tests/context ]] && [[ $(uname -s) == Windows_NT ]]; then
+            echo "Ignored $d, patchutils (filterdiff) unavailable on windows."
+            continue
+        fi
+
         [[ -f $d/in.diff ]] || continue
         cmp_output $d/in.diff $d/out.normal "-c always" || ((e++))
         cmp_output $d/in.diff $d/out.side-by-side "-c always -s" || ((e++))
