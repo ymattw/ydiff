@@ -813,7 +813,8 @@ def terminal_size():
 
 
 def main():
-    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+    if sys.platform != 'win32':
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     from optparse import (OptionParser, BadOptionError, AmbiguousOptionError,
