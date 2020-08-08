@@ -226,9 +226,8 @@ Ydiff has following known issues:
 - Terminal might be in a mess on exception (type ``reset`` can fix it)
 
 Pull requests are very welcome, please make sure your changes can pass unit
-tests and regression tests by run ``make test`` (required tool *coverage* can
-be installed with ``pip install coverage``).  Also watch out `travis build`_
-after push, make sure it passes as well.
+tests and regression tests by run ``make docker-test``.  Also watch out `travis
+build`_ after push, make sure it passes as well.
 
 .. _`travis build`: https://travis-ci.org/ymattw/ydiff/pull_requests
 

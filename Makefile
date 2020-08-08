@@ -65,7 +65,15 @@ dist: clean build
 	twine upload dist/*
 	rm -f ~/.pypirc
 
+docker-test:
+	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) --rm \
+		ymattw/ydiff-dev make test
+
 docker-image:
 	docker build -t ymattw/ydiff-dev .
+
+docker-shell:
+	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) -it --rm \
+		ymattw/ydiff-dev /bin/sh
 
 # vim:set noet ts=8 sw=8:
