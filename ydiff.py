@@ -16,9 +16,9 @@ import select
 import difflib
 
 META_INFO = {
-    'version'     : '1.1',
+    'version'     : '1.2',
     'license'     : 'BSD-3',
-    'author'      : 'Matthew Wang',
+    'author'      : 'Matt Wang',
     'email'       : 'mattwyl(@)gmail(.)com',
     'url'         : 'https://github.com/ymattw/ydiff',
     'keywords'    : 'colored incremental side-by-side diff',

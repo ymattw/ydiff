@@ -126,8 +126,8 @@ Type ``ydiff -h`` to show usage::
         used to specify default options that will be placed at the beginning
         of the argument list.
 
-Read diff from local modification in a *Git/Mercurial/Svn* workspace (output
-from e.g. ``git diff``, ``svn diff``):
+Read diff from local modification in a *Git/Mercurial/Perforce/Svn* workspace
+(output from e.g. ``git diff``, ``svn diff``):
 
 .. code-block:: bash
 

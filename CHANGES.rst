@@ -2,6 +2,15 @@
 Change log
 ==========
 
+Version 1.2 (2020-08-08)
+
+  - Support perforce workspaces
+  - Support pager customization via --pager and --pager_options
+  - Support running on Windows (requires ``less`` which is offered by git-bash)
+  - Fix a bug where reading stdin does not work outside a CVS workspace
+  - Fix tab expansion, expands to the next stop modulo tab width
+  - Performance improvement
+
 Version 1.1 (2018-06-05)
 
   - Rename from ``cdiff`` to ``ydiff`` to avoid binary name conflict on major
