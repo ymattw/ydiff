@@ -119,23 +119,22 @@ def strsplit(text, width):
     appended with the resetting sequence, and the second string is prefixed
     with all active colors.
     """
-    first = ''
-    second = ''
-    found_colors = []
+    first = ""
+    second = ""
+    found_colors = ""
     chars_cnt = 0
     bytes_cnt = 0
     while text:
-        # First of all, check if current string begins with any escape
-        # sequence.
         append_len = 0
-        for color in COLORS:
-            if text.startswith(COLORS[color]):
-                if color == 'reset':
-                    found_colors = []
+        if text[0] == "\x1b":
+            color_end = text.find("m")
+            if color_end != -1:
+                color = text[:color_end + 1]
+                if color == COLORS["reset"]:
+                    found_colors = ""
                 else:
-                    found_colors.append(color)
-                append_len = len(COLORS[color])
-                break
+                    found_colors += color
+                append_len = len(color)
 
         if append_len == 0:
             # Current string does not start with any escape sequence, so,
@@ -155,9 +154,7 @@ def strsplit(text, width):
     # If the first string has some active colors at the splitting point,
     # reset it and append the same colors to the second string
     if found_colors:
-        first += COLORS['reset']
-        for color in found_colors:
-            second = COLORS[color] + second
+        return first + COLORS['reset'], found_colors + second, chars_cnt
 
     return (first, second, chars_cnt)
 
