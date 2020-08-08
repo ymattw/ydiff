@@ -65,4 +65,7 @@ dist: clean build
 	twine upload dist/*
 	rm -f ~/.pypirc
 
+docker-image:
+	docker build -t ymattw/ydiff-dev .
+
 # vim:set noet ts=8 sw=8:
