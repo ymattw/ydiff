@@ -12,7 +12,6 @@ import os
 import re
 import signal
 import subprocess
-import select
 import difflib
 
 META_INFO = {
@@ -308,16 +307,6 @@ class PatchStream(object):
     def is_empty(self):
         return self._is_empty
 
-    def read_stream_header(self, stream_header_size):
-        """Returns a small chunk for patch type detect, suppose to call once"""
-        for i in range(1, stream_header_size):
-            line = self._diff_hdl.readline()
-            if not line:
-                break
-            self._stream_header.append(line)
-            self._stream_header_size += 1
-        return self._stream_header
-
     def __iter__(self):
         for line in self._stream_header:
             yield line
@@ -328,80 +317,10 @@ class PatchStream(object):
             return
 
 
-class PatchStreamForwarder(object):
-    """A blocking stream forwarder use `select` and line buffered mode.  Feed
-    input stream to a diff format translator and read output stream from it.
-    Note input stream is non-seekable, and upstream has eaten some lines.
-    """
-    def __init__(self, istream, translator):
-        assert isinstance(istream, PatchStream)
-        assert isinstance(translator, subprocess.Popen)
-        self._istream = iter(istream)
-        self._in = translator.stdin
-        self._out = translator.stdout
-
-    def _can_read(self, timeout=0):
-        return select.select([self._out.fileno()], [], [], timeout)[0]
-
-    def _forward_line(self):
-        try:
-            line = next(self._istream)
-            self._in.write(line)
-        except StopIteration:
-            self._in.close()
-
-    def __iter__(self):
-        while True:
-            if self._can_read():
-                line = self._out.readline()
-                if line:
-                    yield line
-                else:
-                    return
-            elif not self._in.closed:
-                self._forward_line()
-
-
 class DiffParser(object):
 
     def __init__(self, stream):
-
-        header = [decode(line) for line in stream.read_stream_header(100)]
-        size = len(header)
-
-        if size >= 4 and (header[0].startswith('*** ') and
-                          header[1].startswith('--- ') and
-                          header[2].rstrip() == '***************' and
-                          header[3].startswith('*** ') and
-                          header[3].rstrip().endswith(' ****')):
-            # For context diff, try use `filterdiff` to translate it to unified
-            # format and provide a new stream
-            #
-            self._type = 'context'
-            try:
-                # Use line buffered mode so that to readline() in block mode
-                self._translator = subprocess.Popen(
-                    ['filterdiff', '--format=unified'], stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE, bufsize=1)
-            except OSError:
-                raise SystemExit('*** Context diff support depends on '
-                                 'filterdiff')
-            self._stream = PatchStreamForwarder(stream, self._translator)
-            return
-
-        for n in range(size):
-            if (header[n].startswith('--- ') and (n < size - 1) and
-                    header[n + 1].startswith('+++ ')):
-                self._type = 'unified'
-                self._stream = stream
-                break
-        else:
-            # `filterdiff` translates unknown diff to nothing, fall through to
-            # unified diff give ydiff a chance to show everything as headers
-            #
-            sys.stderr.write("*** unknown format, fall through to 'unified'\n")
-            self._type = 'unified'
-            self._stream = stream
+        self._stream = stream
 
     def get_diff_generator(self):
         """parse all diff lines, construct a list of UnifiedDiff objects"""
@@ -739,17 +658,7 @@ class DiffMarker(object):
 
 
 def markup_to_pager(stream, opts):
-    """Pipe unified diff stream to pager (less).
-
-    Note: have to create pager Popen object before the translator Popen object
-    in PatchStreamForwarder, otherwise the `stdin=subprocess.PIPE` would cause
-    trouble to the translator pipe (select() never see EOF after input stream
-    ended), most likely python bug 12607 (http://bugs.python.org/issue12607)
-    which was fixed in python 2.7.3.
-
-    See issue #30 (https://github.com/ymattw/ydiff/issues/30) for more
-    information.
-    """
+    """Pipe unified diff stream to pager (less)."""
     pager_cmd = [opts.pager]
     pager_opts = (opts.pager_options.split(' ')
                   if opts.pager_options is not None

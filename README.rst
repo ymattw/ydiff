@@ -19,6 +19,12 @@ python (>= 2.5.0) and ``less``.
    :align: center
    :width: 900 px
 
+Ydiff only supports diff in `Unified Format`_. This is default in most version
+control system except Perforce, you will need to set an environment variable
+``P4DIFF="diff -u"`` to output unified diff.
+
+.. _`Unified Format`: https://en.wikipedia.org/wiki/Diff#Unified_format
+
 Installation
 ------------
 
@@ -177,10 +183,7 @@ Pipe in a diff:
     # View diff in a GitHub pull request, side by side
     curl https://github.com/ymattw/ydiff/pull/11.diff | ydiff -s
 
-    # View a patch file in unified or context format, the latter depends on
-    # command `filterdiff` from package `patchutils` which is available in
-    # major Linux distros and MacPorts.
-    #
+    # View a patch file in unified format.
     ydiff -s < foo.patch
 
 Redirect output to another patch file is safe:
@@ -220,8 +223,6 @@ Known issues
 
 Ydiff has following known issues:
 
-- Does not recognize `normal` diff, and depends on ``filterdiff`` (patchutils)
-  to read `context` diff
 - Side by side mode has alignment problem for wide chars
 - Terminal might be in a mess on exception (type ``reset`` can fix it)
 

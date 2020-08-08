@@ -47,26 +47,6 @@ class PatchStreamTest(unittest.TestCase):
         stream = ydiff.PatchStream(Sequential(['hello', 'world']))
         self.assertFalse(stream.is_empty())
 
-    def test_read_stream_header(self):
-        stream = ydiff.PatchStream(Sequential([]))
-        self.assertEqual(stream.read_stream_header(1), [])
-
-        items = ['hello', 'world', 'again']
-
-        stream = ydiff.PatchStream(Sequential(items))
-        self.assertEqual(stream.read_stream_header(2), items[:2])
-
-        stream = ydiff.PatchStream(Sequential(items))
-        self.assertEqual(stream.read_stream_header(4), items[:])
-
-    def test_iter_after_read_stream_header(self):
-        items = ['hello', 'world', 'again', 'and', 'again']
-        stream = ydiff.PatchStream(Sequential(items))
-
-        _ = stream.read_stream_header(2)
-        out = list(stream)
-        self.assertEqual(out, items)
-
 
 class DecodeTest(unittest.TestCase):
 
@@ -509,47 +489,6 @@ class UnifiedDiffTest(unittest.TestCase):
 
 
 class DiffParserTest(unittest.TestCase):
-
-    def test_type_detect_unified(self):
-        patch = """\
-spam
---- a
-+++ b
-@@ -1,2 +1,2 @@
-"""
-        items = patch.splitlines(True)
-        stream = ydiff.PatchStream(Sequential(items))
-        parser = ydiff.DiffParser(stream)
-        self.assertEqual(parser._type, 'unified')
-
-    @unittest.skipIf(os.name == 'nt', 'patchutils (filterdiff) unavailable')
-    def test_type_detect_context(self):
-        patch = """\
-*** /path/to/original timestamp
---- /path/to/new timestamp
-***************
-*** 1,1 ****
---- 1,2 ----
-+ This is an important
-  This part of the
-"""
-        items = patch.splitlines(True)
-        stream = ydiff.PatchStream(Sequential(items))
-        parser = ydiff.DiffParser(stream)
-        self.assertEqual(parser._type, 'context')
-
-    def test_type_detect_neg(self):
-        patch = """\
-spam
---- a
-spam
-+++ b
-
-"""
-        items = patch.splitlines(True)
-        stream = ydiff.PatchStream(Sequential(items))
-        parser = ydiff.DiffParser(stream)
-        self.assertEqual(parser._type, 'unified')
 
     def test_parse_invalid_hunk_meta(self):
         patch = """\

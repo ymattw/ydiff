@@ -37,20 +37,6 @@ jobs:
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
 
 install:
-  - |-
-    case $TRAVIS_OS_NAME in
-      linux)
-        sudo apt-get update
-        sudo apt-get --quiet=2 install patchutils
-        ;;
-      osx)
-        brew update
-        brew install patchutils
-        ;;
-      windows)
-        echo "Nothing to install on Windows."
-        ;;
-    esac
   - pip install -r requirements-dev.txt
   - coverage --version
   - python setup.py --quiet install
