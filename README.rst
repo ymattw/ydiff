@@ -28,6 +28,30 @@ control system except Perforce, which needs an environment variable
 Installation
 ------------
 
+Ydiff only depends on Python built-in libraries, so you can just download the
+source and run without worrying about any installation.
+
+Git tagged `releases`_ will be packaged and uploaded to PyPI timely, however,
+packages hosted elsewhere are not (please note they are not managed by the
+author `@ymattw`_).
+
+.. _`@ymattw`: https://github.com/ymattw
+.. _`releases`: https://github.com/ymattw/ydiff/releases
+
+Download directly
+~~~~~~~~~~~~~~~~~
+
+Just save `ydiff.py`_ to whatever directory which is in your ``$PATH``, for
+example, ``$HOME/bin`` is in my ``$PATH``, so I save the script there and name
+as ``ydiff``.
+
+.. _`ydiff.py`: https://raw.github.com/ymattw/ydiff/master/ydiff.py
+
+.. code-block:: bash
+
+    curl -ksSL https://raw.github.com/ymattw/ydiff/master/ydiff.py > ~/bin/ydiff
+    chmod +x ~/bin/ydiff
+
 Install with pip
 ~~~~~~~~~~~~~~~~
 
@@ -86,20 +110,6 @@ On FreeBSD, you can install ydiff with pkg.
 .. code-block:: bash
 
     pkg install ydiff
-
-Download directly
-~~~~~~~~~~~~~~~~~
-
-Just save `ydiff.py`_ to whatever directory which is in your ``$PATH``, for
-example, ``$HOME/bin`` is in my ``$PATH``, so I save the script there and name
-as ``ydiff``.
-
-.. _`ydiff.py`: https://raw.github.com/ymattw/ydiff/master/ydiff.py
-
-.. code-block:: bash
-
-    curl -ksSL https://raw.github.com/ymattw/ydiff/master/ydiff.py > ~/bin/ydiff
-    chmod +x ~/bin/ydiff
 
 Usage
 -----
