@@ -51,7 +51,7 @@ install:
         echo "Nothing to install on Windows."
         ;;
     esac
-  - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
   - coverage --version
   - python setup.py --quiet install
 
