@@ -73,7 +73,7 @@ docker-image:
 	docker build -t ymattw/ydiff-dev .
 
 docker-shell:
-	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) -it --rm \
+	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) -it --rm -P \
 		ymattw/ydiff-dev /bin/bash
 
 # vim:set noet ts=8 sw=8:

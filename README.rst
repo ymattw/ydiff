@@ -20,7 +20,7 @@ python (>= 2.5.0) and ``less``.
    :width: 900 px
 
 Ydiff only supports diff in `Unified Format`_. This is default in most version
-control system except Perforce, you will need to set an environment variable
+control system except Perforce, which needs an environment variable
 ``P4DIFF="diff -u"`` to output unified diff.
 
 .. _`Unified Format`: https://en.wikipedia.org/wiki/Diff#Unified_format
@@ -231,16 +231,5 @@ tests and regression tests by run ``make docker-test``.  Also watch out `travis
 build`_ after push, make sure it passes as well.
 
 .. _`travis build`: https://travis-ci.org/ymattw/ydiff/pull_requests
-
-See also
---------
-
-I have another tool `coderev`_ which generates side-by-side diff pages for code
-review from two given files or directories, I found it's not easy to extend to
-support git so invented `ydiff`.  Idea of ansi color markup is also from
-project `colordiff`_.
-
-.. _coderev: https://github.com/ymattw/coderev
-.. _colordiff: https://github.com/daveewart/colordiff
 
 .. vim:set ft=rst et sw=4 sts=4 tw=79:

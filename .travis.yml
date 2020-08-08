@@ -39,7 +39,6 @@ jobs:
 install:
   - pip install -r requirements-dev.txt
   - coverage --version
-  - python setup.py --quiet install
 
 script:
   - make test
