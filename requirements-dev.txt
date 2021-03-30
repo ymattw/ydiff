@@ -1,4 +1,4 @@
 docutils
 pep8
-Pygments==1.6
+Pygments==2.7.4
 coverage==5.2.1
