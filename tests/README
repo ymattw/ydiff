@@ -1,6 +1,9 @@
 # To generate expected output, chdir to a subdir and use following command, then
 # review with `less -R`
-#
+
+unset YDIFF_OPTIONS
+unset CDIFF_OPTIONS
+
 ../../ydiff.py -c always < in.diff > out.normal
 ../../ydiff.py -c always -s < in.diff > out.side-by-side
 ../../ydiff.py -c always -s < in.diff -w70 > out.w70
