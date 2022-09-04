@@ -45,10 +45,10 @@ reg3:
 	PYTHON=python3 tests/regression.sh
 
 profile:
-	tests/profile.sh profile.tmp
+	PYTHON=python3 tests/profile.sh tests/*/in.diff
 
-profile3:
-	tests/profile.sh profile3.tmp
+profile-difflib:
+	PYTHON=python3 tests/profile.sh tests/large-hunk/tao.diff
 
 clean:
 	rm -f MANIFEST profile*.tmp* .coverage
