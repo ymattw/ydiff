@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if (( $# < 1 )); then
-    echo "Usage: $d <input diff files...>"
+    echo "Usage: $0 <input diff files...>"
     exit 1
 fi
 
