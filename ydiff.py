@@ -292,24 +292,8 @@ class PatchStream(object):
 
     def __init__(self, diff_hdl):
         self._diff_hdl = diff_hdl
-        self._stream_header_size = 0
-        self._stream_header = []
-
-        # Test whether stream is empty by read 1 line
-        line = self._diff_hdl.readline()
-        if not line:
-            self._is_empty = True
-        else:
-            self._stream_header.append(line)
-            self._stream_header_size += 1
-            self._is_empty = False
-
-    def is_empty(self):
-        return self._is_empty
 
     def __iter__(self):
-        for line in self._stream_header:
-            yield line
         try:
             for line in self._diff_hdl:
                 yield line
@@ -845,10 +829,6 @@ def main():
             diff_hdl = revision_control_diff(vcs_name, args)
 
     stream = PatchStream(diff_hdl)
-
-    # Don't let empty diff pass thru
-    if stream.is_empty():
-        return 0
 
     if (opts.color == 'always' or
             (opts.color == 'auto' and sys.stdout.isatty())):
