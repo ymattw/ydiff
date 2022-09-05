@@ -1,9 +1,9 @@
 Ydiff
 =====
 
-.. image:: https://travis-ci.org/ymattw/ydiff.png?branch=master
-   :target: https://travis-ci.org/ymattw/ydiff
-   :alt: Build status
+.. image:: https://github.com/ymattw/ydiff/actions/workflows/test.yml/badge.svg
+   :alt: Tests status
+   :target: https://github.com/ymattw/ydiff/actions
 
 Term based tool to view *colored*, *incremental* diff in a version controlled
 workspace (supports Git, Mercurial, Perforce and Svn so far) or from stdin,
@@ -237,9 +237,6 @@ Ydiff has following known issues:
 - Terminal might be in a mess on exception (type ``reset`` can fix it)
 
 Pull requests are very welcome, please make sure your changes can pass unit
-tests and regression tests by run ``make docker-test``.  Also watch out `travis
-build`_ after push, make sure it passes as well.
-
-.. _`travis build`: https://travis-ci.org/ymattw/ydiff/pull_requests
+tests and regression tests by run ``make docker-test``.
 
 .. vim:set ft=rst et sw=4 sts=4 tw=79:
