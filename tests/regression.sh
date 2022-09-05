@@ -8,7 +8,6 @@ YDIFF=./ydiff
 # To test with py3k: PYTHON=python3 make test
 PYTHON=${PYTHON:-python}
 unset YDIFF_OPTIONS
-unset CDIFF_OPTIONS
 
 function pass()
 {

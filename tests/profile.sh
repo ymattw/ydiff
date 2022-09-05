@@ -11,7 +11,6 @@ YDIFF_PY=$SELF_DIR/../ydiff.py
 # To test with py3k: PYTHON=python3 make test
 PYTHON=${PYTHON:-python}
 unset YDIFF_OPTIONS
-unset CDIFF_OPTIONS
 
 set -o errexit
 

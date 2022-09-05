@@ -2,7 +2,6 @@
 # review with `less -R`
 
 unset YDIFF_OPTIONS
-unset CDIFF_OPTIONS
 
 ../../ydiff.py -c always < in.diff > out.normal
 ../../ydiff.py -c always -s < in.diff > out.side-by-side

@@ -772,16 +772,6 @@ def main():
 
     # Place possible options defined in YDIFF_OPTIONS at the beginning of argv
     ydiff_opts = [x for x in os.getenv('YDIFF_OPTIONS', '').split(' ') if x]
-
-    # TODO: Deprecate CDIFF_OPTIONS. Fall back to it and warn (for now).
-    if not ydiff_opts:
-        cdiff_opts = [x for x in os.getenv('CDIFF_OPTIONS', '').split(' ')
-                      if x]
-        if cdiff_opts:
-            sys.stderr.write('*** CDIFF_OPTIONS will be depreated soon, '
-                             'please use YDIFF_OPTIONS instead\n')
-            ydiff_opts = cdiff_opts
-
     opts, args = parser.parse_args(ydiff_opts + sys.argv[1:])
 
     stream = None
