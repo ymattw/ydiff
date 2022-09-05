@@ -38,16 +38,6 @@ class Sequential(object):
         return item
 
 
-class PatchStreamTest(unittest.TestCase):
-
-    def test_is_empty(self):
-        stream = ydiff.PatchStream(Sequential([]))
-        self.assertTrue(stream.is_empty())
-
-        stream = ydiff.PatchStream(Sequential(['hello', 'world']))
-        self.assertFalse(stream.is_empty())
-
-
 class DecodeTest(unittest.TestCase):
 
     def test_normal(self):
