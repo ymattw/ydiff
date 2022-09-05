@@ -306,7 +306,6 @@ class DiffParser(object):
                 # is completed.  We yield previous diff if exists and construct
                 # a new one for this case.  Otherwise it's acutally an 'old'
                 # line starts with '--- '.
-                #
                 if (not diff._hunks or diff._hunks[-1].is_completed()):
                     if diff._old_path and diff._new_path and diff._hunks:
                         yield diff
@@ -343,7 +342,6 @@ class DiffParser(object):
             elif diff.is_only_in_dir(line) or diff.is_binary_differ(line):
                 # 'Only in foo:' and 'Binary files ... differ' are considered
                 # as separate diffs, so yield current diff, then this line
-                #
                 if diff._old_path and diff._new_path and diff._hunks:
                     # Current diff is comppletely constructed
                     yield diff
@@ -355,7 +353,6 @@ class DiffParser(object):
             else:
                 # All other non-recognized lines are considered as headers or
                 # hunk headers respectively
-                #
                 headers.append(line)
 
         # Validate and yield the last patch set if it is not yielded yet
@@ -369,7 +366,6 @@ class DiffParser(object):
         if headers:
             # Tolerate dangling headers, just yield a UnifiedDiff object with
             # only header lines
-            #
             yield UnifiedDiff(headers, '', '', [])
 
 
@@ -438,9 +434,7 @@ class DiffMarker(object):
                 # next stop modulo tab width
                 width = self._tab_width - (index - offset) % self._tab_width
                 line = line[:index] + ' ' * width + line[(index + 1):]
-            return (line
-                    .replace('\n', '')
-                    .replace('\r', ''))
+            return line.replace('\n', '').replace('\r', '')
 
         def _fit_with_marker_mix(text, base_color):
             """Wrap input text which contains mdiff tags, markup at the
@@ -468,12 +462,10 @@ class DiffMarker(object):
                     # u'\u554a' takes double width of a single letter, also
                     # this depends on your terminal font.  I guess audience of
                     # this tool never put that kind of symbol in their code :-)
-                    #
                     out.append(text[0])
                     text = text[1:]
 
             out.append(COLORS['reset'])
-
             return ''.join(out)
 
         # Set up number width, note last hunk might be empty
@@ -494,7 +486,6 @@ class DiffMarker(object):
                 # Each line is like 'nnn TEXT nnn TEXT\n', so width is half of
                 # [terminal size minus the line number columns and 3 separating
                 # spaces
-                #
                 width = (terminal_size()[0] - num_width * 2 - 3) // 2
             except Exception:
                 # If terminal detection failed, set back to default
@@ -708,12 +699,11 @@ def trap_interrupts(entry_fn):
         else:
             import errno
             try:
-                rc = entry_fn()
+                return entry_fn()
             except IOError as e:
                 if e.errno not in [errno.EPIPE, errno.EINVAL]:
                     raise
-                rc = 0
-            return rc
+                return 0
     return entry_wrapper
 
 
@@ -796,8 +786,7 @@ def main():
 
     stream = None
     if not sys.stdin.isatty():
-        stream = (sys.stdin.buffer if hasattr(sys.stdin, 'buffer')
-                  else sys.stdin)
+        stream = getattr(sys.stdin, 'buffer', sys.stdin)
     else:
         vcs_name = revision_control_probe()
         if vcs_name is None:
@@ -821,8 +810,7 @@ def main():
         markup_to_pager(stream, opts)
     else:
         # pipe out stream untouched to make sure it is still a patch
-        byte_output = (sys.stdout.buffer if hasattr(sys.stdout, 'buffer')
-                       else sys.stdout)
+        byte_output = getattr(sys.stdout, 'buffer', sys.stdout)
         for line in stream:
             byte_output.write(line)
 
