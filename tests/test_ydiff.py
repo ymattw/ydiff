@@ -13,31 +13,6 @@ sys.path.insert(0, '')
 import ydiff  # nopep8
 
 
-class Sequential(object):
-    """A non-seekable iterator, mock of file object"""
-
-    def __init__(self, items):
-        self._items = items
-        self._index = 0
-
-    def __iter__(self):
-        while True:
-            try:
-                item = self._items[self._index]
-            except IndexError:
-                raise StopIteration
-            yield item
-            self._index += 1
-
-    def readline(self):
-        try:
-            item = self._items[self._index]
-        except IndexError:
-            return ''
-        self._index += 1
-        return item
-
-
 class DecodeTest(unittest.TestCase):
 
     def test_normal(self):
@@ -489,7 +464,7 @@ spam
 @@ -a,a +0 @@
 """
         items = patch.splitlines(True)
-        stream = ydiff.PatchStream(Sequential(items))
+        stream = iter(items)
         parser = ydiff.DiffParser(stream)
         self.assertRaises(RuntimeError, list, parser.get_diff_generator())
 
@@ -504,7 +479,7 @@ spam
 spam
 """
         items = patch.splitlines(True)
-        stream = ydiff.PatchStream(Sequential(items))
+        stream = iter(items)
         parser = ydiff.DiffParser(stream)
 
         out = list(parser.get_diff_generator())
@@ -526,7 +501,7 @@ spam
 --- c
 """
         items = patch.splitlines(True)
-        stream = ydiff.PatchStream(Sequential(items))
+        stream = iter(items)
         parser = ydiff.DiffParser(stream)
         self.assertRaises(AssertionError, list, parser.get_diff_generator())
 
@@ -542,7 +517,7 @@ spam
 +++ d
 """
         items = patch.splitlines(True)
-        stream = ydiff.PatchStream(Sequential(items))
+        stream = iter(items)
         parser = ydiff.DiffParser(stream)
 
         out = list(parser.get_diff_generator())
@@ -565,7 +540,7 @@ spam
 @@ -1,2 +1,2 @@
 """
         items = patch.splitlines(True)
-        stream = ydiff.PatchStream(Sequential(items))
+        stream = iter(items)
         parser = ydiff.DiffParser(stream)
         self.assertRaises(AssertionError, list, parser.get_diff_generator())
 
@@ -586,7 +561,7 @@ Only in foo: foo
  common
 """
         items = patch.splitlines(True)
-        stream = ydiff.PatchStream(Sequential(items))
+        stream = iter(items)
         parser = ydiff.DiffParser(stream)
 
         out = list(parser.get_diff_generator())
@@ -607,7 +582,7 @@ Only in foo: foo
 Only in foo: foo
 """
         items = patch.splitlines(True)
-        stream = ydiff.PatchStream(Sequential(items))
+        stream = iter(items)
         parser = ydiff.DiffParser(stream)
 
         out = list(parser.get_diff_generator())
@@ -632,7 +607,7 @@ Binary files a/1.pdf and b/1.pdf differ
  common
 """
         items = patch.splitlines(True)
-        stream = ydiff.PatchStream(Sequential(items))
+        stream = iter(items)
         parser = ydiff.DiffParser(stream)
 
         out = list(parser.get_diff_generator())
@@ -668,7 +643,7 @@ index 529e8a3..ad71921 100755
  common
 """
         items = patch.splitlines(True)
-        stream = ydiff.PatchStream(Sequential(items))
+        stream = iter(items)
         parser = ydiff.DiffParser(stream)
 
         out = list(parser.get_diff_generator())
@@ -694,7 +669,7 @@ Added: svn:keywords
 +Id
 """
         items = patch.splitlines(True)
-        stream = ydiff.PatchStream(Sequential(items))
+        stream = iter(items)
         parser = ydiff.DiffParser(stream)
         out = list(parser.get_diff_generator())
         self.assertEqual(len(out), 1)

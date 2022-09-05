@@ -288,19 +288,6 @@ class UnifiedDiff(object):
         return re.match('^Binary files .* differ$', line.rstrip())
 
 
-class PatchStream(object):
-
-    def __init__(self, diff_hdl):
-        self._diff_hdl = diff_hdl
-
-    def __iter__(self):
-        try:
-            for line in self._diff_hdl:
-                yield line
-        except RuntimeError:
-            return
-
-
 class DiffParser(object):
 
     def __init__(self, stream):
@@ -807,9 +794,10 @@ def main():
 
     opts, args = parser.parse_args(ydiff_opts + sys.argv[1:])
 
+    stream = None
     if not sys.stdin.isatty():
-        diff_hdl = (sys.stdin.buffer if hasattr(sys.stdin, 'buffer')
-                    else sys.stdin)
+        stream = (sys.stdin.buffer if hasattr(sys.stdin, 'buffer')
+                  else sys.stdin)
     else:
         vcs_name = revision_control_probe()
         if vcs_name is None:
@@ -819,16 +807,14 @@ def main():
             return 1
 
         if opts.log:
-            diff_hdl = revision_control_log(vcs_name, args)
-            if diff_hdl is None:
+            stream = revision_control_log(vcs_name, args)
+            if stream is None:
                 sys.stderr.write('*** %s does not support log command.\n' %
                                  vcs_name)
                 return 1
         else:
             # 'diff' is a must have feature.
-            diff_hdl = revision_control_diff(vcs_name, args)
-
-    stream = PatchStream(diff_hdl)
+            stream = revision_control_diff(vcs_name, args)
 
     if (opts.color == 'always' or
             (opts.color == 'auto' and sys.stdout.isatty())):
@@ -840,9 +826,8 @@ def main():
         for line in stream:
             byte_output.write(line)
 
-    if diff_hdl is not sys.stdin:
-        diff_hdl.close()
-
+    if stream is not None:
+        stream.close()
     return 0
 
 
