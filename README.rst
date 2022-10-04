@@ -237,6 +237,7 @@ Ydiff has following known issues:
 - Terminal might be in a mess on exception (type ``reset`` can fix it)
 
 Pull requests are very welcome, please make sure your changes can pass unit
-tests and regression tests by run ``make docker-test``.
+tests and regression tests by run ``make docker-test`` (it runs tests with both
+python2 and python3).
 
 .. vim:set ft=rst et sw=4 sts=4 tw=79:

@@ -24,11 +24,17 @@ doc-preview:
 
 test: lint doc-check cov reg
 
+test2: lint doc-check cov2 reg2
+
 test3: lint doc-check cov3 reg3
 
 cov:
 	coverage run tests/test_ydiff.py
 	coverage report --show-missing
+
+cov2:
+	python2 `which coverage` run tests/test_ydiff.py
+	python2 `which coverage` report --show-missing
 
 cov3:
 	python3 `which coverage` run tests/test_ydiff.py
@@ -40,6 +46,9 @@ html:
 
 reg:
 	tests/regression.sh
+
+reg2:
+	PYTHON=python2 tests/regression.sh
 
 reg3:
 	PYTHON=python3 tests/regression.sh
@@ -67,7 +76,7 @@ dist: clean build
 
 docker-test:
 	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) --rm \
-		ymattw/ydiff-dev make test
+		ymattw/ydiff-dev make test2 test3
 
 docker-image:
 	docker build -t ymattw/ydiff-dev .
