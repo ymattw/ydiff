@@ -13,6 +13,7 @@ import re
 import signal
 import subprocess
 import difflib
+import unicodedata
 
 META_INFO = {
     'version'     : '1.2',
@@ -141,7 +142,10 @@ def strsplit(text, width):
             # break if that string is already large enough.
             if chars_cnt >= width:
                 break
-            chars_cnt += 1
+            if unicodedata.east_asian_width(unicode(text[0])) in ("W", "F"):
+                chars_cnt += 2
+            else:
+                chars_cnt += 1
             append_len = 1
 
         first += text[:append_len]
