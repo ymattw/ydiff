@@ -8,8 +8,7 @@ fi
 SELF_DIR=$(cd $(dirname $0) && pwd) || exit 1
 YDIFF_PY=$SELF_DIR/../ydiff.py
 
-# To test with py3k: PYTHON=python3 make test
-PYTHON=${PYTHON:-python}
+PYTHON=${PYTHON:-python3}
 unset YDIFF_OPTIONS
 
 set -o errexit

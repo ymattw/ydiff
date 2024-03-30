@@ -18,7 +18,7 @@ doc-check:
 
 doc-preview:
 	./setup.py --long-description | rst2html.py --strict > output.html
-	python -m webbrowser -n "file://$(shell pwd)/output.html"
+	python3 -m webbrowser -n "file://$(shell pwd)/output.html"
 	sleep 1
 	rm -f output.html
 
@@ -30,7 +30,7 @@ cov:
 
 html:
 	coverage html
-	python -m webbrowser -n "file://$(shell pwd)/htmlcov/index.html"
+	python3 -m webbrowser -n "file://$(shell pwd)/htmlcov/index.html"
 
 reg:
 	tests/regression.sh

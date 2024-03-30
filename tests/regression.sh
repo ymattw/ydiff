@@ -5,8 +5,7 @@ cd $TOP_DIR || exit 1
 
 YDIFF=./ydiff
 
-# To test with py3k: PYTHON=python3 make test
-PYTHON=${PYTHON:-python}
+PYTHON=${PYTHON:-python3}
 unset YDIFF_OPTIONS
 
 function pass()
