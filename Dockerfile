@@ -3,7 +3,5 @@ FROM python:3-alpine3.15
 
 COPY requirements-dev.txt /tmp/
 
-RUN apk add --no-cache python2 bash git less make && \
-    python2 -m ensurepip && \
-    python2 -m pip install -r /tmp/requirements-dev.txt && \
+RUN apk add --no-cache bash git less make && \
     python3 -m pip install -r /tmp/requirements-dev.txt

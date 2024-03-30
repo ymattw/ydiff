@@ -4,7 +4,7 @@ TESTPYPI = pypitest
 PYPI = pypi
 
 .PHONY: dogfood lint doc-check doc-preview clean build dist-test dist \
-	test test3 cov cov3 html reg reg3 profile profile3
+	test cov html reg profile
 
 dogfood:
 	./ydiff.py
@@ -24,21 +24,9 @@ doc-preview:
 
 test: lint doc-check cov reg
 
-test2: lint doc-check cov2 reg2
-
-test3: lint doc-check cov3 reg3
-
 cov:
 	coverage run tests/test_ydiff.py
 	coverage report --show-missing
-
-cov2:
-	python2 `which coverage` run tests/test_ydiff.py
-	python2 `which coverage` report --show-missing
-
-cov3:
-	python3 `which coverage` run tests/test_ydiff.py
-	python3 `which coverage` report --show-missing
 
 html:
 	coverage html
@@ -47,17 +35,11 @@ html:
 reg:
 	tests/regression.sh
 
-reg2:
-	PYTHON=python2 tests/regression.sh
-
-reg3:
-	PYTHON=python3 tests/regression.sh
-
 profile:
-	PYTHON=python3 tests/profile.sh tests/*/in.diff
+	tests/profile.sh tests/*/in.diff
 
 profile-difflib:
-	PYTHON=python3 tests/profile.sh tests/large-hunk/tao.diff
+	tests/profile.sh tests/large-hunk/tao.diff
 
 clean:
 	rm -f MANIFEST profile*.tmp* .coverage
@@ -76,7 +58,7 @@ dist: clean build
 
 docker-test:
 	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) --rm \
-		ymattw/ydiff-dev make test2 test3
+		ymattw/ydiff-dev make test
 
 docker-image:
 	docker build -t ymattw/ydiff-dev .
