@@ -49,7 +49,7 @@ as ``ydiff``.
 
 .. code-block:: bash
 
-    curl -ksSL https://raw.github.com/ymattw/ydiff/master/ydiff.py > ~/bin/ydiff
+    curl -L https://raw.github.com/ymattw/ydiff/master/ydiff.py > ~/bin/ydiff
     chmod +x ~/bin/ydiff
 
 Install with pip
