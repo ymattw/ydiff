@@ -8,6 +8,6 @@
 /htmlcov/
 /MANIFEST
 /build/
-/cdiff.egg-info/
+/ydiff.egg-info/
 /dist/
 /__pycache__/
