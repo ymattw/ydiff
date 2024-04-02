@@ -86,7 +86,7 @@ You can also install with Homebrew on Mac. (Thanks to `@josa42`_,
 .. _`@bfontaine`: https://github.com/bfontaine
 .. _`@hivehand`: https://github.com/hivehand
 .. _`@nijikon`: https://github.com/nijikon
-.. _`Formula`: https://github.com/Homebrew/homebrew-core/blob/master/Formula/ydiff.rb
+.. _`Formula`: https://github.com/Homebrew/homebrew-core/blob/master/Formula/y/ydiff.rb
 
 .. code-block:: bash
 
