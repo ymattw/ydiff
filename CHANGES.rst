@@ -7,7 +7,7 @@ Version 1.3 (2024-04-02)
   - Dropped context diff support
   - Handle East Asian wide characters (thanks to @roy2220)
   - Fix SIGPIPE issue on Windows (unofficial support, thanks to @kingsamchen)
-  - Bump Python requirement to >=2.6 (Python 2 supported is no longer tested)
+  - Bump Python requirement to >=2.6 (Python 2 support is no longer tested)
 
 Version 1.2 (2020-08-08)
 
