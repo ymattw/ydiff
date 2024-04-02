@@ -49,7 +49,7 @@ build:
 	./setup.py build sdist
 
 dist-test: clean build
-	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+	twine upload --repository=testpypi dist/*
 	rm -f ~/.pypirc
 
 dist: clean build
