@@ -4,7 +4,7 @@
 """
 Term based tool to view *colored*, *incremental* diff in a *Git/Mercurial/Svn*
 workspace or from stdin, with *side by side* and *auto pager* support. Requires
-python (>= 2.5.0) and ``less``.
+python (>= 2.6.0) and ``less``.
 """
 
 import sys
@@ -19,22 +19,15 @@ META_INFO = {
     'version'     : '1.2',
     'license'     : 'BSD-3',
     'author'      : 'Matt Wang',
-    'email'       : 'mattwyl(@)gmail(.)com',
     'url'         : 'https://github.com/ymattw/ydiff',
     'keywords'    : 'colored incremental side-by-side diff',
     'description' : ('View colored, incremental diff in a workspace or from '
                      'stdin, with side by side and auto pager support')
 }
 
-if sys.hexversion < 0x02050000:
-    raise SystemExit('*** Requires python >= 2.5.0')    # pragma: no cover
+if sys.hexversion < 0x02060000:
+    raise SystemExit('*** Requires python >= 2.6.0')    # pragma: no cover
 
-# Python < 2.6 does not have next()
-try:
-    next
-except NameError:
-    def next(obj):
-        return obj.next()
 
 try:
     unicode

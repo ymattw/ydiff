@@ -6,8 +6,8 @@ import sys
 from distutils.core import setup
 from ydiff import META_INFO as _meta
 
-if sys.hexversion < 0x02050000:
-    raise SystemExit("*** Requires python >= 2.5.0")
+if sys.hexversion < 0x02060000:
+    raise SystemExit("*** Requires python >= 2.6.0")
 
 with open('README.rst') as doc:
     long_description = doc.read()
@@ -18,7 +18,6 @@ setup(
     name='ydiff',
     version=_meta['version'],
     author=_meta['author'],
-    author_email=_meta['email'].replace('(', '').replace(')', ''),
     license=_meta['license'],
     description=_meta['description'],
     long_description=long_description,
