@@ -16,7 +16,7 @@ import difflib
 import unicodedata
 
 META_INFO = {
-    'version'     : '1.2',
+    'version'     : '1.3',
     'license'     : 'BSD-3',
     'author'      : 'Matt Wang',
     'url'         : 'https://github.com/ymattw/ydiff',
