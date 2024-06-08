@@ -63,6 +63,9 @@ docker-test:
 docker-image:
 	docker build -t ymattw/ydiff-dev .
 
+docker-push-image:
+	docker push ymattw/ydiff-dev .
+
 docker-shell:
 	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) -it --rm -P \
 		ymattw/ydiff-dev /bin/bash
