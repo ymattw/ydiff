@@ -29,13 +29,11 @@ jobs:
         python-version:
           # Available versions:
           # https://github.com/actions/python-versions/blob/main/versions-manifest.json
-          - "3.7"
           - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
-          - "pypy-3.7"
       fail-fast: true
 
     steps:
