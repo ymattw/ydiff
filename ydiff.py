@@ -7,12 +7,15 @@ workspace or from stdin, with *side by side* and *auto pager* support. Requires
 python (>= 2.6.0) and ``less``.
 """
 
-import sys
+import difflib
+import fcntl
 import os
 import re
 import signal
+import struct
 import subprocess
-import difflib
+import sys
+import termios
 import unicodedata
 
 META_INFO = {
@@ -135,7 +138,7 @@ def strsplit(text, width):
             # break if that string is already large enough.
             if chars_cnt >= width:
                 break
-            if unicodedata.east_asian_width(unicode(text[0])) in ("W", "F"):
+            if unicodedata.east_asian_width(unicode(text[0])) in ('W', 'F'):
                 chars_cnt += 2
             else:
                 chars_cnt += 1
@@ -152,7 +155,7 @@ def strsplit(text, width):
     if found_colors:
         return first + COLORS['reset'], found_colors + second, chars_cnt
 
-    return (first, second, chars_cnt)
+    return first, second, chars_cnt
 
 
 def strtrim(text, width, wrap_char, pad):
@@ -255,10 +258,10 @@ class UnifiedDiff(object):
             # @@ -0,0 +1 @@
             new_addr = (int(b[0][1:]), 1)
 
-        return (old_addr, new_addr)
+        return old_addr, new_addr
 
     def parse_hunk_line(self, line):
-        return (line[0], line[1:])
+        return line[0], line[1:]
 
     def is_old(self, line):
         """Exclude old path and header line from svn log --diff output, allow
@@ -290,7 +293,7 @@ class DiffParser(object):
     def __init__(self, stream):
         self._stream = stream
 
-    def get_diff_generator(self):
+    def parse(self):
         """parse all diff lines, construct a list of UnifiedDiff objects"""
         diff = UnifiedDiff([], None, None, [])
         headers = []
@@ -333,7 +336,6 @@ class DiffParser(object):
                 diff._hunks[-1].append(diff.parse_hunk_line(line))
 
             elif diff.is_eof(line):
-                # ignore
                 pass
 
             elif diff.is_only_in_dir(line) or diff.is_binary_differ(line):
@@ -348,8 +350,7 @@ class DiffParser(object):
                 diff = UnifiedDiff([], None, None, [])
 
             else:
-                # All other non-recognized lines are considered as headers or
-                # hunk headers respectively
+                # Non-recognized lines: headers or hunk headers
                 headers.append(line)
 
         # Validate and yield the last patch set if it is not yielded yet
@@ -361,8 +362,7 @@ class DiffParser(object):
             yield diff
 
         if headers:
-            # Tolerate dangling headers, just yield a UnifiedDiff object with
-            # only header lines
+            # Tolerate dangling headers, yield an object with header lines only
             yield UnifiedDiff(headers, '', '', [])
 
 
@@ -466,8 +466,7 @@ class DiffMarker(object):
                 else:
                     # FIXME: utf-8 wchar might break the rule here, e.g.
                     # u'\u554a' takes double width of a single letter, also
-                    # this depends on your terminal font.  I guess audience of
-                    # this tool never put that kind of symbol in their code :-)
+                    # this depends on your terminal font.
                     out.append(text[0])
                     text = text[1:]
 
@@ -492,9 +491,8 @@ class DiffMarker(object):
                 # Each line is like 'nnn TEXT nnn TEXT\n', so width is half of
                 # [terminal size minus the line number columns and 3 separating
                 # spaces
-                width = (terminal_size()[0] - num_width * 2 - 3) // 2
+                width = (terminal_width() - num_width * 2 - 3) // 2
             except Exception:
-                # If terminal detection failed, set back to default
                 width = 80
 
         # Setup lineno and line format
@@ -609,15 +607,14 @@ def markup_to_pager(stream, opts):
     if opts.pager is None:
         pager_cmd = ['less']
         if not os.getenv('LESS') and not opts.pager_options:
-            # Args stolen from git source:
-            # github.com/git/git/blob/master/pager.c
+            # Args stolen from github.com/git/git/blob/master/pager.c
             pager_opts = ['-FRSX', '--shift 1']
 
     pager_cmd.extend(pager_opts)
     pager = subprocess.Popen(
         pager_cmd, stdin=subprocess.PIPE, stdout=sys.stdout)
 
-    diffs = DiffParser(stream).get_diff_generator()
+    diffs = DiffParser(stream).parse()
     for diff in diffs:
         marker = DiffMarker(side_by_side=opts.side_by_side, width=opts.width,
                             tab_width=opts.tab_width, wrap=opts.wrap)
@@ -652,21 +649,15 @@ def decode(line):
     return '*** ydiff: undecodable bytes ***\n'
 
 
-def terminal_size():
-    """Returns terminal size. Taken from https://gist.github.com/marsam/7268750
-    but removed win32 support which depends on 3rd party extension.
+def terminal_width():
+    """Returns terminal width. Taken from https://gist.github.com/marsam/7268750
+    but removed win32 support which depends on 3rd party extension. Will raise
+    IOError or AttributeError when impossible to detect.
     """
-    width, height = None, None
-    try:
-        import struct
-        import fcntl
-        import termios
-        s = struct.pack('HHHH', 0, 0, 0, 0)
-        x = fcntl.ioctl(1, termios.TIOCGWINSZ, s)
-        height, width = struct.unpack('HHHH', x)[0:2]
-    except (IOError, AttributeError):
-        pass
-    return width, height
+    s = struct.pack('HHHH', 0, 0, 0, 0)
+    x = fcntl.ioctl(1, termios.TIOCGWINSZ, s)
+    _, width = struct.unpack('HHHH', x)[0:2]  # height unused
+    return width
 
 
 def trap_interrupts(entry_fn):
@@ -757,22 +748,21 @@ def main():
     if not sys.stdin.isatty():
         stream = getattr(sys.stdin, 'buffer', sys.stdin)
     else:
-        vcs_name = revision_control_probe()
-        if vcs_name is None:
+        vcs = revision_control_probe()
+        if vcs is None:
             supported_vcs = ', '.join(sorted(VCS_INFO.keys()))
             sys.stderr.write('*** Not in a supported workspace, supported are:'
                              ' %s\n' % supported_vcs)
             return 1
 
         if opts.log:
-            stream = revision_control_log(vcs_name, args)
+            stream = revision_control_log(vcs, args)
             if stream is None:
-                sys.stderr.write('*** %s does not support log command.\n' %
-                                 vcs_name)
+                sys.stderr.write('*** %s has no log support.\n' % vcs)
                 return 1
         else:
             # 'diff' is a must have feature.
-            stream = revision_control_diff(vcs_name, args)
+            stream = revision_control_diff(vcs, args)
 
     if (opts.color == 'always' or
             (opts.color == 'auto' and sys.stdout.isatty())):

@@ -466,7 +466,7 @@ spam
         items = patch.splitlines(True)
         stream = iter(items)
         parser = ydiff.DiffParser(stream)
-        self.assertRaises(RuntimeError, list, parser.get_diff_generator())
+        self.assertRaises(RuntimeError, list, parser.parse())
 
     def test_parse_dangling_header(self):
         patch = """\
@@ -482,7 +482,7 @@ spam
         stream = iter(items)
         parser = ydiff.DiffParser(stream)
 
-        out = list(parser.get_diff_generator())
+        out = list(parser.parse())
         self.assertEqual(len(out), 2)
         self.assertEqual(len(out[1]._headers), 1)
         self.assertEqual(out[1]._headers[0], 'spam\n')
@@ -503,7 +503,7 @@ spam
         items = patch.splitlines(True)
         stream = iter(items)
         parser = ydiff.DiffParser(stream)
-        self.assertRaises(AssertionError, list, parser.get_diff_generator())
+        self.assertRaises(AssertionError, list, parser.parse())
 
     def test_parse_missing_hunk_meta(self):
         patch = """\
@@ -520,7 +520,7 @@ spam
         stream = iter(items)
         parser = ydiff.DiffParser(stream)
 
-        out = list(parser.get_diff_generator())
+        out = list(parser.parse())
         self.assertEqual(len(out), 2)
         self.assertEqual(len(out[1]._headers), 0)
         self.assertEqual(out[1]._old_path, '--- c\n')
@@ -542,7 +542,7 @@ spam
         items = patch.splitlines(True)
         stream = iter(items)
         parser = ydiff.DiffParser(stream)
-        self.assertRaises(AssertionError, list, parser.get_diff_generator())
+        self.assertRaises(AssertionError, list, parser.parse())
 
     def test_parse_only_in_dir(self):
         patch = """\
@@ -564,7 +564,7 @@ Only in foo: foo
         stream = iter(items)
         parser = ydiff.DiffParser(stream)
 
-        out = list(parser.get_diff_generator())
+        out = list(parser.parse())
         self.assertEqual(len(out), 3)
         self.assertEqual(len(out[1]._hunks), 0)
         self.assertEqual(out[1]._headers, ['Only in foo: foo\n'])
@@ -585,7 +585,7 @@ Only in foo: foo
         stream = iter(items)
         parser = ydiff.DiffParser(stream)
 
-        out = list(parser.get_diff_generator())
+        out = list(parser.parse())
         self.assertEqual(len(out), 2)
         self.assertEqual(len(out[1]._hunks), 0)
         self.assertEqual(out[1]._headers, ['Only in foo: foo\n'])
@@ -610,7 +610,7 @@ Binary files a/1.pdf and b/1.pdf differ
         stream = iter(items)
         parser = ydiff.DiffParser(stream)
 
-        out = list(parser.get_diff_generator())
+        out = list(parser.parse())
         self.assertEqual(len(out), 3)
         self.assertEqual(len(out[1]._hunks), 0)
         self.assertEqual(out[1]._old_path, '')
@@ -646,7 +646,7 @@ index 529e8a3..ad71921 100755
         stream = iter(items)
         parser = ydiff.DiffParser(stream)
 
-        out = list(parser.get_diff_generator())
+        out = list(parser.parse())
         self.assertEqual(len(out), 3)
         self.assertEqual(len(out[1]._hunks), 0)
         self.assertEqual(out[1]._old_path, '')
@@ -671,7 +671,7 @@ Added: svn:keywords
         items = patch.splitlines(True)
         stream = iter(items)
         parser = ydiff.DiffParser(stream)
-        out = list(parser.get_diff_generator())
+        out = list(parser.parse())
         self.assertEqual(len(out), 1)
         self.assertEqual(len(out[0]._hunks), 2)
 
