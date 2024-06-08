@@ -374,6 +374,15 @@ class DiffMarker(object):
         self._tab_width = tab_width
         self._wrap = wrap
 
+        self._markup_header = lambda x: colorize(x, 'cyan')
+        self._markup_old_path = lambda x: colorize(x, 'yellow')
+        self._markup_new_path = lambda x: colorize(x, 'yellow')
+        self._markup_hunk_header = lambda x: colorize(x, 'lightcyan')
+        self._markup_hunk_meta = lambda x: colorize(x, 'lightblue')
+        self._markup_common = lambda x: colorize(x, 'reset')
+        self._markup_old = lambda x: colorize(x, 'lightred')
+        self._markup_new = lambda x: colorize(x, 'green')
+
     def markup(self, diff):
         """Returns a generator"""
         if self._side_by_side:
@@ -580,30 +589,6 @@ class DiffMarker(object):
                         'right': right
                     }
 
-    def _markup_header(self, line):
-        return colorize(line, 'cyan')
-
-    def _markup_old_path(self, line):
-        return colorize(line, 'yellow')
-
-    def _markup_new_path(self, line):
-        return colorize(line, 'yellow')
-
-    def _markup_hunk_header(self, line):
-        return colorize(line, 'lightcyan')
-
-    def _markup_hunk_meta(self, line):
-        return colorize(line, 'lightblue')
-
-    def _markup_common(self, line):
-        return colorize(line, 'reset')
-
-    def _markup_old(self, line):
-        return colorize(line, 'lightred')
-
-    def _markup_new(self, line):
-        return colorize(line, 'green')
-
     def _markup_mix(self, line, base_color):
         del_code = COLORS['reverse'] + COLORS[base_color]
         add_code = COLORS['reverse'] + COLORS[base_color]
@@ -619,9 +604,7 @@ class DiffMarker(object):
 def markup_to_pager(stream, opts):
     """Pipe unified diff stream to pager (less)."""
     pager_cmd = [opts.pager]
-    pager_opts = (opts.pager_options.split(' ')
-                  if opts.pager_options is not None
-                  else None)
+    pager_opts = opts.pager_options.split(' ') if opts.pager_options else []
 
     if opts.pager is None:
         pager_cmd = ['less']
@@ -630,7 +613,6 @@ def markup_to_pager(stream, opts):
             # github.com/git/git/blob/master/pager.c
             pager_opts = ['-FRSX', '--shift 1']
 
-    pager_opts = pager_opts if pager_opts is not None else []
     pager_cmd.extend(pager_opts)
     pager = subprocess.Popen(
         pager_cmd, stdin=subprocess.PIPE, stdout=sys.stdout)
