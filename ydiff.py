@@ -114,37 +114,37 @@ def strsplit(text, width):
     appended with the resetting sequence, and the second string is prefixed
     with all active colors.
     """
-    first, second = '', ''
+    first = ''
     found_colors = ''
     chars_cnt = 0
-    bytes_cnt = 0
+    total_chars = len(text)
+    i = 0
 
-    while text:
-        if text.startswith('\x1b'):
-            color_end = text.find('m')
+    while i < total_chars:
+        if text[i] == '\x1b':
+            color_end = text.find('m', i)
             if color_end != -1:
-                color = text[:color_end + 1]
+                color = text[i:color_end + 1]
                 if color == COLORS['reset']:
                     found_colors = ''
                 else:
                     found_colors += color
 
                 first += color
-                text = text[color_end + 1:]
+                i = color_end + 1
                 continue
 
         if chars_cnt >= width:
             break
 
-        char = text[0]
+        char = text[i]
         char_width = 2 if unicodedata.east_asian_width(char) in 'WF' else 1
         chars_cnt += char_width
         first += char
-        text = text[1:]
+        i += 1
 
-    second = found_colors + text if found_colors else text
     first += COLORS['reset'] if found_colors else ''
-
+    second = found_colors + text[i:]
     return first, second, chars_cnt
 
 
