@@ -37,23 +37,24 @@ try:
 except NameError:
     unicode = str
 
-COLORS = {
-    'reset'         : '\x1b[0m',
-    'underline'     : '\x1b[4m',
-    'reverse'       : '\x1b[7m',
-    'red'           : '\x1b[31m',
-    'green'         : '\x1b[32m',
-    'yellow'        : '\x1b[33m',
-    'blue'          : '\x1b[34m',
-    'magenta'       : '\x1b[35m',
-    'cyan'          : '\x1b[36m',
-    'lightred'      : '\x1b[1;31m',
-    'lightgreen'    : '\x1b[1;32m',
-    'lightyellow'   : '\x1b[1;33m',
-    'lightblue'     : '\x1b[1;34m',
-    'lightmagenta'  : '\x1b[1;35m',
-    'lightcyan'     : '\x1b[1;36m',
-}
+
+class Color(object):
+    RESET = '\x1b[0m'
+    UNDERLINE = '\x1b[4m'
+    REVERSE = '\x1b[7m'
+    RED = '\x1b[31m'
+    GREEN = '\x1b[32m'
+    YELLOW = '\x1b[33m'
+    BLUE = '\x1b[34m'
+    MAGENTA = '\x1b[35m'
+    CYAN = '\x1b[36m'
+    LIGHTRED = '\x1b[1;31m'
+    LIGHTGREEN = '\x1b[1;32m'
+    LIGHTYELLOW = '\x1b[1;33m'
+    LIGHTBLUE = '\x1b[1;34m'
+    LIGHTMAGENTA = '\x1b[1;35m'
+    LIGHTCYAN = '\x1b[1;36m'
+
 
 # Keys for revision control probe, diff and log (optional) with diff
 VCS_INFO = {
@@ -100,8 +101,8 @@ def revision_control_log(vcs_name, args):
         return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
 
 
-def colorize(text, start_color, end_color='reset'):
-    return COLORS[start_color] + text + COLORS[end_color]
+def colorize(text, start_color, end_color=Color.RESET):
+    return start_color + text + end_color
 
 
 def strsplit(text, width):
@@ -125,7 +126,7 @@ def strsplit(text, width):
             color_end = text.find('m', i)
             if color_end != -1:
                 color = text[i:color_end + 1]
-                if color == COLORS['reset']:
+                if color == Color.RESET:
                     found_colors = ''
                 else:
                     found_colors += color
@@ -143,7 +144,7 @@ def strsplit(text, width):
         first += char
         i += 1
 
-    first += COLORS['reset'] if found_colors else ''
+    first += Color.RESET if found_colors else ''
     second = found_colors + text[i:]
     return first, second, chars_cnt
 
@@ -364,14 +365,14 @@ class DiffMarker(object):
         self._tab_width = tab_width
         self._wrap = wrap
 
-        self._markup_header = lambda x: colorize(x, 'cyan')
-        self._markup_old_path = lambda x: colorize(x, 'yellow')
-        self._markup_new_path = lambda x: colorize(x, 'yellow')
-        self._markup_hunk_header = lambda x: colorize(x, 'lightcyan')
-        self._markup_hunk_meta = lambda x: colorize(x, 'lightblue')
-        self._markup_common = lambda x: colorize(x, 'reset')
-        self._markup_old = lambda x: colorize(x, 'lightred')
-        self._markup_new = lambda x: colorize(x, 'green')
+        self._markup_header = lambda x: colorize(x, Color.CYAN)
+        self._markup_old_path = lambda x: colorize(x, Color.YELLOW)
+        self._markup_new_path = lambda x: colorize(x, Color.YELLOW)
+        self._markup_hunk_header = lambda x: colorize(x, Color.LIGHTCYAN)
+        self._markup_hunk_meta = lambda x: colorize(x, Color.LIGHTBLUE)
+        self._markup_common = lambda x: colorize(x, Color.RESET)
+        self._markup_old = lambda x: colorize(x, Color.LIGHTRED)
+        self._markup_new = lambda x: colorize(x, Color.GREEN)
 
     def markup(self, diff):
         """Returns a generator"""
@@ -409,9 +410,9 @@ class DiffMarker(object):
                     else:
                         # DEBUG: yield 'CHG: %s %s\n' % (old, new)
                         yield (self._markup_old('-') +
-                               self._markup_mix(old[1], 'red'))
+                               self._markup_mix(old[1], Color.RED))
                         yield (self._markup_new('+') +
-                               self._markup_mix(new[1], 'green'))
+                               self._markup_mix(new[1], Color.GREEN))
                 else:
                     yield self._markup_common(' ' + old[1])
 
@@ -436,22 +437,22 @@ class DiffMarker(object):
             """Wrap input text which contains mdiff tags, markup at the
             meantime
             """
-            out = [COLORS[base_color]]
+            out = [base_color]
             tag_re = re.compile(r'\x00[+^-]|\x01')
 
             while text:
                 if text.startswith('\x00-'):    # del
-                    out.append(COLORS['reverse'] + COLORS[base_color])
+                    out.append(Color.REVERSE + base_color)
                     text = text[2:]
                 elif text.startswith('\x00+'):  # add
-                    out.append(COLORS['reverse'] + COLORS[base_color])
+                    out.append(Color.REVERSE + base_color)
                     text = text[2:]
                 elif text.startswith('\x00^'):  # change
-                    out.append(COLORS['underline'] + COLORS[base_color])
+                    out.append(Color.UNDERLINE + base_color)
                     text = text[2:]
                 elif text.startswith('\x01'):   # reset
                     if len(text) > 1:
-                        out.append(COLORS['reset'] + COLORS[base_color])
+                        out.append(Color.RESET + base_color)
                     text = text[1:]
                 else:
                     # FIXME: utf-8 wchar might break the rule here, e.g.
@@ -460,7 +461,7 @@ class DiffMarker(object):
                     out.append(text[0])
                     text = text[1:]
 
-            out.append(COLORS['reset'])
+            out.append(Color.RESET)
             return ''.join(out)
 
         # Set up number width, note last hunk might be empty
@@ -486,9 +487,9 @@ class DiffMarker(object):
                 width = 80
 
         # Setup lineno and line format
-        left_num_fmt = colorize('%%(left_num)%ds' % num_width, 'yellow')
-        right_num_fmt = colorize('%%(right_num)%ds' % num_width, 'yellow')
-        line_fmt = (left_num_fmt + ' %(left)s ' + COLORS['reset'] +
+        left_num_fmt = colorize('%%(left_num)%ds' % num_width, Color.YELLOW)
+        right_num_fmt = colorize('%%(right_num)%ds' % num_width, Color.YELLOW)
+        line_fmt = (left_num_fmt + ' %(left)s ' + Color.RESET +
                     right_num_fmt + ' %(right)s\n')
 
         # yield header, old path and new path
@@ -530,8 +531,8 @@ class DiffMarker(object):
                         left = self._markup_old(left)
                         right = ''
                     else:
-                        left = _fit_with_marker_mix(left, 'red')
-                        right = _fit_with_marker_mix(right, 'green')
+                        left = _fit_with_marker_mix(left, Color.RED)
+                        right = _fit_with_marker_mix(right, Color.GREEN)
                 else:
                     left = self._markup_common(left)
                     right = self._markup_common(right)
@@ -566,7 +567,7 @@ class DiffMarker(object):
                 else:
                     # Don't need to wrap long lines; instead, a trailing '>'
                     # char needs to be appended.
-                    wrap_char = colorize('>', 'lightmagenta')
+                    wrap_char = colorize('>', Color.LIGHTMAGENTA)
                     left = strtrim(left, width, wrap_char, len(right) > 0)
                     right = strtrim(right, width, wrap_char, False)
 
@@ -578,10 +579,10 @@ class DiffMarker(object):
                     }
 
     def _markup_mix(self, line, base_color):
-        del_code = COLORS['reverse'] + COLORS[base_color]
-        add_code = COLORS['reverse'] + COLORS[base_color]
-        chg_code = COLORS['underline'] + COLORS[base_color]
-        rst_code = COLORS['reset'] + COLORS[base_color]
+        del_code = Color.REVERSE + base_color
+        add_code = Color.REVERSE + base_color
+        chg_code = Color.UNDERLINE + base_color
+        rst_code = Color.RESET + base_color
         line = line.replace('\x00-', del_code)
         line = line.replace('\x00+', add_code)
         line = line.replace('\x00^', chg_code)
