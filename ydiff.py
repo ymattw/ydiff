@@ -105,24 +105,22 @@ def colorize(text, start_color, end_color='reset'):
 
 
 def strsplit(text, width):
-    r"""strsplit() splits a given string into two substrings, respecting the
-    escape sequences (in a global var COLORS).
+    r"""Splits a string into two substrings, respecting ANSI escape sequences.
 
-    It returns 3-tuple: (first string, second string, number of visible chars
-    in the first string).
+    Returns a 3-tuple: (first substring, second substring, number of visible
+    chars in the first substring).
 
     If some color was active at the splitting point, then the first string is
     appended with the resetting sequence, and the second string is prefixed
     with all active colors.
     """
-    first = ''
-    second = ''
+    first, second = '', ''
     found_colors = ''
     chars_cnt = 0
     bytes_cnt = 0
+
     while text:
-        append_len = 0
-        if text[0] == '\x1b':
+        if text.startswith('\x1b'):
             color_end = text.find('m')
             if color_end != -1:
                 color = text[:color_end + 1]
@@ -130,30 +128,22 @@ def strsplit(text, width):
                     found_colors = ''
                 else:
                     found_colors += color
-                append_len = len(color)
 
-        if append_len == 0:
-            # Current string does not start with any escape sequence, so,
-            # either add one more visible char to the "first" string, or
-            # break if that string is already large enough.
-            if chars_cnt >= width:
-                break
-            if unicodedata.east_asian_width(unicode(text[0])) in ('W', 'F'):
-                chars_cnt += 2
-            else:
-                chars_cnt += 1
-            append_len = 1
+                first += color
+                text = text[color_end + 1:]
+                continue
 
-        first += text[:append_len]
-        text = text[append_len:]
-        bytes_cnt += append_len
+        if chars_cnt >= width:
+            break
 
-    second = text
+        char = text[0]
+        char_width = 2 if unicodedata.east_asian_width(char) in 'WF' else 1
+        chars_cnt += char_width
+        first += char
+        text = text[1:]
 
-    # If the first string has some active colors at the splitting point,
-    # reset it and append the same colors to the second string
-    if found_colors:
-        return first + COLORS['reset'], found_colors + second, chars_cnt
+    second = found_colors + text if found_colors else text
+    first += COLORS['reset'] if found_colors else ''
 
     return first, second, chars_cnt
 
