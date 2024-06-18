@@ -1,7 +1,8 @@
 # Makefile for testing
 
-TESTPYPI = pypitest
-PYPI = pypi
+TESTPYPI := pypitest
+PYPI := pypi
+SHELL := bash
 
 .PHONY: dogfood lint doc-check doc-preview clean build dist-test dist \
 	test cov html reg profile
@@ -36,7 +37,7 @@ reg:
 	tests/regression.sh
 
 profile:
-	tests/profile.sh tests/*/in.diff
+	tests/profile.sh $(shell for x in {0..99}; do echo tests/*/in.diff; done)
 
 profile-difflib:
 	tests/profile.sh tests/large-hunk/tao.diff
