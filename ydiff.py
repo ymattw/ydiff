@@ -56,6 +56,10 @@ class Color(object):
     LIGHTCYAN = '\x1b[1;36m'
 
 
+# Build a tuple for easy comparing by ANSI color codes
+COLOR_CODES = tuple(v for k, v in vars(Color).items()
+                    if not k.startswith('__') and not callable(v))
+
 # Keys for revision control probe, diff and log (optional) with diff
 VCS_INFO = {
     'Git': {
@@ -123,17 +127,20 @@ def strsplit(text, width):
 
     while i < total_chars:
         if text[i] == '\x1b':
-            color_end = text.find('m', i)
-            if color_end != -1:
-                color = text[i:color_end + 1]
-                if color == Color.RESET:
-                    found_colors = ''
-                else:
-                    found_colors += color
+            for color in COLOR_CODES:
+                if text.startswith(color, i):
+                    if color == Color.RESET:
+                        found_colors = ''
+                    else:
+                        found_colors += color
 
-                first += color
-                i = color_end + 1
-                continue
+                    first += color
+                    i += len(color)
+                    break
+            else:  # not found
+                first += text[i]
+                i += 1
+            continue
 
         if chars_cnt >= width:
             break
