@@ -4,7 +4,7 @@
 """
 Term based tool to view *colored*, *incremental* diff in a *Git/Mercurial/Svn*
 workspace or from stdin, with *side by side* and *auto pager* support. Requires
-python (>= 2.6.0) and ``less``.
+python3 and ``less``.
 """
 
 import difflib
@@ -28,14 +28,8 @@ META_INFO = {
                      'stdin, with side by side and auto pager support')
 }
 
-if sys.hexversion < 0x02060000:
-    raise SystemExit('*** Requires python >= 2.6.0')    # pragma: no cover
-
-
-try:
-    unicode
-except NameError:
-    unicode = str
+if sys.hexversion < 0x03000000:
+    raise SystemExit('*** Requires python >= 3.0.0')    # pragma: no cover
 
 
 class Color(object):
@@ -631,7 +625,7 @@ def check_command_status(arguments):
 
 def decode(line):
     """Decode UTF-8 if necessary."""
-    if isinstance(line, unicode):
+    if isinstance(line, str):
         return line
 
     for encoding in ['utf-8', 'latin1']:
