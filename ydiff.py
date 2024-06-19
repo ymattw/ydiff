@@ -112,7 +112,7 @@ def colorize(text, start_color, end_color=Color.RESET):
 def strsplit(text, width):
     r"""Splits a string into two substrings, respecting ANSI escape sequences.
 
-    Returns a 3-tuple: (first substring, second substring, number of visible
+    Returns a 3-tuple: (first substring, second substring, width of visible
     chars in the first substring).
 
     If some color was active at the splitting point, then the first string is
@@ -120,8 +120,8 @@ def strsplit(text, width):
     with all active colors.
     """
     first = ''
-    found_colors = ''
-    chars_cnt = 0
+    first_colors = ''
+    first_width = 0
     total_chars = len(text)
     i = 0
 
@@ -129,7 +129,7 @@ def strsplit(text, width):
         if text[i] == '\x1b':
             for c in COLOR_CODES:
                 if text.startswith(c, i):
-                    found_colors = '' if c == Color.RESET else found_colors + c
+                    first_colors = '' if c == Color.RESET else first_colors + c
                     first += c
                     i += len(c)
                     break
@@ -138,18 +138,18 @@ def strsplit(text, width):
                 i += 1
             continue
 
-        if chars_cnt >= width:
+        if first_width >= width:
             break
 
         char = text[i]
         char_width = 2 if unicodedata.east_asian_width(char) in 'WF' else 1
-        chars_cnt += char_width
+        first_width += char_width
         first += char
         i += 1
 
-    first += Color.RESET if found_colors else ''
-    second = found_colors + text[i:]
-    return first, second, chars_cnt
+    first += Color.RESET if first_colors else ''
+    second = first_colors + text[i:]
+    return first, second, first_width
 
 
 def strtrim(text, width, wrap_char, pad):
