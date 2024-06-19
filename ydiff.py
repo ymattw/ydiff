@@ -127,15 +127,11 @@ def strsplit(text, width):
 
     while i < total_chars:
         if text[i] == '\x1b':
-            for color in COLOR_CODES:
-                if text.startswith(color, i):
-                    if color == Color.RESET:
-                        found_colors = ''
-                    else:
-                        found_colors += color
-
-                    first += color
-                    i += len(color)
+            for c in COLOR_CODES:
+                if text.startswith(c, i):
+                    found_colors = '' if c == Color.RESET else found_colors + c
+                    first += c
+                    i += len(c)
                     break
             else:  # not found
                 first += text[i]
