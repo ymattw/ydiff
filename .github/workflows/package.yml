@@ -1,0 +1,52 @@
+name: "Package"
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Monthly on first day to capture breakage caused by dependencies
+    - cron: "0 23 1 * *"
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  package:
+    name: "Python ${{ matrix.python-version }}"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version:
+          # Available versions:
+          # https://github.com/actions/python-versions/blob/main/versions-manifest.json
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+      fail-fast: true
+
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+
+      - name: "Run make build in Docker"
+        uses: "addnab/docker-run-action@v3"
+        with:
+          image: "python:${{ matrix.python-version }}-alpine"
+          options: --rm -v ${{ github.workspace }}:/workspace
+          run: |
+            set -o errexit
+            apk add --no-cache bash make
+            cd /workspace
+            make build
