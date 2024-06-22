@@ -6,9 +6,6 @@ import sys
 from distutils.core import setup
 from ydiff import META_INFO as _meta
 
-if sys.hexversion < 0x02060000:
-    raise SystemExit("*** Requires python >= 2.6.0")
-
 with open('README.rst') as doc:
     long_description = doc.read()
 with open('CHANGES.rst') as changes:
@@ -34,7 +31,6 @@ setup(
         'Operating System :: POSIX',
         'Operating System :: Unix',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
     ],
     py_modules=['ydiff'],
