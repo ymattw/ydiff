@@ -18,7 +18,7 @@ import sys
 import termios
 import unicodedata
 
-META_INFO = {
+PKG_INFO = {
     'version'     : '1.3',
     'license'     : 'BSD-3',
     'author'      : 'Matt Wang',
@@ -690,8 +690,8 @@ def main():
 
     usage = """%prog [options] [file|dir ...]"""
     parser = PassThroughOptionParser(
-        usage=usage, description=META_INFO['description'],
-        version='%%prog %s' % META_INFO['version'])
+        usage=usage, description=PKG_INFO['description'],
+        version='%%prog %s' % PKG_INFO['version'])
     parser.add_option(
         '-s', '--side-by-side', action='store_true',
         help='enable side-by-side mode')

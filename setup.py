@@ -4,7 +4,7 @@
 from __future__ import with_statement
 import sys
 from setuptools import setup
-from ydiff import META_INFO as _meta
+from ydiff import PKG_INFO
 
 with open('README.rst') as doc:
     long_description = doc.read()
@@ -13,13 +13,13 @@ with open('CHANGES.rst') as changes:
 
 setup(
     name='ydiff',
-    version=_meta['version'],
-    author=_meta['author'],
-    license=_meta['license'],
-    description=_meta['description'],
+    version=PKG_INFO['version'],
+    author=PKG_INFO['author'],
+    license=PKG_INFO['license'],
+    description=PKG_INFO['description'],
     long_description=long_description,
-    keywords=_meta['keywords'],
-    url=_meta['url'],
+    keywords=PKG_INFO['keywords'],
+    url=PKG_INFO['url'],
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         'Development Status :: 5 - Production/Stable',
