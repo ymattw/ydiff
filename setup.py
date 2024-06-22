@@ -3,7 +3,7 @@
 
 from __future__ import with_statement
 import sys
-from distutils.core import setup
+from setuptools import setup
 from ydiff import META_INFO as _meta
 
 with open('README.rst') as doc:
