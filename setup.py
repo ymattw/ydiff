@@ -33,6 +33,7 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
     ],
+    python_requires='>=3',
     py_modules=['ydiff'],
     scripts=['ydiff'],
 )
