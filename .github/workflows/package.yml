@@ -44,9 +44,8 @@ jobs:
         uses: "addnab/docker-run-action@v3"
         with:
           image: "python:${{ matrix.python-version }}-alpine"
-          options: --rm -v ${{ github.workspace }}:/workspace
+          options: --rm -v ${{ github.workspace }}:/workspace -w /workspace
           run: |
             set -o errexit
             apk add --no-cache bash make
-            cd /workspace
             make build

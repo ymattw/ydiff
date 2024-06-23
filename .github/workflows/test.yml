@@ -44,10 +44,9 @@ jobs:
         uses: "addnab/docker-run-action@v3"
         with:
           image: "python:${{ matrix.python-version }}-alpine"
-          options: --rm -v ${{ github.workspace }}:/workspace
+          options: --rm -v ${{ github.workspace }}:/workspace -w /workspace
           run: |
             set -o errexit
             apk add --no-cache bash less make
-            cd /workspace
             python3 -m pip install -r requirements-dev.txt
             make test
