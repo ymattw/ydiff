@@ -58,17 +58,12 @@ dist: clean build
 	rm -f ~/.pypirc
 
 docker-test:
-	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) --rm \
-		ymattw/ydiff-dev make test
-
-docker-image:
-	docker build -t ymattw/ydiff-dev .
-
-docker-push-image:
-	docker push ymattw/ydiff-dev
+	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) -t --rm \
+		python:3-alpine /bin/sh -ec \
+		'apk add bash git less make; pip install -r requirements-dev.txt; make test'
 
 docker-shell:
 	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) -it --rm -P \
-		ymattw/ydiff-dev /bin/bash
+		python:3-alpine /bin/sh
 
 # vim:set noet ts=8 sw=8:
