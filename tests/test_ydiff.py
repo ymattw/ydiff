@@ -685,7 +685,7 @@ class MainTest(unittest.TestCase):
         self._cwd = os.getcwd()
         self._ws = tempfile.mkdtemp(prefix='test_ydiff')
         self._non_ws = tempfile.mkdtemp(prefix='test_ydiff')
-        cmd = ('cd %s; git init; git config user.name me; '
+        cmd = ('set -o errexit; cd %s; git init; git config user.name me; '
                'git config user.email me@example.org') % self._ws
         subprocess.call(cmd, shell=True, stdout=subprocess.PIPE)
         self._change_file('init')
@@ -696,12 +696,12 @@ class MainTest(unittest.TestCase):
         subprocess.call(cmd)
 
     def _change_file(self, text):
-        cmd = ['/bin/sh', '-c',
+        cmd = ['/bin/sh', '-ec',
                'cd %s; echo "%s" > foo' % (self._ws, text)]
         subprocess.call(cmd)
 
     def _commit_file(self):
-        cmd = ['/bin/sh', '-c',
+        cmd = ['/bin/sh', '-ec',
                'cd %s; git add foo; git commit foo -m update' % self._ws]
         subprocess.call(cmd, stdout=subprocess.PIPE)
 
