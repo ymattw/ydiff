@@ -279,15 +279,15 @@ class UnifiedDiff(object):
 class DiffParser(object):
 
     def __init__(self, stream):
-        self._stream = stream
+        self._stream = stream  # bytes
 
     def parse(self):
         """parse all diff lines, construct a list of UnifiedDiff objects"""
         diff = UnifiedDiff([], None, None, [])
         headers = []
 
-        for line in self._stream:
-            line = decode(line)
+        for octets in self._stream:
+            line = decode(octets)
 
             if diff.is_old_path(line):
                 # This is a new diff when current hunk is not yet genreated or
@@ -588,7 +588,7 @@ class DiffMarker(object):
 
 
 def markup_to_pager(stream, opts):
-    """Pipe unified diff stream to pager (less)."""
+    """Pipe unified diff stream (in bytes) to pager (less)."""
     pager_cmd = [opts.pager]
     pager_opts = opts.pager_options.split(' ') if opts.pager_options else []
 
@@ -623,14 +623,11 @@ def check_command_status(arguments):
         return False
 
 
-def decode(line):
-    """Decode UTF-8 if necessary."""
-    if isinstance(line, str):
-        return line
-
+def decode(octets):
+    """Decode bytes (read from file)."""
     for encoding in ['utf-8', 'latin1']:
         try:
-            return line.decode(encoding)
+            return octets.decode(encoding)
         except UnicodeDecodeError:
             pass
 

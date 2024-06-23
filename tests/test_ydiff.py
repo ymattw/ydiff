@@ -16,16 +16,14 @@ import ydiff  # nopep8
 class DecodeTest(unittest.TestCase):
 
     def test_normal(self):
-        utext = 'hello'.encode('utf-8')
-        self.assertEqual('hello', ydiff.decode(utext))
+        octets = b'\xe4\xbd\xa0\xe5\xa5\xbd'
+        want = '你好'
+        self.assertEqual(ydiff.decode(octets), want)
 
     def test_latin_1(self):
-        text = '\x80\x02q\x01(U'
-        if sys.version_info[0] == 2:
-            decoded_text = text.decode('latin-1')
-        else:
-            decoded_text = text
-        self.assertEqual(decoded_text, ydiff.decode(text))
+        octets = b'\x80\x02q\x01(U'
+        want = '\x80\x02q\x01(U'
+        self.assertEqual(ydiff.decode(octets), want)
 
 
 class HunkTest(unittest.TestCase):
@@ -456,7 +454,7 @@ class UnifiedDiffTest(unittest.TestCase):
 class DiffParserTest(unittest.TestCase):
 
     def test_parse_invalid_hunk_meta(self):
-        patch = """\
+        patch = b"""\
 spam
 --- a
 +++ b
@@ -469,7 +467,7 @@ spam
         self.assertRaises(RuntimeError, list, parser.parse())
 
     def test_parse_dangling_header(self):
-        patch = """\
+        patch = b"""\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -491,7 +489,7 @@ spam
         self.assertEqual(len(out[1]._hunks), 0)
 
     def test_parse_missing_new_path(self):
-        patch = """\
+        patch = b"""\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -506,7 +504,7 @@ spam
         self.assertRaises(AssertionError, list, parser.parse())
 
     def test_parse_missing_hunk_meta(self):
-        patch = """\
+        patch = b"""\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -528,7 +526,7 @@ spam
         self.assertEqual(len(out[1]._hunks), 0)
 
     def test_parse_missing_hunk_list(self):
-        patch = """\
+        patch = b"""\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -545,7 +543,7 @@ spam
         self.assertRaises(AssertionError, list, parser.parse())
 
     def test_parse_only_in_dir(self):
-        patch = """\
+        patch = b"""\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -572,7 +570,7 @@ Only in foo: foo
         self.assertEqual(len(out[2]._hunks[0]._hunk_list), 3)
 
     def test_parse_only_in_dir_at_last(self):
-        patch = """\
+        patch = b"""\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -591,7 +589,7 @@ Only in foo: foo
         self.assertEqual(out[1]._headers, ['Only in foo: foo\n'])
 
     def test_parse_binary_differ_diff_ru(self):
-        patch = """\
+        patch = b"""\
 --- a
 +++ b
 @@ -1,2 +1,2 @@
@@ -621,7 +619,7 @@ Binary files a/1.pdf and b/1.pdf differ
         self.assertEqual(len(out[2]._hunks[0]._hunk_list), 3)
 
     def test_parse_binary_differ_git(self):
-        patch = """\
+        patch = b"""\
 diff --git a/foo b/foo
 index 529d8a3..ad71911 100755
 --- a/foo
@@ -657,7 +655,7 @@ index 529e8a3..ad71921 100755
         self.assertEqual(len(out[2]._hunks[0]._hunk_list), 3)
 
     def test_parse_svn_prop(self):
-        patch = """\
+        patch = b"""\
 --- a
 +++ b
 Added: svn:executable
