@@ -27,8 +27,6 @@ jobs:
     strategy:
       matrix:
         python-version:
-          # Available versions:
-          # https://github.com/actions/python-versions/blob/main/versions-manifest.json
           - "3.8"
           - "3.9"
           - "3.10"
@@ -43,6 +41,7 @@ jobs:
       - name: "Run make build in Docker"
         uses: "addnab/docker-run-action@v3"
         with:
+          # Available tags: https://hub.docker.com/_/python/tags
           image: "python:${{ matrix.python-version }}-alpine"
           options: --rm -v ${{ github.workspace }}:/workspace -w /workspace
           run: |
