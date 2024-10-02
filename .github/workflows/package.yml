@@ -51,5 +51,6 @@ jobs:
           options: --rm -v ${{ github.workspace }}:/workspace -w /workspace
           run: |
             set -o errexit
-            apk add bash make
-            make build
+            apk add bash make py3-setuptools
+            # Use /usr/bin/python3 instead of /usr/local/bin/python3
+            PATH=/usr/bin:$PATH make build
