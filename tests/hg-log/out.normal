@@ -28,6 +28,7 @@
 [0m[0m     def testProcessingInstruction(self):
 [0m[0m         dom = parseString('<e><?mypi \t\n data \t\n ?></e>')
 [0m[0m         pi = dom.documentElement.firstChild
+[0m[1;36m───────────────────────────────────────────────────────────────────────────────
 [0m[36mdiff -r b0ef6a5a6dcc -r a9a87f0e7c50 Lib/xml/dom/minidom.py
 [0m[33m--- a/Lib/xml/dom/minidom.py	Fri Sep 30 08:46:25 2011 +0300
 [0m[33m+++ b/Lib/xml/dom/minidom.py	Sat Oct 01 21:02:49 2011 +0300
