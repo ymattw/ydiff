@@ -474,14 +474,10 @@ class DiffMarker(object):
         # Set up line width
         width = self._width
         if width <= 0:
-            # Autodetection of text width according to terminal size
-            try:
-                # Each line is like 'nnn TEXT nnn TEXT\n', so width is half of
-                # [terminal size minus the line number columns and 3 separating
-                # spaces
-                width = (terminal_width() - num_width * 2 - 3) // 2
-            except Exception:
-                width = 80
+            # Autodetection of text width according to terminal size.  Each
+            # line is like 'nnn TEXT nnn TEXT\n', so width is half of terminal
+            # size minus the line number columns and 3 separating spaces
+            width = (terminal_width() - num_width * 2 - 3) // 2
 
         # Setup lineno and line format
         left_num_fmt = colorize('%%(left_num)%ds' % num_width, Color.YELLOW)
@@ -640,9 +636,12 @@ def terminal_width():
     IOError or AttributeError when impossible to detect.
     """
     s = struct.pack('HHHH', 0, 0, 0, 0)
-    x = fcntl.ioctl(1, termios.TIOCGWINSZ, s)
-    _, width = struct.unpack('HHHH', x)[0:2]  # height unused
-    return width
+    try:
+        x = fcntl.ioctl(1, termios.TIOCGWINSZ, s)
+        _, width = struct.unpack('HHHH', x)[0:2]  # height unused
+        return width
+    except Exception:
+        return 80
 
 
 def trap_interrupts(entry_fn):
