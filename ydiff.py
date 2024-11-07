@@ -17,6 +17,7 @@ import subprocess
 import sys
 import termios
 import unicodedata
+from typing import List, Tuple
 
 PKG_INFO = {
     'version'     : '1.3',
@@ -97,6 +98,37 @@ def revision_control_log(vcs_name, args):
     cmd = VCS_INFO[vcs_name].get('log')
     if cmd is not None:
         return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
+
+
+def split_words(s: str) -> List[str]:
+    return re.findall(r'[a-zA-Z0-9]+|.', s)
+
+
+def mdiff(a: str, b: str, word_diff: bool = True) -> Tuple[str, str]:
+    for token in ['\0-', '\0+', '\0^', '\1']:
+        a = a.replace(token, '')
+        b = b.replace(token, '')
+    if word_diff:
+        a = split_words(a)
+        b = split_words(b)
+
+    xs = []
+    ys = []
+    for tag, i, j, m, n in difflib.SequenceMatcher(a=a, b=b).get_opcodes():
+        x = ''.join(a[i:j])
+        y = ''.join(b[m:n])
+        # print('%s\t%s\n\t%s' % (tag, repr(x), repr(y)), file=sys.stderr)
+        if tag == 'equal':
+            xs.append(x)
+            ys.append(y)
+        elif tag == 'delete':
+            xs.append(f'\0-{x}\1')
+        elif tag == 'insert':
+            ys.append(f'\0+{y}\1')
+        elif tag == 'replace':
+            xs.append(f'\0^{x}\1')
+            ys.append(f'\0^{y}\1')
+    return ''.join(xs), ''.join(ys)
 
 
 def colorize(text, start_color, end_color=Color.RESET):
@@ -406,10 +438,11 @@ class DiffMarker(object):
                         yield self._markup_old(line)
                     else:
                         # DEBUG: yield 'CHG: %s %s\n' % (old, new)
+                        a, b = mdiff(old[1], new[1])  # TODO: --word-diff
                         yield (self._markup_old('-') +
-                               self._markup_mix(old[1], Color.RED))
+                               self._markup_mix(a, Color.RED))
                         yield (self._markup_new('+') +
-                               self._markup_mix(new[1], Color.GREEN))
+                               self._markup_mix(b, Color.GREEN))
                 else:
                     yield self._markup_common(' ' + old[1])
 
@@ -445,7 +478,7 @@ class DiffMarker(object):
                     out.append(Color.REVERSE + base_color)
                     text = text[2:]
                 elif text.startswith('\x00^'):  # change
-                    out.append(Color.UNDERLINE + base_color)
+                    out.append(Color.REVERSE + base_color)
                     text = text[2:]
                 elif text.startswith('\x01'):   # reset
                     if len(text) > 1:
@@ -524,6 +557,7 @@ class DiffMarker(object):
                         left = self._markup_old(left)
                         right = ''
                     else:
+                        left, right = mdiff(left, right)  # TODO: --word-diff
                         left = _fit_with_marker_mix(left, Color.RED)
                         right = _fit_with_marker_mix(right, Color.GREEN)
                 else:
@@ -574,7 +608,7 @@ class DiffMarker(object):
     def _markup_mix(self, line, base_color):
         del_code = Color.REVERSE + base_color
         add_code = Color.REVERSE + base_color
-        chg_code = Color.UNDERLINE + base_color
+        chg_code = Color.REVERSE + base_color
         rst_code = Color.RESET + base_color
         line = line.replace('\x00-', del_code)
         line = line.replace('\x00+', add_code)
