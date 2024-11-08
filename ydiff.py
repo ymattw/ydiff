@@ -395,14 +395,14 @@ class DiffMarker(object):
             for old, new, changed in hunk.mdiff():
                 if changed:
                     if not old[0]:
-                        # The '+' char after \x00 is kept
+                        # The '+' char after \0 is kept
                         # DEBUG: yield 'NEW: %s %s\n' % (old, new)
-                        line = new[1].strip('\x00\x01')
+                        line = new[1].strip('\0\1')
                         yield self._markup_new(line)
                     elif not new[0]:
-                        # The '-' char after \x00 is kept
+                        # The '-' char after \0 is kept
                         # DEBUG: yield 'OLD: %s %s\n' % (old, new)
-                        line = old[1].strip('\x00\x01')
+                        line = old[1].strip('\0\1')
                         yield self._markup_old(line)
                     else:
                         # DEBUG: yield 'CHG: %s %s\n' % (old, new)
@@ -423,8 +423,8 @@ class DiffMarker(object):
                 if (index == -1):
                     break
                 # ignore special codes
-                offset = (line.count('\x00', 0, index) * 2 +
-                          line.count('\x01', 0, index))
+                offset = (line.count('\0', 0, index) * 2 +
+                          line.count('\1', 0, index))
                 # next stop modulo tab width
                 width = self._tab_width - (index - offset) % self._tab_width
                 line = line[:index] + ' ' * width + line[(index + 1):]
@@ -435,19 +435,17 @@ class DiffMarker(object):
             meantime
             """
             out = [base_color]
-            tag_re = re.compile(r'\x00[+^-]|\x01')
-
             while text:
-                if text.startswith('\x00-'):    # del
+                if text.startswith('\0-'):    # del
                     out.append(Color.REVERSE + base_color)
                     text = text[2:]
-                elif text.startswith('\x00+'):  # add
+                elif text.startswith('\0+'):  # add
                     out.append(Color.REVERSE + base_color)
                     text = text[2:]
-                elif text.startswith('\x00^'):  # change
+                elif text.startswith('\0^'):  # change
                     out.append(Color.UNDERLINE + base_color)
                     text = text[2:]
-                elif text.startswith('\x01'):   # reset
+                elif text.startswith('\1'):   # reset
                     if len(text) > 1:
                         out.append(Color.RESET + base_color)
                     text = text[1:]
@@ -513,13 +511,13 @@ class DiffMarker(object):
                 if changed:
                     if not old[0]:
                         left = ''
-                        right = right.rstrip('\x01')
-                        if right.startswith('\x00+'):
+                        right = right.rstrip('\1')
+                        if right.startswith('\0+'):
                             right = right[2:]
                         right = self._markup_new(right)
                     elif not new[0]:
-                        left = left.rstrip('\x01')
-                        if left.startswith('\x00-'):
+                        left = left.rstrip('\1')
+                        if left.startswith('\0-'):
                             left = left[2:]
                         left = self._markup_old(left)
                         right = ''
@@ -576,10 +574,10 @@ class DiffMarker(object):
         add_code = Color.REVERSE + base_color
         chg_code = Color.UNDERLINE + base_color
         rst_code = Color.RESET + base_color
-        line = line.replace('\x00-', del_code)
-        line = line.replace('\x00+', add_code)
-        line = line.replace('\x00^', chg_code)
-        line = line.replace('\x01', rst_code)
+        line = line.replace('\0-', del_code)
+        line = line.replace('\0+', add_code)
+        line = line.replace('\0^', chg_code)
+        line = line.replace('\1', rst_code)
         return colorize(line, base_color)
 
 
