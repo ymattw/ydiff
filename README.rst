@@ -10,14 +10,14 @@ workspace (supports Git, Mercurial, Perforce and Svn so far) or from stdin,
 with *side by side* (similar to ``diff -y``) and *auto pager* support. Requires
 python3 and ``less``.
 
-.. image:: https://raw.github.com/ymattw/ydiff/gh-pages/img/default.png
-   :alt: default
-   :align: center
-
-.. image:: https://raw.github.com/ymattw/ydiff/gh-pages/img/side-by-side.png
+.. image:: https://github.com/ymattw/ydiff/blob/master/img/side-by-side.png
    :alt: side by side
    :align: center
    :width: 900 px
+
+.. image:: https://github.com/ymattw/ydiff/blob/master/img/unified.png
+   :alt: unified
+   :align: center
 
 Ydiff only supports diff in `Unified Format`_. This is default in most version
 control system except Perforce, which needs an environment variable
