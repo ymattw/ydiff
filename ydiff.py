@@ -17,7 +17,7 @@ import subprocess
 import sys
 import termios
 import unicodedata
-from typing import Tuple
+from typing import List, Tuple
 
 PKG_INFO = {
     'version'     : '1.3',
@@ -165,6 +165,15 @@ def strtrim(text, width, wrap_char, pad):
     return text
 
 
+def split_to_words(s: str) -> List[str]:
+    r"""Split to list of "words" for fine-grained comparison by breaking
+    all uppercased/lowercased, camel and snake cased names at the "word"
+    boundary. Note '\s' has to be here to match '\n'.
+    """
+    r = re.compile(r'[A-Z]{2,}|[A-Z][a-z]+|[a-z]{2,}|[A-Za-z0-9]+|\s|.')  # nopep8
+    return r.findall(s)
+
+
 def word_diff(a: str, b: str) -> Tuple[str, str]:
     r"""Takes the from/to texts yield by Hunk.mdiff() which are part of the
     'changed' block, remove the special markers (\0-, \0+, \0^, \1), compare
@@ -179,12 +188,8 @@ def word_diff(a: str, b: str) -> Tuple[str, str]:
         a = a.replace(token, '')
         b = b.replace(token, '')
 
-    # Split to list of "words" for fine-grained comparison. '_' is not included
-    # so to break word there, '\s' has to be here to match '\n'.
-    r = re.compile(r'[a-zA-Z0-9]+|\s|.')
-    old = r.findall(a)
-    new = r.findall(b)
-
+    old = split_to_words(a)
+    new = split_to_words(b)
     xs = []
     ys = []
     for tag, i, j, m, n in difflib.SequenceMatcher(a=old, b=new).get_opcodes():

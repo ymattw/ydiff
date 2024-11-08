@@ -13,6 +13,27 @@ sys.path.insert(0, '')
 import ydiff  # nopep8
 
 
+class SplitToWordsTest(unittest.TestCase):
+
+    def test_ok(self):
+        tests = [
+            # (input, want)
+            ('HELLO_WORLD = 0', ['HELLO', '_', 'WORLD', ' ', '=', ' ', '0']),
+            ('class HelloWorld\n', ['class', ' ', 'Hello', 'World', '\n']),
+            ('int foo3\n', ['int', ' ', 'foo', '3', '\n']),
+            ('int f3\n', ['int', ' ', 'f3', '\n']),
+            ('a.addOption', ['a', '.', 'add', 'Option']),
+            ('a.AddOption', ['a', '.', 'Add', 'Option']),
+            ('class HelloW0rld\n', ['class', ' ', 'Hello', 'W0rld', '\n']),
+            ('hello_w0rld++\n', ['hello', '_', 'w0rld', '+', '+', '\n']),
+            ('var foo []string', ['var', ' ', 'foo', ' ', '[', ']', 'string']),
+            ('i -= 1\n', ['i', ' ', '-', '=', ' ', '1', '\n']),
+        ]
+        for s, want in tests:
+            got = ydiff.split_to_words(s)
+            self.assertEqual(want, got)
+
+
 class DecodeTest(unittest.TestCase):
 
     def test_normal(self):

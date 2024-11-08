@@ -33,7 +33,7 @@ index 13f725f..bf15ef1 100755
      parser = optparse.OptionParser(usage)
      parser.add_option('-s', '--side-by-side', action='store_true',
              help=('show in side-by-side mode'))
--    parser.add_option('-w', '--width', type='int', default=None,
+-    parser.addOption('-w', '--width', type='int', default=None,
 -            help='set line width (side-by-side mode only)')
 +    parser.add_option('-w', '--width', type='int', default=80,
 +            help='set line width (side-by-side mode only), default is 80')

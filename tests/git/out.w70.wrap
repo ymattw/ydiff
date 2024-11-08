@@ -32,7 +32,7 @@
 [0m[33m430[0m [0m    parser = optparse.OptionParser(usage)[0m                              [0m[33m429[0m [0m    parser = optparse.OptionParser(usage)[0m
 [33m431[0m [0m    parser.add_option('-s', '--side-by-side', action='store_true',[0m     [0m[33m430[0m [0m    parser.add_option('-s', '--side-by-side', action='store_true',[0m
 [33m432[0m [0m            help=('show in side-by-side mode'))[0m                        [0m[33m431[0m [0m            help=('show in side-by-side mode'))[0m
-[33m433[0m [31m    parser.add_option('-w', '--width', type='int', default=[7m[31mNone[0m[31m,[0m       [0m[33m432[0m [32m    parser.add_option('-w', '--width', type='int', default=[7m[32m80[0m[32m,[0m
+[33m433[0m [31m    parser.add[7m[31mOption[0m[31m('-w', '--width', type='int', default=[7m[31mNone[0m[31m,[0m        [0m[33m432[0m [32m    parser.add[7m[32m_option[0m[32m('-w', '--width', type='int', default=[7m[32m80[0m[32m,[0m
 [33m434[0m [31m            help='set line width (side-by-side mode only)')[0m            [0m[33m433[0m [32m            help='set line width (side-by-side mode only)[7m[32m, default is [0m
 [33m   [0m                                                                        [0m[33m   [0m [32m[7m[32m80[0m[32m')[0m
 [33m435[0m [0m    opts, args = parser.parse_args()[0m                                   [0m[33m434[0m [0m    opts, args = parser.parse_args()[0m
