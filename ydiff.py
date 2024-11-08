@@ -696,12 +696,15 @@ def main():
         usage=usage, description=PKG_INFO['description'],
         version='%%prog %s' % PKG_INFO['version'])
     parser.add_option(
-        '-s', '--side-by-side', action='store_true',
-        help='enable side-by-side mode')
+        '-s', '--side-by-side', action='store_true', default=True,
+        help='enable side-by-side mode (default True; DEPRECATED)')
     parser.add_option(
-        '-w', '--width', type='int', default=80, metavar='N',
-        help='set text width for side-by-side mode, 0 for auto detection, '
-             'default is 80')
+        '-u', '--unified', action='store_false', dest='side_by_side',
+        help='show diff in unified mode (disables side-by-side mode)')
+    parser.add_option(
+        '-w', '--width', type='int', default=0, metavar='N',
+        help='set text width for side-by-side mode, 0 (default) for auto '
+             'detection and fallback to 80 when not possible')
     parser.add_option(
         '-l', '--log', action='store_true',
         help='show log with changes from revision control')
@@ -710,14 +713,16 @@ def main():
         help="""colorize mode 'auto' (default), 'always', or 'never'""")
     parser.add_option(
         '-t', '--tab-width', type='int', default=8, metavar='N',
-        help="""convert tab characters to this many spaces (default: 8)""")
+        help="""convert tab chars to this many spaces (default: 8)""")
     parser.add_option(
-        '', '--wrap', action='store_true',
-        help='wrap long lines in side-by-side view')
+        '', '--wrap', action='store_true', default=True,
+        help='wrap long lines in side-by-side view (default True; DEPRECATED)')
+    parser.add_option(
+        '--nowrap', '--no-wrap', action='store_false', dest='wrap',
+        help='do not wrap long lines in side-by-side view')
     parser.add_option(
         '-p', '--pager', metavar='M',
-        help="""pager application, suggested values are 'less' """
-             """or 'cat'""")
+        help="""pager application to feed output to, default is 'less'""")
     parser.add_option(
         '-o', '--pager-options', metavar='M',
         help="""options to supply to pager application""")

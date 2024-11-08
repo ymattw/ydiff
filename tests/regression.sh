@@ -60,15 +60,15 @@ function main()
     for d in tests/*/; do
         d=${d%/}
         [[ -f $d/in.diff ]] || continue
-        cmp_output $d/in.diff $d/out.normal "-c always" || ((e++))
-        cmp_output $d/in.diff $d/out.side-by-side "-c always -s" || ((e++))
-        cmp_output $d/in.diff $d/out.w70 "-c always -s -w70" || ((e++))
-        cmp_output $d/in.diff $d/out.w70.wrap "-c always -s -w70 --wrap" || ((e++))
-        cmp_output $d/in.diff $d/in.diff "-c auto" || ((e++))
-        cmp_output $d/in.diff $d/in.diff "-c auto -s" || ((e++))
-        cmp_output $d/in.diff $d/in.diff "-c auto -s -w70" || ((e++))
-        cmp_output $d/in.diff $d/in.diff "-c auto -s -w70 --wrap" || ((e++))
-        (( total += 6 ))
+        cmp_output $d/in.diff $d/out.unified "-c always -u" || ((e++))
+        cmp_output $d/in.diff $d/out.side-by-side "-c always -w80 --nowrap" || ((e++))
+        cmp_output $d/in.diff $d/out.w70.nowrap "-c always -w70 --nowrap" || ((e++))
+        cmp_output $d/in.diff $d/out.w70.wrap "-c always -w70" || ((e++))
+        cmp_output $d/in.diff $d/in.diff "-c auto -u" || ((e++))
+        cmp_output $d/in.diff $d/in.diff "-c auto -w80" || ((e++))
+        cmp_output $d/in.diff $d/in.diff "-c auto -w70 --no-wrap" || ((e++))
+        cmp_output $d/in.diff $d/in.diff "-c auto -w70" || ((e++))
+        (( total += 8 ))
     done
 
     if (( e > 0 )); then

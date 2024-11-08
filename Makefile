@@ -8,7 +8,7 @@ SHELL := bash
 	test cov html reg profile
 
 dogfood:
-	./ydiff.py
+	./ydiff.py -u
 	git diff | ./ydiff.py -s
 
 lint:

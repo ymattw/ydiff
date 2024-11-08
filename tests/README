@@ -3,7 +3,7 @@
 
 unset YDIFF_OPTIONS
 
-../../ydiff.py -c always < in.diff > out.normal
-../../ydiff.py -c always -s < in.diff > out.side-by-side
-../../ydiff.py -c always -s < in.diff -w70 > out.w70
-../../ydiff.py -c always -s < in.diff -w70 --wrap > out.w70.wrap
+../../ydiff.py -c always -u            < in.diff > out.unified
+../../ydiff.py -c always -w80 --nowrap < in.diff > out.side-by-side
+../../ydiff.py -c always -w70 --nowrap < in.diff > out.w70.nowrap
+../../ydiff.py -c always -w70 --wrap   < in.diff > out.w70.wrap

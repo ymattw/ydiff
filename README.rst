@@ -123,18 +123,27 @@ Type ``ydiff -h`` to show usage::
     and auto pager support
 
     Options:
-      --version            show program's version number and exit
-      -h, --help           show this help message and exit
-      -s, --side-by-side   enable side-by-side mode
-      -w N, --width=N      set text width for side-by-side mode, 0 for auto
-                           detection, default is 80
-      -l, --log            show log with changes from revision control
-      -c M, --color=M      colorize mode 'auto' (default), 'always', or 'never'
-      -t N, --tab-width=N  convert tab characters to this many spaces (default: 8)
-      --wrap               wrap long lines in side-by-side view
-      -p M, --pager=M      pager application, suggested values are 'less' or 'cat'
+      --version             show program's version number and exit
+      -h, --help            show this help message and exit
+      -s, --side-by-side    enable side-by-side mode (default True; DEPRECATED)
+      -u, --unified         show diff in unified mode (disables side-by-side mode)
+      -w N, --width=N       set text width for side-by-side mode, 0 (default) for
+                            auto detection and fallback to 80 when not possible
+      -l, --log             show log with changes from revision control
+      -c M, --color=M       colorize mode 'auto' (default), 'always', or 'never'
+      -t N, --tab-width=N   convert tab chars to this many spaces (default: 8)
+      --wrap                wrap long lines in side-by-side view (default True;
+                            DEPRECATED)
+      --nowrap, --no-wrap   do not wrap long lines in side-by-side view
+      -p M, --pager=M       pager application to feed output to, default is 'less'
       -o M, --pager-options=M
-                           options to supply to pager application
+                            options to supply to pager application
+
+      Note:
+        Option parser will stop on first unknown option and pass them down to
+        underneath revision control. Environment variable YDIFF_OPTIONS may be
+        used to specify default options that will be placed at the beginning
+        of the argument list.
 
       Note:
         Option parser will stop on first unknown option and pass them down to
@@ -148,16 +157,16 @@ Read diff from local modification in a *Git/Mercurial/Perforce/Svn* workspace
 .. code-block:: bash
 
     cd proj-workspace
-    ydiff                         # view colored incremental diff
-    ydiff -s                      # view side by side, use default text width 80
-    ydiff -s -w 90                # use text width 90 other than default 80
-    ydiff -s -w 0                 # auto set text width based on terminal size
-    ydiff -s -w 0 --wrap          # same as before, but also wrap long lines
-    ydiff -s file1 dir2           # view modification of given files/dirs only
-    ydiff -s -w90 --wrap -- -U10  # pass '-U10' to underneath revision diff tool
-    ydiff -s -w90 --wrap -U10     # '--' is optional as it's unknown to ydiff
-    ydiff -s --cached             # show git staged diff (git diff --cached)
-    ydiff -s -r1234               # show svn diff to revision 1234
+    ydiff                       # view colored side by side diff, auto set text
+                                # width based on terminal size
+    ydiff -u                    # view colored incremental diff in unified mode
+    ydiff -w 90                 # use text width 90, wrap long lines
+    ydiff --no-wrap             # auto set text width but do not wrap long lines
+    ydiff file1 dir2            # view modification of given files/dirs only
+    ydiff -w90 -- -U10          # pass '-U10' to underneath revision diff tool
+    ydiff -w90 -U10             # '--' is optional as it's unknown to ydiff
+    ydiff --cached              # show git staged diff (git diff --cached)
+    ydiff -r1234                # show svn diff to revision 1234
 
 Read log with changes in a *Git/Mercurial/Svn* workspace (output from e.g.
 ``git log -p``, ``svn log --diff``), note *--diff* option is new in svn 1.7.0:
@@ -165,10 +174,10 @@ Read log with changes in a *Git/Mercurial/Svn* workspace (output from e.g.
 .. code-block:: bash
 
     cd proj-workspace
-    ydiff -l                    # read log along with changes
-    ydiff -ls                   # equivalent to ydiff -l -s, view side by side
-    ydiff -ls -w90 --wrap       # set text width 90 and enable wrapping as well
-    ydiff -ls file1 dir2        # see log with changes of given files/dirs only
+    ydiff -l                    # read log along with changes, side by side
+    ydiff -lu                   # equivalent to ydiff -l -u, unified mode
+    ydiff -l -w90 --no-wrap     # set text width 90 and disable wrapping
+    ydiff -l file1 dir2         # see log with changes of given files/dirs only
 
 Utilize a specific pager application:
 
@@ -177,7 +186,7 @@ Utilize a specific pager application:
     ydiff                           # default pager - less
     LESS_OPTS='-FRSX --shift 1'
     ydiff -p less -o "${LESS_OPTS}" # emulate default pager
-    ydiff -p /usr/bin/less          # custom pager
+    ydiff -p /opt/bin/less          # custom pager to override 'less' in $PATH
     ydiff -p cat                    # non-paging ANSI processor for colorizing
 
 Pipe in a diff:
@@ -185,22 +194,22 @@ Pipe in a diff:
 .. code-block:: bash
 
     git log -p -2 | ydiff       # view git log with changes of last 2 commits
-    git show 15bfa | ydiff -s   # view a given git commit, side by side
-    svn diff -r1234 | ydiff -s  # view svn diff comparing to given revision
+    git show 15bfa | ydiff      # view a given git commit, side by side
+    svn diff -r1234 | ydiff     # view svn diff comparing to given revision
     diff -u file1 file2 | ydiff # view diff between two files (note the '-u')
     diff -ur dir1 dir2 | ydiff  # view diff between two dirs
 
     # View diff in a GitHub pull request, side by side
-    curl https://github.com/ymattw/ydiff/pull/11.diff | ydiff -s
+    curl https://github.com/ymattw/ydiff/pull/11.diff | ydiff
 
-    # View a patch file in unified format.
-    ydiff -s < foo.patch
+    # View a patch file in colored unified format.
+    ydiff -u < foo.patch
 
-Redirect output to another patch file is safe:
+Redirect output to another patch file is safe even without ``-u``:
 
 .. code-block:: bash
 
-    svn diff -r PREV | ydiff -s > my.patch
+    svn diff -r PREV | ydiff > my.patch
 
 Environment variable
 --------------------
@@ -210,8 +219,8 @@ that will be placed at the beginning of the argument list, for example:
 
 .. code-block:: bash
 
-    export YDIFF_OPTIONS='-s -w0 --wrap'
-    ydiff foo                   # equivalent to "ydiff -s -w0 --wrap foo"
+    export YDIFF_OPTIONS='-w100'
+    ydiff foo                   # equivalent to "ydiff -w100 foo"
 
 Note the default pager ``less`` takes options from the environment variable
 ``LESS``.
