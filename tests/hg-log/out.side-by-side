@@ -36,7 +36,7 @@
 [0m[33m 836[0m [0m            _write_data(writer, attrs[a_name].value)[0m                             [0m[33m 836[0m [0m            _write_data(writer, attrs[a_name].value)[0m
 [33m 837[0m [0m            writer.write("\"")[0m                                                   [0m[33m 837[0m [0m            writer.write("\"")[0m
 [33m 838[0m [0m        if self.childNodes:[0m                                                      [0m[33m 838[0m [0m        if self.childNodes:[0m
-[33m 839[0m [31m            writer.write(">[7m[31m%s[0m[31m"[7m[31m%(newl)[0m[31m)[0m                                           [0m[33m 839[0m [32m            writer.write(">")[0m
+[33m 839[0m [31m            writer.write(">[7m[31m%s[0m[31m"[7m[31m%(newl[0m[31m)[7m[31m)[0m                                           [0m[33m 839[0m [32m            writer.write(">")[0m
 [33m    [0m                                                                                  [0m[33m 840[0m [32m            if self.childNodes[0].nodeType != Node.TEXT_NODE:[0m
 [33m    [0m                                                                                  [0m[33m 841[0m [32m                writer.write(newl)[0m
 [33m 840[0m [0m            for node in self.childNodes:[0m                                         [0m[33m 842[0m [0m            for node in self.childNodes:[0m
@@ -46,7 +46,7 @@
 [0m[33m1061[0m [0m        return newText[0m                                                           [0m[33m1063[0m [0m        return newText[0m
 [33m1062[0m [0m[0m                                                                                 [0m[33m1064[0m [0m[0m
 [33m1063[0m [0m    def writexml(self, writer, indent="", addindent="", newl=""):[0m                [0m[33m1065[0m [0m    def writexml(self, writer, indent="", addindent="", newl=""):[0m
-[33m1064[0m [31m        _write_data(writer, [7m[31m"%s%s%s"%(indent, [0m[31mself.data[7m[31m, newl)[0m[31m)[0m                  [0m[33m1066[0m [32m        _write_data(writer, self.data)[0m
+[33m1064[0m [31m        _write_data(writer, [7m[31m"%s%s%s"%(indent, [0m[31mself.data[7m[31m, newl[0m[31m)[7m[31m)[0m                  [0m[33m1066[0m [32m        _write_data(writer, self.data)[0m
 [33m1065[0m [0m[0m                                                                                 [0m[33m1067[0m [0m[0m
 [33m1066[0m [0m    # DOM Level 3 (WD 9 April 2002)[0m                                              [0m[33m1068[0m [0m    # DOM Level 3 (WD 9 April 2002)[0m
 [33m1067[0m [0m[0m                                                                                 [0m[33m1069[0m [0m[0m

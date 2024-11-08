@@ -17,6 +17,7 @@ import subprocess
 import sys
 import termios
 import unicodedata
+from typing import Tuple
 
 PKG_INFO = {
     'version'     : '1.3',
@@ -162,6 +163,45 @@ def strtrim(text, width, wrap_char, pad):
         # The string is short enough, but it might need to be padded.
         text = '%s%*s' % (text, width - tlen, '')
     return text
+
+
+def word_diff(a: str, b: str) -> Tuple[str, str]:
+    r"""Takes the from/to texts yield by Hunk.mdiff() which are part of the
+    'changed' block, remove the special markers (\0-, \0+, \0^, \1), compare
+    word by word and return two new texts with the markers reassemabled.
+
+    Context: difflib._mdiff() is good for indention detection, but produces
+    coarse-grained diffs for the 'changed' block when the similarity is below
+    a certain ratio (hardcode 0.75). One example: "import foo" vs "import bar"
+    is treated full line change instead of only "foo" changed to "bar".
+    """
+    for token in ['\0-', '\0+', '\0^', '\1']:
+        a = a.replace(token, '')
+        b = b.replace(token, '')
+
+    # Split to list of "words" for fine-grained comparison. '_' is not included
+    # so to break word there, '\s' has to be here to match '\n'.
+    r = re.compile(r'[a-zA-Z0-9]+|\s|.')
+    old = r.findall(a)
+    new = r.findall(b)
+
+    xs = []
+    ys = []
+    for tag, i, j, m, n in difflib.SequenceMatcher(a=old, b=new).get_opcodes():
+        x = ''.join(old[i:j])
+        y = ''.join(new[m:n])
+        # print('%s\t%s\n\t%s' % (tag, repr(x), repr(y)), file=sys.stderr)
+        if tag == 'equal':
+            xs.append(x)
+            ys.append(y)
+        elif tag == 'delete':
+            xs.append(f'\0-{x}\1')
+        elif tag == 'insert':
+            ys.append(f'\0+{y}\1')
+        elif tag == 'replace':
+            xs.append(f'\0^{x}\1')
+            ys.append(f'\0^{y}\1')
+    return ''.join(xs), ''.join(ys)
 
 
 class Hunk(object):
@@ -406,10 +446,11 @@ class DiffMarker(object):
                         yield self._markup_old(line)
                     else:
                         # DEBUG: yield 'CHG: %s %s\n' % (old, new)
+                        a, b = word_diff(old[1], new[1])
                         yield (self._markup_old('-') +
-                               self._markup_mix(old[1], Color.RED))
+                               self._markup_mix(a, Color.RED))
                         yield (self._markup_new('+') +
-                               self._markup_mix(new[1], Color.GREEN))
+                               self._markup_mix(b, Color.GREEN))
                 else:
                     yield self._markup_common(' ' + old[1])
 
@@ -443,7 +484,7 @@ class DiffMarker(object):
                     out.append(Color.REVERSE + base_color)
                     text = text[2:]
                 elif text.startswith('\0^'):  # change
-                    out.append(Color.UNDERLINE + base_color)
+                    out.append(Color.REVERSE + base_color)
                     text = text[2:]
                 elif text.startswith('\1'):   # reset
                     if len(text) > 1:
@@ -522,6 +563,7 @@ class DiffMarker(object):
                         left = self._markup_old(left)
                         right = ''
                     else:
+                        left, right = word_diff(left, right)
                         left = _fit_with_marker_mix(left, Color.RED)
                         right = _fit_with_marker_mix(right, Color.GREEN)
                 else:
@@ -572,7 +614,7 @@ class DiffMarker(object):
     def _markup_mix(self, line, base_color):
         del_code = Color.REVERSE + base_color
         add_code = Color.REVERSE + base_color
-        chg_code = Color.UNDERLINE + base_color
+        chg_code = Color.REVERSE + base_color
         rst_code = Color.RESET + base_color
         line = line.replace('\0-', del_code)
         line = line.replace('\0+', add_code)

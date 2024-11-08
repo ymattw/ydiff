@@ -5,16 +5,16 @@
 [0m[33m 1[0m [0m# Decorate citc client path.[0m                                           [0m[33m 1[0m [0m# Decorate citc client path.[0m
 [33m 2[0m [0mfunction _source_control_cwd[0m                                           [0m[33m 2[0m [0mfunction _source_control_cwd[0m
 [33m 3[0m [0m{[0m                                                                      [0m[33m 3[0m [0m{[0m
-[33m 4[0m [31m    local head="/[4m[31mdoogle[0m[31m/src/cloud/$USER/"  #[7m[31m NOTE:[0m[31m keep the ending sla[0m [0m[33m 4[0m [32m    local head="/[4m[32mymattw[0m[32m/src/cloud/$USER/"  # keep the ending slash[0m
+[33m 4[0m [31m    local head="/[7m[31mdoogle[0m[31m/src/cloud/$USER/"  # [7m[31mNOTE: [0m[31mkeep the ending sla[0m [0m[33m 4[0m [32m    local head="/[7m[32mymattw[0m[32m/src/cloud/$USER/"  # keep the ending slash[0m
 [33m  [0m [31msh[0m                                                                     [0m[33m  [0m 
 [33m 5[0m [0m[0m                                                                       [0m[33m 5[0m [0m[0m
 [33m 6[0m [0m    if [[ $PWD == ${head}* ]]; then[0m                                    [0m[33m 6[0m [0m    if [[ $PWD == ${head}* ]]; then[0m
-[33m 7[0m [31m      local tail=${PWD#$head}  # strip the [4m[31mh[0m[31mead component[0m              [0m[33m 7[0m [32m      local tail=${PWD#$head}  # strip the [4m[32ml[0m[32mead[7m[32ming[0m[32m component[0m
+[33m 7[0m [31m      local tail=${PWD#$head}  # strip the [7m[31mhead[0m[31m component[0m              [0m[33m 7[0m [32m      local tail=${PWD#$head}  # strip the [7m[32mleading[0m[32m component[0m
 [33m 8[0m [0m      local client=${tail%%/*}[0m                                         [0m[33m 8[0m [0m      local client=${tail%%/*}[0m
 [33m 9[0m [0m      local srcdir=${tail#$client/}[0m                                    [0m[33m 9[0m [0m      local srcdir=${tail#$client/}[0m
 [33m10[0m [0m[0m                                                                       [0m[33m10[0m [0m[0m
-[33m11[0m [31m      if [[ $srcdir == [4m[31mdoogle[0m[31m3/* ]]; then[0m                              [0m[33m11[0m [32m      if [[ $srcdir == [4m[32mymattw[0m[32m3/* ]]; then[0m
-[33m12[0m [31m        echo "//${srcdir#[4m[31mdoogle[0m[31m3/}"[0m                                    [0m[33m12[0m [32m        echo "//${srcdir#[4m[32mymattw[0m[32m3/}"[0m
+[33m11[0m [31m      if [[ $srcdir == [7m[31mdoogle3[0m[31m/* ]]; then[0m                              [0m[33m11[0m [32m      if [[ $srcdir == [7m[32mymattw3[0m[32m/* ]]; then[0m
+[33m12[0m [31m        echo "//${srcdir#[7m[31mdoogle3[0m[31m/}"[0m                                    [0m[33m12[0m [32m        echo "//${srcdir#[7m[32mymattw3[0m[32m/}"[0m
 [33m13[0m [0m      else[0m                                                             [0m[33m13[0m [0m      else[0m
 [33m14[0m [0m        echo "//depot/$srcdir"[0m                                         [0m[33m14[0m [0m        echo "//depot/$srcdir"[0m
 [33m15[0m [0m      fi[0m                                                               [0m[33m15[0m [0m      fi[0m
@@ -22,11 +22,11 @@
 [0m[33m21[0m [0m# Decorate citc client name or git info.[0m                               [0m[33m21[0m [0m# Decorate citc client name or git info.[0m
 [33m22[0m [0mfunction _source_control_info[0m                                          [0m[33m22[0m [0mfunction _source_control_info[0m
 [33m23[0m [0m{[0m                                                                      [0m[33m23[0m [0m{[0m
-[33m24[0m [31m    local head="/[4m[31mdoogle[0m[31m/src/cloud/$USER/"  #[7m[31m NOTE:[0m[31m keep the ending sla[0m [0m[33m24[0m [32m    local head="/[4m[32mymattw[0m[32m/src/cloud/$USER/"  # keep the ending slash[0m
+[33m24[0m [31m    local head="/[7m[31mdoogle[0m[31m/src/cloud/$USER/"  # [7m[31mNOTE: [0m[31mkeep the ending sla[0m [0m[33m24[0m [32m    local head="/[7m[32mymattw[0m[32m/src/cloud/$USER/"  # keep the ending slash[0m
 [33m  [0m [31msh[0m                                                                     [0m[33m  [0m 
 [33m25[0m [0m[0m                                                                       [0m[33m25[0m [0m[0m
 [33m26[0m [0m    if [[ $PWD == ${head}* ]]; then[0m                                    [0m[33m26[0m [0m    if [[ $PWD == ${head}* ]]; then[0m
-[33m27[0m [31m      local tail=${PWD#$head}  # strip the [4m[31mh[0m[31mead component[0m              [0m[33m27[0m [32m      local tail=${PWD#$head}  # strip the [4m[32ml[0m[32mead[7m[32ming[0m[32m component[0m
+[33m27[0m [31m      local tail=${PWD#$head}  # strip the [7m[31mhead[0m[31m component[0m              [0m[33m27[0m [32m      local tail=${PWD#$head}  # strip the [7m[32mleading[0m[32m component[0m
 [33m28[0m [0m      local client=${tail%%/*}[0m                                         [0m[33m28[0m [0m      local client=${tail%%/*}[0m
 [33m29[0m [0m[0m                                                                       [0m[33m29[0m [0m[0m
 [33m30[0m [0m      if [[ $0 == zsh ]]; then[0m                                         [0m[33m30[0m [0m      if [[ $0 == zsh ]]; then[0m

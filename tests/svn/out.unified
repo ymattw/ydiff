@@ -14,8 +14,8 @@
 [0m[0m 
 [0m[0m ## Usage of coderev.sh
 [0m[0m 
-[0m[1;31m-[0m[31mJust type `./coderev.sh -h` to see the usage.
-[0m[32m+[0m[32mJust type `./coderev.sh [7m[32m-[0m[32m-h[7m[32melp[0m[32m` to see the usage.
+[0m[1;31m-[0m[31mJust type `./coderev.sh -[7m[31mh[0m[31m` to see the usage.
+[0m[32m+[0m[32mJust type `./coderev.sh -[7m[32m-help[0m[32m` to see the usage.
 [0m[0m 
 [0m[0m     Usage:
 [0m[32m+

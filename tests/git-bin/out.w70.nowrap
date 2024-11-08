@@ -18,7 +18,7 @@
 [0m[33m--- a/foo.html
 [0m[33m+++ b/foo.html
 [0m[1;34m@@ -1,4 +1,4 @@
-[0m[33m1[0m [31m[7m[31m<!doctype html>[0m                                                        [0m[33m1[0m [32m[7m[32m<!DOCTYPE html>[0m
+[0m[33m1[0m [31m<![7m[31mdoctype[0m[31m html>[0m                                                        [0m[33m1[0m [32m<![7m[32mDOCTYPE[0m[32m html>[0m
 [33m2[0m [0m<html>[0m                                                                 [0m[33m2[0m [0m<html>[0m
 [33m3[0m [0m[0m                                                                       [0m[33m3[0m [0m[0m
 [33m4[0m [0m<head>[0m                                                                 [0m[33m4[0m [0m<head>[0m

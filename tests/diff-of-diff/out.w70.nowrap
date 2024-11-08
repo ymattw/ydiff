@@ -6,7 +6,7 @@
 [0m[33m140[0m [0m        tmp = kLISTOP->op_first;[0m                                       [0m[33m140[0m [0m        tmp = kLISTOP->op_first;[0m
 [33m141[0m [0m        if (inside)[0m                                                    [0m[33m141[0m [0m        if (inside)[0m
 [33m142[0m [0m                op_null(tmp);[0m                                          [0m[33m142[0m [0m                op_null(tmp);[0m
-[33m143[0m [31m@@ -2001,6 +2035,[4m[31m9[0m[31m @@ STATIC OP *da_ck_entersub(pTHX_ OP *o) {[0m         [0m[33m143[0m [32m@@ -2001,6 +2035,[4m[32m13[0m[32m @@ STATIC OP *da_ck_entersub(pTHX_ OP *o) {[0m
+[33m143[0m [31m@@ -2001,6 +2035,[7m[31m9[0m[31m @@ STATIC OP *da_ck_entersub(pTHX_ OP *o) {[0m         [0m[33m143[0m [32m@@ -2001,6 +2035,[7m[32m13[0m[32m @@ STATIC OP *da_ck_entersub(pTHX_ OP *o) {[0m
 [33m144[0m [0m        while (kid->op_sibling != last)[0m                                [0m[33m144[0m [0m        while (kid->op_sibling != last)[0m
 [33m145[0m [0m                kid = kid->op_sibling;[0m                                 [0m[33m145[0m [0m                kid = kid->op_sibling;[0m
 [33m146[0m [0m        kid->op_sibling = Nullop;[0m                                      [0m[33m146[0m [0m        kid->op_sibling = Nullop;[0m
@@ -20,7 +20,7 @@
 [33m150[0m [0m        cLISTOPx(cUNOPo->op_first)->op_last = kid;[0m                     [0m[33m154[0m [0m        cLISTOPx(cUNOPo->op_first)->op_last = kid;[0m
 [33m151[0m [0m        if (kid->op_type == OP_NULL && inside)[0m                         [0m[33m155[0m [0m        if (kid->op_type == OP_NULL && inside)[0m
 [33m152[0m [0m                kid->op_flags &= ~OPf_SPECIAL;[0m                         [0m[33m156[0m [0m                kid->op_flags &= ~OPf_SPECIAL;[0m
-[33m153[0m [31m@@ -2008,6 +204[4m[31m5[0m[31m,14 @@ STATIC OP *da_ck_entersub(pTHX_ OP *o) {[0m        [0m[33m157[0m [32m@@ -2008,6 +204[4m[32m9[0m[32m,14 @@ STATIC OP *da_ck_entersub(pTHX_ OP *o) {[0m
+[33m153[0m [31m@@ -2008,6 +[7m[31m2045[0m[31m,14 @@ STATIC OP *da_ck_entersub(pTHX_ OP *o) {[0m        [0m[33m157[0m [32m@@ -2008,6 +[7m[32m2049[0m[32m,14 @@ STATIC OP *da_ck_entersub(pTHX_ OP *o) {[0m
 [33m154[0m [0m        return o;[0m                                                      [0m[33m158[0m [0m        return o;[0m
 [33m155[0m [0m }[0m                                                                     [0m[33m159[0m [0m }[0m
 [33m156[0m [0m [0m                                                                      [0m[33m160[0m [0m [0m
@@ -28,7 +28,7 @@
 [0m[33m165[0m [0m [0m                                                                      [0m[33m169[0m [0m [0m
 [33m166[0m [0m MODULE = Data::Alias  PACKAGE = Data::Alias[0m                           [0m[33m170[0m [0m MODULE = Data::Alias  PACKAGE = Data::Alias[0m
 [33m167[0m [0m [0m                                                                      [0m[33m171[0m [0m [0m
-[33m168[0m [31m@@ -2025,6 +207[4m[31m0[0m[31m,10 @@ BOOT:[0m                                           [0m[33m172[0m [32m@@ -2025,6 +207[4m[32m4[0m[32m,10 @@ BOOT:[0m
+[33m168[0m [31m@@ -2025,6 +[7m[31m2070[0m[31m,10 @@ BOOT:[0m                                           [0m[33m172[0m [32m@@ -2025,6 +[7m[32m2074[0m[32m,10 @@ BOOT:[0m
 [33m169[0m [0m                PL_check[OP_RV2CV] = da_ck_rv2cv;[0m                      [0m[33m173[0m [0m                PL_check[OP_RV2CV] = da_ck_rv2cv;[0m
 [33m170[0m [0m                da_old_ck_entersub = PL_check[OP_ENTERSUB];[0m            [0m[33m174[0m [0m                da_old_ck_entersub = PL_check[OP_ENTERSUB];[0m
 [33m171[0m [0m                PL_check[OP_ENTERSUB] = da_ck_entersub;[0m                [0m[33m175[0m [0m                PL_check[OP_ENTERSUB] = da_ck_entersub;[0m
