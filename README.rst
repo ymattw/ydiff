@@ -13,11 +13,12 @@ python3 and ``less``.
 .. image:: https://github.com/ymattw/ydiff/blob/master/img/side-by-side.png
    :alt: side by side
    :align: center
-   :width: 900 px
+   :width: 720 px
 
 .. image:: https://github.com/ymattw/ydiff/blob/master/img/unified.png
    :alt: unified
    :align: center
+   :width: 720 px
 
 Ydiff only supports diff in `Unified Format`_. This is default in most version
 control system except Perforce, which needs an environment variable
@@ -138,12 +139,6 @@ Type ``ydiff -h`` to show usage::
       -p M, --pager=M       pager application to feed output to, default is 'less'
       -o M, --pager-options=M
                             options to supply to pager application
-
-      Note:
-        Option parser will stop on first unknown option and pass them down to
-        underneath revision control. Environment variable YDIFF_OPTIONS may be
-        used to specify default options that will be placed at the beginning
-        of the argument list.
 
       Note:
         Option parser will stop on first unknown option and pass them down to
