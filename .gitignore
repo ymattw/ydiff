@@ -1,7 +1,8 @@
-.*.swp
 *.pyc
-*~
 *.tmp
+*~
+.*.swp
+.DS_Store
 /envs/
 /.coverage
 /.travis-solo/
