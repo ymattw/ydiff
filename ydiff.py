@@ -416,6 +416,17 @@ class DiffMarker(object):
         self._markup_old_line = lambda x: colorize(x, Color.LIGHTRED)
         self._markup_new_line = lambda x: colorize(x, Color.GREEN)
 
+    def _markup_mix(self, line, base_color):
+        del_code = Color.REVERSE + base_color
+        add_code = Color.REVERSE + base_color
+        chg_code = Color.REVERSE + base_color
+        rst_code = Color.RESET + base_color
+        line = line.replace('\0-', del_code)
+        line = line.replace('\0+', add_code)
+        line = line.replace('\0^', chg_code)
+        line = line.replace('\1', rst_code)
+        return colorize(line, base_color)
+
     def markup(self, diff):
         """Returns a generator"""
         if self._side_by_side:
@@ -615,17 +626,6 @@ class DiffMarker(object):
                         'right_num': right_num,
                         'right': right
                     }
-
-    def _markup_mix(self, line, base_color):
-        del_code = Color.REVERSE + base_color
-        add_code = Color.REVERSE + base_color
-        chg_code = Color.REVERSE + base_color
-        rst_code = Color.RESET + base_color
-        line = line.replace('\0-', del_code)
-        line = line.replace('\0+', add_code)
-        line = line.replace('\0^', chg_code)
-        line = line.replace('\1', rst_code)
-        return colorize(line, base_color)
 
 
 def markup_to_pager(stream, opts):
