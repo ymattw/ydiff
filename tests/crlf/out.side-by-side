@@ -6,7 +6,7 @@
 [0m[33m  3[0m [0m## About[0m                                                                         [0m[33m  3[0m [0m## About[0m
 [33m  4[0m [0m[0m                                                                                 [0m[33m  4[0m [0m[0m
 [33m  5[0m [0mCoderev is a toolkit generates static side-by-side html pages for code review.[0m   [0m[33m  5[0m [0mCoderev is a toolkit generates static side-by-side html pages for code review.[0m
-[33m  6[0m [1;31mTypical use case is to generate diff pages for local modification in svn/cvs[0m [0m[33m   [0m 
+[33m  6[0m [31mTypical use case is to generate diff pages for local modification in svn/cvs[0m [0m[33m   [0m 
 [33m  7[0m [0mworkspace and send page link to teammates for code review.[0m                       [0m[33m  6[0m [0mworkspace and send page link to teammates for code review.[0m
 [33m  8[0m [0m[0m                                                                                 [0m[33m  7[0m [0m[0m
 [33m  9[0m [0mSee [joyus.org/pub/coderev-demo](http://joyus.org/pub/coderev-demo) for a demo.[0m  [0m[33m  8[0m [0mSee [joyus.org/pub/coderev-demo](http://joyus.org/pub/coderev-demo) for a demo.[0m

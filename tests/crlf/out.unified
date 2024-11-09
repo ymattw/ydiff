@@ -6,7 +6,7 @@
 [0m[0m ## About
 [0m[0m 
 [0m[0m Coderev is a toolkit generates static side-by-side html pages for code review.
-[0m[1;31m-Typical use case is to generate diff pages for local modification in svn/cvs
+[0m[31m-Typical use case is to generate diff pages for local modification in svn/cvs
 [0m[0m workspace and send page link to teammates for code review.
 [0m[0m 
 [0m[0m See [joyus.org/pub/coderev-demo](http://joyus.org/pub/coderev-demo) for a demo.
@@ -14,7 +14,7 @@
 [0m[0m 
 [0m[0m ## Usage of coderev.sh
 [0m[0m 
-[0m[1;31m-[0m[31mJust type `./coderev.sh -[7m[31mh[0m[31m` to see the usage.
+[0m[31m-[0m[31mJust type `./coderev.sh -[7m[31mh[0m[31m` to see the usage.
 [0m[32m+[0m[32mJust type `./coderev.sh -[7m[32m-help[0m[32m` to see the usage.
 [0m[0m 
 [0m[0m     Usage:

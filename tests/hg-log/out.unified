@@ -36,7 +36,7 @@
 [0m[0m             _write_data(writer, attrs[a_name].value)
 [0m[0m             writer.write("\"")
 [0m[0m         if self.childNodes:
-[0m[1;31m-[0m[31m            writer.write(">[7m[31m%s[0m[31m"[7m[31m%(newl)[0m[31m)
+[0m[31m-[0m[31m            writer.write(">[7m[31m%s[0m[31m"[7m[31m%(newl)[0m[31m)
 [0m[32m+[0m[32m            writer.write(">")
 [0m[32m+            if self.childNodes[0].nodeType != Node.TEXT_NODE:
 [0m[32m+                writer.write(newl)
@@ -47,7 +47,7 @@
 [0m[0m         return newText
 [0m[0m 
 [0m[0m     def writexml(self, writer, indent="", addindent="", newl=""):
-[0m[1;31m-[0m[31m        _write_data(writer, [7m[31m"%s%s%s"%(indent, [0m[31mself.data[7m[31m, newl)[0m[31m)
+[0m[31m-[0m[31m        _write_data(writer, [7m[31m"%s%s%s"%(indent, [0m[31mself.data[7m[31m, newl)[0m[31m)
 [0m[32m+[0m[32m        _write_data(writer, self.data)
 [0m[0m 
 [0m[0m     # DOM Level 3 (WD 9 April 2002)

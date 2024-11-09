@@ -5,18 +5,18 @@
 [0m[0m # Decorate citc client path.
 [0m[0m function _source_control_cwd
 [0m[0m {
-[0m[1;31m-[0m[31m    local head="/[7m[31mdoogle[0m[31m/src/cloud/$USER/"  # [7m[31mNOTE: [0m[31mkeep the ending slash
+[0m[31m-[0m[31m    local head="/[7m[31mdoogle[0m[31m/src/cloud/$USER/"  # [7m[31mNOTE: [0m[31mkeep the ending slash
 [0m[32m+[0m[32m    local head="/[7m[32mymattw[0m[32m/src/cloud/$USER/"  # keep the ending slash
 [0m[0m 
 [0m[0m     if [[ $PWD == ${head}* ]]; then
-[0m[1;31m-[0m[31m      local tail=${PWD#$head}  # strip the [7m[31mhead[0m[31m component
+[0m[31m-[0m[31m      local tail=${PWD#$head}  # strip the [7m[31mhead[0m[31m component
 [0m[32m+[0m[32m      local tail=${PWD#$head}  # strip the [7m[32mleading[0m[32m component
 [0m[0m       local client=${tail%%/*}
 [0m[0m       local srcdir=${tail#$client/}
 [0m[0m 
-[0m[1;31m-[0m[31m      if [[ $srcdir == [7m[31mdoogle[0m[31m3/* ]]; then
+[0m[31m-[0m[31m      if [[ $srcdir == [7m[31mdoogle[0m[31m3/* ]]; then
 [0m[32m+[0m[32m      if [[ $srcdir == [7m[32mymattw[0m[32m3/* ]]; then
-[0m[1;31m-[0m[31m        echo "//${srcdir#[7m[31mdoogle[0m[31m3/}"
+[0m[31m-[0m[31m        echo "//${srcdir#[7m[31mdoogle[0m[31m3/}"
 [0m[32m+[0m[32m        echo "//${srcdir#[7m[32mymattw[0m[32m3/}"
 [0m[0m       else
 [0m[0m         echo "//depot/$srcdir"
@@ -25,11 +25,11 @@
 [0m[0m # Decorate citc client name or git info.
 [0m[0m function _source_control_info
 [0m[0m {
-[0m[1;31m-[0m[31m    local head="/[7m[31mdoogle[0m[31m/src/cloud/$USER/"  # [7m[31mNOTE: [0m[31mkeep the ending slash
+[0m[31m-[0m[31m    local head="/[7m[31mdoogle[0m[31m/src/cloud/$USER/"  # [7m[31mNOTE: [0m[31mkeep the ending slash
 [0m[32m+[0m[32m    local head="/[7m[32mymattw[0m[32m/src/cloud/$USER/"  # keep the ending slash
 [0m[0m 
 [0m[0m     if [[ $PWD == ${head}* ]]; then
-[0m[1;31m-[0m[31m      local tail=${PWD#$head}  # strip the [7m[31mhead[0m[31m component
+[0m[31m-[0m[31m      local tail=${PWD#$head}  # strip the [7m[31mhead[0m[31m component
 [0m[32m+[0m[32m      local tail=${PWD#$head}  # strip the [7m[32mleading[0m[32m component
 [0m[0m       local client=${tail%%/*}
 [0m[0m 
@@ -38,7 +38,7 @@
 [0m[0m       else  # assume bash
 [0m[0m         echo -ne $'\e[35m'" ($client)"
 [0m[0m       fi
-[0m[1;31m-[0m[31m    elif [[ $(git rev-parse --is-inside-work-tree[7m[31m 2>/dev/null[0m[31m) == true ]]; then
+[0m[31m-[0m[31m    elif [[ $(git rev-parse --is-inside-work-tree[7m[31m 2>/dev/null[0m[31m) == true ]]; then
 [0m[32m+[0m[32m    elif [[ $(git rev-parse --is-inside-work-tree) == true ]]; then
 [0m[0m       _git_active_branch
 [0m[0m     fi

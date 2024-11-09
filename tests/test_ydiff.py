@@ -124,7 +124,7 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(out[0], '\x1b[33m--- old\n\x1b[0m')
         self.assertEqual(out[1], '\x1b[33m+++ new\n\x1b[0m')
         self.assertEqual(out[2], '\x1b[1;34m@@ -1 +0,0 @@\n\x1b[0m')
-        self.assertEqual(out[3], '\x1b[1;31m-spam\n\x1b[0m')
+        self.assertEqual(out[3], '\x1b[31m-spam\n\x1b[0m')
 
     def test_markup_traditional_new_changed(self):
         hunk = ydiff.Hunk([], '@@ -0,0 +1 @@\n', (0, 0), (1, 0))
@@ -156,7 +156,7 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(out[2], '\x1b[1;34m@@ -1,2 +1,2 @@\n\x1b[0m')
         self.assertEqual(
             out[3],
-            '\x1b[1;31m-\x1b[0m\x1b[31mhell'
+            '\x1b[31m-\x1b[0m\x1b[31mhell'
             '\x1b[7m\x1b[31m-\x1b[0m\x1b[31m\n\x1b[0m')
         self.assertEqual(
             out[4],
@@ -201,7 +201,7 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(
             out[8],
             '\x1b[33m3\x1b[0m '
-            '\x1b[1;31mgarb\x1b[0m '
+            '\x1b[31mgarb\x1b[0m '
             '\x1b[0m\x1b[33m '
             '\x1b[0m \n')
         self.assertEqual(
@@ -251,7 +251,7 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(
             out[8],
             '\x1b[33m3\x1b[0m '
-            '\x1b[1;31mgarb\x1b[0m '
+            '\x1b[31mgarb\x1b[0m '
             '\x1b[0m\x1b[33m '
             '\x1b[0m \n')
         self.assertEqual(
@@ -297,7 +297,7 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(
             out[8],
             '\x1b[33m3\x1b[0m '
-            '\x1b[1;31mgarb\x1b[0m '
+            '\x1b[31mgarb\x1b[0m '
             '\x1b[0m\x1b[33m '
             '\x1b[0m \n')
         self.assertEqual(
@@ -349,7 +349,7 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(
             out[8],
             '\x1b[33m3\x1b[0m '
-            '\x1b[1;31mgarb\x1b[0m '
+            '\x1b[31mgarb\x1b[0m '
             '\x1b[0m\x1b[33m '
             '\x1b[0m \n')
         self.assertEqual(
@@ -401,7 +401,7 @@ class DiffMarkupTest(unittest.TestCase):
         self.assertEqual(
             out[8],
             '\x1b[33m3\x1b[0m '
-            '\x1b[1;31mgarb\x1b[0m '
+            '\x1b[31mgarb\x1b[0m '
             '\x1b[0m\x1b[33m '
             '\x1b[0m \n')
         self.assertEqual(

@@ -13,8 +13,8 @@
 [33m129[0m [0m[0m                                                                                 [0m[33m129[0m [0m[0m
 [33m130[0m [0m    def markup_side_by_side(self, width):[0m                                        [0m[33m130[0m [0m    def markup_side_by_side(self, width):[0m
 [33m131[0m [31m        """[7m[31mwidth of 0 means infinite width, None means auto detect. [0m[31mReturns a[0m    [0m[33m131[0m [32m        """Returns a[7m[32m generator"""[0m[32m[0m
-[33m132[0m [1;31m        generator[0m [0m[33m   [0m 
-[33m133[0m [1;31m        """[0m [0m[33m   [0m 
+[33m132[0m [31m        generator[0m [0m[33m   [0m 
+[33m133[0m [31m        """[0m [0m[33m   [0m 
 [33m134[0m [0m        def _normalize(line):[0m                                                    [0m[33m132[0m [0m        def _normalize(line):[0m
 [33m135[0m [0m            return line.replace('\t', ' ' * 8).replace('\n', '')[0m                 [0m[33m133[0m [0m            return line.replace('\t', ' ' * 8).replace('\n', '')[0m
 [33m136[0m [0m[0m                                                                                 [0m[33m134[0m [0m[0m
@@ -34,9 +34,9 @@
 [33m433[0m [31m    parser.add[7m[31mOption[0m[31m('-w', '--width', type='int', default=[7m[31mNone[0m[31m,[0m                  [0m[33m432[0m [32m    parser.add[7m[32m_option[0m[32m('-w', '--width', type='int', default=[7m[32m80[0m[32m,[0m
 [33m434[0m [31m            help='set line width (side-by-side mode only)')[0m                      [0m[33m433[0m [32m            help='set line width (side-by-side mode only)[7m[32m, default is 80[0m[32m')[0m
 [33m435[0m [0m    opts, args = parser.parse_args()[0m                                             [0m[33m434[0m [0m    opts, args = parser.parse_args()[0m
-[33m436[0m [1;31m[0m [0m[33m   [0m 
-[33m437[0m [1;31m    if opts.width and opts.width < 0:[0m [0m[33m   [0m 
-[33m438[0m [1;31m        opts.width = 0[0m [0m[33m   [0m 
+[33m436[0m [31m[0m [0m[33m   [0m 
+[33m437[0m [31m    if opts.width and opts.width < 0:[0m [0m[33m   [0m 
+[33m438[0m [31m        opts.width = 0[0m [0m[33m   [0m 
 [33m439[0m [0m[0m                                                                                 [0m[33m435[0m [0m[0m
 [33m440[0m [0m    if len(args) >= 1:[0m                                                           [0m[33m436[0m [0m    if len(args) >= 1:[0m
 [33m441[0m [0m        diff_hdl = open(args[0], 'r')[0m                                            [0m[33m437[0m [0m        diff_hdl = open(args[0], 'r')[0m

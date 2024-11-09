@@ -64,7 +64,7 @@ THEMES = {
         'hunk_header': (Color.LIGHTCYAN, ''),
         'hunk_meta': (Color.LIGHTBLUE, ''),
         'common_line': (Color.RESET, ''),
-        'old_line': (Color.LIGHTRED, ''),
+        'old_line': (Color.RED, ''),
         'new_line': (Color.GREEN, ''),
         'deleted_text': (Color.REVERSE + Color.RED, ''),
         'added_text': (Color.REVERSE + Color.GREEN, ''),
@@ -84,7 +84,7 @@ def colorize(text, kind, theme='default'):
 
 
 def colorize_replaced_old_text(text, theme='default'):
-    base_color = Color.RED  # XXX: should use color from 'old_line'
+    base_color = ''.join(THEMES[theme]['old_line'])
     del_code = ''.join(THEMES[theme]['replaced_old_text'])
     chg_code = ''.join(THEMES[theme]['deleted_text'])
     rst_code = Color.RESET + base_color
