@@ -412,9 +412,9 @@ class DiffMarker(object):
         self._markup_new_path = lambda x: colorize(x, Color.YELLOW)
         self._markup_hunk_header = lambda x: colorize(x, Color.LIGHTCYAN)
         self._markup_hunk_meta = lambda x: colorize(x, Color.LIGHTBLUE)
-        self._markup_common = lambda x: colorize(x, Color.RESET)
-        self._markup_old = lambda x: colorize(x, Color.LIGHTRED)
-        self._markup_new = lambda x: colorize(x, Color.GREEN)
+        self._markup_common_line = lambda x: colorize(x, Color.RESET)
+        self._markup_old_line = lambda x: colorize(x, Color.LIGHTRED)
+        self._markup_new_line = lambda x: colorize(x, Color.GREEN)
 
     def markup(self, diff):
         """Returns a generator"""
@@ -443,21 +443,21 @@ class DiffMarker(object):
                         # The '+' char after \0 is kept
                         # DEBUG: yield 'NEW: %s %s\n' % (old, new)
                         line = new[1].strip('\0\1')
-                        yield self._markup_new(line)
+                        yield self._markup_new_line(line)
                     elif not new[0]:
                         # The '-' char after \0 is kept
                         # DEBUG: yield 'OLD: %s %s\n' % (old, new)
                         line = old[1].strip('\0\1')
-                        yield self._markup_old(line)
+                        yield self._markup_old_line(line)
                     else:
                         # DEBUG: yield 'CHG: %s %s\n' % (old, new)
                         a, b = word_diff(old[1], new[1])
-                        yield (self._markup_old('-') +
+                        yield (self._markup_old_line('-') +
                                self._markup_mix(a, Color.RED))
-                        yield (self._markup_new('+') +
+                        yield (self._markup_new_line('+') +
                                self._markup_mix(b, Color.GREEN))
                 else:
-                    yield self._markup_common(' ' + old[1])
+                    yield self._markup_common_line(' ' + old[1])
 
     def _markup_side_by_side(self, diff):
         """Returns a generator"""
@@ -560,20 +560,20 @@ class DiffMarker(object):
                         right = right.rstrip('\1')
                         if right.startswith('\0+'):
                             right = right[2:]
-                        right = self._markup_new(right)
+                        right = self._markup_new_line(right)
                     elif not new[0]:
                         left = left.rstrip('\1')
                         if left.startswith('\0-'):
                             left = left[2:]
-                        left = self._markup_old(left)
+                        left = self._markup_old_line(left)
                         right = ''
                     else:
                         left, right = word_diff(left, right)
                         left = _fit_with_marker_mix(left, Color.RED)
                         right = _fit_with_marker_mix(right, Color.GREEN)
                 else:
-                    left = self._markup_common(left)
-                    right = self._markup_common(right)
+                    left = self._markup_common_line(left)
+                    right = self._markup_common_line(right)
 
                 if self._wrap:
                     # Need to wrap long lines, so here we'll iterate,
