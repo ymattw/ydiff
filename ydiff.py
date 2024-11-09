@@ -79,8 +79,7 @@ THEMES = {
 
 
 def colorize(text, kind, theme='default'):
-    start_color = ''.join(THEMES[theme][kind])
-    return start_color + text + Color.RESET
+    return ''.join(THEMES[theme][kind]) + text + Color.RESET
 
 
 def colorize_replaced_old_text(text, theme='default'):
@@ -216,7 +215,7 @@ def split_to_words(s: str) -> List[str]:
     all uppercased/lowercased, camel and snake cased names at the "word"
     boundary. Note '\s' has to be here to match '\n'.
     """
-    r = re.compile(r'[A-Z]{2,}|[A-Z][a-z]+|[a-z]{2,}|[A-Za-z0-9]+|\s|.')  # nopep8
+    r = re.compile(r'[A-Z]{2,}|[A-Z][a-z]+|[a-z]{2,}|[A-Za-z0-9]+|\s|.')
     return r.findall(s)
 
 
@@ -246,12 +245,12 @@ def word_diff(a: str, b: str) -> Tuple[str, str]:
             xs.append(x)
             ys.append(y)
         elif tag == 'delete':
-            xs.append(f'\0-{x}\1')
+            xs.append('\0-%s\1' % x)
         elif tag == 'insert':
-            ys.append(f'\0+{y}\1')
+            ys.append('\0+%s\1' % y)
         elif tag == 'replace':
-            xs.append(f'\0^{x}\1')
-            ys.append(f'\0^{y}\1')
+            xs.append('\0^%s\1' % x)
+            ys.append('\0^%s\1' % y)
     return ''.join(xs), ''.join(ys)
 
 
@@ -459,10 +458,10 @@ class DiffMarker(object):
             for line in self._markup_side_by_side(diff):
                 yield line
         else:
-            for line in self._markup_traditional(diff):
+            for line in self._markup_unified(diff):
                 yield line
 
-    def _markup_traditional(self, diff):
+    def _markup_unified(self, diff):
         """Returns a generator"""
         for line in diff._headers:
             yield colorize(line, 'header')
@@ -503,7 +502,7 @@ class DiffMarker(object):
             index = 0
             while True:
                 index = line.find('\t', index)
-                if (index == -1):
+                if index == -1:
                     break
                 # ignore special codes
                 offset = (line.count('\0', 0, index) * 2 +
@@ -532,12 +531,10 @@ class DiffMarker(object):
             width = (terminal_width() - num_width * 2 - 3) // 2
 
         # Setup lineno and line format
-        left_num_fmt = colorize('%%(left_num)%ds' % num_width,
-                                'old_line_number')
-        right_num_fmt = colorize('%%(right_num)%ds' % num_width,
-                                 'new_line_number')
-        line_fmt = (left_num_fmt + ' %(left)s ' + Color.RESET +
-                    right_num_fmt + ' %(right)s\n')
+        num_fmt1 = colorize('%%(left_num)%ds' % num_width, 'old_line_number')
+        num_fmt2 = colorize('%%(right_num)%ds' % num_width, 'new_line_number')
+        line_fmt = (num_fmt1 + ' %(left)s ' + Color.RESET +
+                    num_fmt2 + ' %(right)s\n')
 
         # yield header, old path and new path
         for line in diff._headers:
