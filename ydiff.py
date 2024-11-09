@@ -416,7 +416,8 @@ class DiffMarker(object):
         self._markup_old_line = lambda x: colorize(x, Color.LIGHTRED)
         self._markup_new_line = lambda x: colorize(x, Color.GREEN)
 
-    def _markup_mix(self, line, base_color):
+    def _markup_changes(self, line, side):
+        base_color = Color.RED if side == 'old' else Color.GREEN
         del_code = Color.REVERSE + base_color
         add_code = Color.REVERSE + base_color
         chg_code = Color.REVERSE + base_color
@@ -464,9 +465,9 @@ class DiffMarker(object):
                         # DEBUG: yield 'CHG: %s %s\n' % (old, new)
                         a, b = word_diff(old[1], new[1])
                         yield (self._markup_old_line('-') +
-                               self._markup_mix(a, Color.RED))
+                               self._markup_changes(a, 'old'))
                         yield (self._markup_new_line('+') +
-                               self._markup_mix(b, Color.GREEN))
+                               self._markup_changes(b, 'new'))
                 else:
                     yield self._markup_common_line(' ' + old[1])
 
@@ -486,35 +487,6 @@ class DiffMarker(object):
                 width = self._tab_width - (index - offset) % self._tab_width
                 line = line[:index] + ' ' * width + line[(index + 1):]
             return line.replace('\n', '').replace('\r', '')
-
-        def _fit_with_marker_mix(text, base_color):
-            """Wrap input text which contains mdiff tags, markup at the
-            meantime
-            """
-            out = [base_color]
-            while text:
-                if text.startswith('\0-'):    # del
-                    out.append(Color.REVERSE + base_color)
-                    text = text[2:]
-                elif text.startswith('\0+'):  # add
-                    out.append(Color.REVERSE + base_color)
-                    text = text[2:]
-                elif text.startswith('\0^'):  # change
-                    out.append(Color.REVERSE + base_color)
-                    text = text[2:]
-                elif text.startswith('\1'):   # reset
-                    if len(text) > 1:
-                        out.append(Color.RESET + base_color)
-                    text = text[1:]
-                else:
-                    # FIXME: utf-8 wchar might break the rule here, e.g.
-                    # u'\u554a' takes double width of a single letter, also
-                    # this depends on your terminal font.
-                    out.append(text[0])
-                    text = text[1:]
-
-            out.append(Color.RESET)
-            return ''.join(out)
 
         # Set up number width, note last hunk might be empty
         try:
@@ -580,8 +552,8 @@ class DiffMarker(object):
                         right = ''
                     else:
                         left, right = word_diff(left, right)
-                        left = _fit_with_marker_mix(left, Color.RED)
-                        right = _fit_with_marker_mix(right, Color.GREEN)
+                        left = self._markup_changes(left, 'old')
+                        right = self._markup_changes(right, 'new')
                 else:
                     left = self._markup_common_line(left)
                     right = self._markup_common_line(right)

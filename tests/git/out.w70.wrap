@@ -12,7 +12,7 @@
 [0m[33m128[0m [0m                    yield self._markup_common(' ' + old[1])[0m            [0m[33m128[0m [0m                    yield self._markup_common(' ' + old[1])[0m
 [33m129[0m [0m[0m                                                                       [0m[33m129[0m [0m[0m
 [33m130[0m [0m    def markup_side_by_side(self, width):[0m                              [0m[33m130[0m [0m    def markup_side_by_side(self, width):[0m
-[33m131[0m [31m        """[7m[31mwidth of 0 means infinite width, None means auto detect. [0m[31mRe[0m [0m[33m131[0m [32m        """Returns a[7m[32m generator"""[0m
+[33m131[0m [31m        """[7m[31mwidth of 0 means infinite width, None means auto detect. [0m[31mRe[0m [0m[33m131[0m [32m        """Returns a[7m[32m generator"""[0m[32m[0m
 [33m   [0m [31mturns a[0m                                                                [0m[33m   [0m 
 [33m132[0m [1;31m        generator[0m                                                      [0m[33m   [0m 
 [33m133[0m [1;31m        """[0m                                                            [0m[33m   [0m 
@@ -23,7 +23,7 @@
 [0m[33m147[0m [0m                return markup[0m                                          [0m[33m145[0m [0m                return markup[0m
 [33m148[0m [0m[0m                                                                       [0m[33m146[0m [0m[0m
 [33m149[0m [0m        # Setup line width and number width[0m                            [0m[33m147[0m [0m        # Setup line width and number width[0m
-[33m150[0m [31m        if [7m[31mnot width: [0m[31mwidth = [7m[31m80[0m                                       [0m[33m148[0m [32m        if width [7m[32m<[0m[32m= [7m[32m0:[0m
+[33m150[0m [31m        if [7m[31mnot width: [0m[31mwidth = [7m[31m80[0m[31m[0m                                       [0m[33m148[0m [32m        if width [7m[32m<[0m[32m= [7m[32m0:[0m[32m[0m
 [33m   [0m                                                                        [0m[33m149[0m [32m            width = 80[0m
 [33m151[0m [0m        (start, offset) = self._hunks[-1].get_old_addr()[0m               [0m[33m150[0m [0m        (start, offset) = self._hunks[-1].get_old_addr()[0m
 [33m152[0m [0m        max1 = start + offset - 1[0m                                      [0m[33m151[0m [0m        max1 = start + offset - 1[0m
