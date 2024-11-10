@@ -8,7 +8,7 @@ Ydiff
 Term based tool to view *colored*, *incremental* diff in a version controlled
 workspace (supports Git, Mercurial, Perforce and Svn so far) or from stdin,
 with *side by side* (similar to ``diff -y``) and *auto pager* support. Requires
-python >= 3.0 and ``less`` as a pager.
+python >= 3.3 and ``less`` as a pager.
 
 See screenshots below.
 

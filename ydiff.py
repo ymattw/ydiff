@@ -8,14 +8,12 @@ python3 and ``less``.
 """
 
 import difflib
-import fcntl
 import os
 import re
+import shutil
 import signal
-import struct
 import subprocess
 import sys
-import termios
 import unicodedata
 from typing import List, Tuple
 
@@ -29,8 +27,8 @@ PKG_INFO = {
                      'stdin, with side by side and auto pager support')
 }
 
-if sys.hexversion < 0x03000000:
-    raise SystemExit('*** Requires python >= 3.0.0')    # pragma: no cover
+if sys.hexversion < 0x03030000:
+    raise SystemExit('*** Requires python >= 3.3.0')    # pragma: no cover
 
 
 class Color(object):
@@ -710,15 +708,8 @@ def decode(octets):
 
 
 def terminal_width():
-    """Returns terminal width. Taken from https://gist.github.com/marsam/7268750
-    but removed win32 support which depends on 3rd party extension. Will raise
-    IOError or AttributeError when impossible to detect.
-    """
-    s = struct.pack('HHHH', 0, 0, 0, 0)
     try:
-        x = fcntl.ioctl(1, termios.TIOCGWINSZ, s)
-        _, width = struct.unpack('HHHH', x)[0:2]  # height unused
-        return width
+        return shutil.get_terminal_size().columns
     except Exception:
         return 80
 
