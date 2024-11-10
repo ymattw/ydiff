@@ -50,6 +50,12 @@ class Color(object):
     FG_BRIGHT_BLUE = '\x1b[94m'
     FG_BRIGHT_MAGENTA = '\x1b[95m'
     FG_BRIGHT_CYAN = '\x1b[96m'
+    # https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
+    FG8_GRAY = '\x1b[38;5;235m'
+    BG8_DARK_RED = '\x1b[48;5;52m'
+    BG8_RED = '\x1b[48;5;88m'
+    BG8_DARK_GREEN = '\x1b[48;5;22m'
+    BG8_GREEN = '\x1b[48;5;28m'
 
 
 # Build a tuple for easy comparison of ANSI escape sequences
@@ -71,6 +77,25 @@ THEMES = {
         'inserted_text': (Color.REVERSE, Color.FG_GREEN,),
         'replaced_old_text': (Color.REVERSE, Color.FG_RED,),
         'replaced_new_text': (Color.REVERSE, Color.FG_GREEN,),
+        'old_line_number': (Color.FG_YELLOW,),
+        'new_line_number': (Color.FG_YELLOW,),
+        'file_separator': (Color.FG_BRIGHT_CYAN,),
+        'wrap_marker': (Color.FG_BRIGHT_MAGENTA,),
+    },
+    'highlight': {
+        # kind: (effects,)
+        'header': (Color.FG_CYAN,),
+        'old_path': (Color.BG8_DARK_RED,),
+        'new_path': (Color.BG8_DARK_GREEN,),
+        'hunk_header': (Color.FG_CYAN,),
+        'hunk_meta': (Color.FG_BLUE,),
+        'common_line': (Color.RESET,),
+        'old_line': (Color.BG8_DARK_RED,),
+        'new_line': (Color.BG8_DARK_GREEN,),
+        'deleted_text': (Color.BG8_RED,),
+        'inserted_text': (Color.FG8_GRAY, Color.BG8_GREEN,),
+        'replaced_old_text': (Color.BG8_RED,),
+        'replaced_new_text': (Color.FG8_GRAY, Color.BG8_GREEN,),
         'old_line_number': (Color.FG_YELLOW,),
         'new_line_number': (Color.FG_YELLOW,),
         'file_separator': (Color.FG_BRIGHT_CYAN,),
