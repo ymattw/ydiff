@@ -102,7 +102,7 @@ class DiffMarkupTest(unittest.TestCase):
     def test_markup_traditional_hunk_header(self):
         hunk = ydiff.Hunk(['hunk header\n'], '@@ -0 +0 @@\n', (0, 0), (0, 0))
         diff = ydiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
-        marker = ydiff.DiffMarker()
+        marker = ydiff.DiffMarker(theme='legacy')
 
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 4)
@@ -116,7 +116,7 @@ class DiffMarkupTest(unittest.TestCase):
         hunk = ydiff.Hunk([], '@@ -1 +0,0 @@\n', (1, 0), (0, 0))
         hunk.append(('-', 'spam\n'))
         diff = ydiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
-        marker = ydiff.DiffMarker()
+        marker = ydiff.DiffMarker(theme='legacy')
 
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 4)
@@ -130,7 +130,7 @@ class DiffMarkupTest(unittest.TestCase):
         hunk = ydiff.Hunk([], '@@ -0,0 +1 @@\n', (0, 0), (1, 0))
         hunk.append(('+', 'spam\n'))
         diff = ydiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
-        marker = ydiff.DiffMarker()
+        marker = ydiff.DiffMarker(theme='legacy')
 
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 4)
@@ -146,7 +146,7 @@ class DiffMarkupTest(unittest.TestCase):
         hunk.append(('+', 'hell+\n'))
         hunk.append((' ', 'common\n'))
         diff = ydiff.UnifiedDiff([], '--- old\n', '+++ new\n', [hunk])
-        marker = ydiff.DiffMarker()
+        marker = ydiff.DiffMarker(theme='legacy')
 
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 6)
@@ -166,7 +166,7 @@ class DiffMarkupTest(unittest.TestCase):
 
     def test_markup_side_by_side_padded(self):
         diff = self._init_diff()
-        marker = ydiff.DiffMarker(side_by_side=True, width=7)
+        marker = ydiff.DiffMarker(side_by_side=True, width=7, theme='legacy')
 
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
@@ -220,7 +220,7 @@ class DiffMarkupTest(unittest.TestCase):
     # This test is not valid anymore
     def __test_markup_side_by_side_neg_width(self):
         diff = self._init_diff()
-        marker = ydiff.DiffMarker(side_by_side=True, width=-1)
+        marker = ydiff.DiffMarker(side_by_side=True, width=-1, theme='legacy')
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
 
@@ -264,7 +264,7 @@ class DiffMarkupTest(unittest.TestCase):
 
     def test_markup_side_by_side_off_by_one(self):
         diff = self._init_diff()
-        marker = ydiff.DiffMarker(side_by_side=True, width=6)
+        marker = ydiff.DiffMarker(side_by_side=True, width=6, theme='legacy')
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
 
@@ -315,7 +315,7 @@ class DiffMarkupTest(unittest.TestCase):
 
     def test_markup_side_by_side_wrapped(self):
         diff = self._init_diff()
-        marker = ydiff.DiffMarker(side_by_side=True, width=5)
+        marker = ydiff.DiffMarker(side_by_side=True, width=5, theme='legacy')
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
 
@@ -367,7 +367,8 @@ class DiffMarkupTest(unittest.TestCase):
 
     def test_markup_side_by_side_tabbed(self):
         diff = self._init_diff()
-        marker = ydiff.DiffMarker(side_by_side=True, width=8, tab_width=2)
+        marker = ydiff.DiffMarker(side_by_side=True, width=8, tab_width=2,
+                                  theme='legacy')
         out = list(marker.markup(diff))
         self.assertEqual(len(out), 11)
 

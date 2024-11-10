@@ -33,7 +33,7 @@ function cmp_output()
     local ydiff_opt=${3:-""}
     local cmd
 
-    cmd=$(printf "%-7s $YDIFF %-24s < %-30s " $PYTHON "$ydiff_opt" "$input")
+    cmd=$(printf "%-7s $YDIFF %-38s < %-30s " $PYTHON "$ydiff_opt" "$input")
     printf "$cmd"
 
     if [[ $TRAVIS_OS_NAME == windows ]]; then
@@ -60,14 +60,14 @@ function main()
     for d in tests/*/; do
         d=${d%/}
         [[ -f $d/in.diff ]] || continue
-        cmp_output $d/in.diff $d/out.unified "-c always -u" || ((e++))
-        cmp_output $d/in.diff $d/out.side-by-side "-c always -w80 --nowrap" || ((e++))
-        cmp_output $d/in.diff $d/out.w70.nowrap "-c always -w70 --nowrap" || ((e++))
-        cmp_output $d/in.diff $d/out.w70.wrap "-c always -w70" || ((e++))
-        cmp_output $d/in.diff $d/in.diff "-c auto -u" || ((e++))
-        cmp_output $d/in.diff $d/in.diff "-c auto -w80" || ((e++))
-        cmp_output $d/in.diff $d/in.diff "-c auto -w70 --no-wrap" || ((e++))
-        cmp_output $d/in.diff $d/in.diff "-c auto -w70" || ((e++))
+        cmp_output $d/in.diff $d/out.unified "--theme=legacy -c always -u" || ((e++))
+        cmp_output $d/in.diff $d/out.side-by-side "--theme=legacy -c always -w80 --nowrap" || ((e++))
+        cmp_output $d/in.diff $d/out.w70.nowrap "--theme=legacy -c always -w70 --nowrap" || ((e++))
+        cmp_output $d/in.diff $d/out.w70.wrap "--theme=legacy -c always -w70" || ((e++))
+        cmp_output $d/in.diff $d/in.diff "--theme=legacy -c auto -u" || ((e++))
+        cmp_output $d/in.diff $d/in.diff "--theme=legacy -c auto -w80" || ((e++))
+        cmp_output $d/in.diff $d/in.diff "--theme=legacy -c auto -w70 --no-wrap" || ((e++))
+        cmp_output $d/in.diff $d/in.diff "--theme=legacy -c auto -w70" || ((e++))
         (( total += 8 ))
     done
 
