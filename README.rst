@@ -13,12 +13,13 @@ python >= 3.0 and ``less`` as a pager.
 .. image:: https://github.com/ymattw/ydiff/blob/master/img/side-by-side.png
    :alt: side by side
    :align: center
-   :width: 720 px
+   :height: 600 px
 
 .. image:: https://github.com/ymattw/ydiff/blob/master/img/unified.png
    :alt: unified
    :align: center
-   :width: 720 px
+   :height: 600 px
+
 
 Ydiff only supports diff in `Unified Format`_. This is default in most version
 control system except Perforce, which needs an environment variable
