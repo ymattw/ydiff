@@ -8,7 +8,7 @@
 [0m[36mindex 13f725f..bf15ef1 100755
 [0m[33m--- a/src/cdiff.py
 [0m[33m+++ b/src/cdiff.py
-[0m[1;34m@@ -128,9 +128,7 @@ class Diff(object):
+[0m[34m@@ -128,9 +128,7 @@ class Diff(object):
 [0m[0m                     yield self._markup_common(' ' + old[1])
 [0m[0m 
 [0m[0m     def markup_side_by_side(self, width):
@@ -19,7 +19,7 @@
 [0m[0m         def _normalize(line):
 [0m[0m             return line.replace('\t', ' ' * 8).replace('\n', '')
 [0m[0m 
-[0m[1;34m@@ -147,7 +145,8 @@ class Diff(object):
+[0m[34m@@ -147,7 +145,8 @@ class Diff(object):
 [0m[0m                 return markup
 [0m[0m 
 [0m[0m         # Setup line width and number width
@@ -29,7 +29,7 @@
 [0m[0m         (start, offset) = self._hunks[-1].get_old_addr()
 [0m[0m         max1 = start + offset - 1
 [0m[0m         (start, offset) = self._hunks[-1].get_new_addr()
-[0m[1;34m@@ -430,13 +429,10 @@ if __name__ == '__main__':
+[0m[34m@@ -430,13 +429,10 @@ if __name__ == '__main__':
 [0m[0m     parser = optparse.OptionParser(usage)
 [0m[0m     parser.add_option('-s', '--side-by-side', action='store_true',
 [0m[0m             help=('show in side-by-side mode'))

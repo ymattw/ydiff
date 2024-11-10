@@ -2,15 +2,15 @@
 [0m[36m===================================================================
 [0m[33m--- README.md	(revision 41)
 [0m[33m+++ README.md	(working copy)
-[0m[1;34m@@ -3,7 +3,6 @@
+[0m[34m@@ -3,7 +3,6 @@
 [0m[33m  3[0m [0m## About[0m                                                               [0m[33m  3[0m [0m## About[0m
 [33m  4[0m [0m[0m                                                                       [0m[33m  4[0m [0m[0m
-[33m  5[0m [0mCoderev is a toolkit generates static side-by-side html pages for cod[1;35m>[0m [0m[33m  5[0m [0mCoderev is a toolkit generates static side-by-side html pages for cod[1;35m>[0m
-[33m  6[0m [31mTypical use case is to generate diff pages for local modification in [0m[1;35m>[0m [0m[33m   [0m 
+[33m  5[0m [0mCoderev is a toolkit generates static side-by-side html pages for cod[95m>[0m [0m[33m  5[0m [0mCoderev is a toolkit generates static side-by-side html pages for cod[95m>[0m
+[33m  6[0m [31mTypical use case is to generate diff pages for local modification in [0m[95m>[0m [0m[33m   [0m 
 [33m  7[0m [0mworkspace and send page link to teammates for code review.[0m             [0m[33m  6[0m [0mworkspace and send page link to teammates for code review.[0m
 [33m  8[0m [0m[0m                                                                       [0m[33m  7[0m [0m[0m
-[33m  9[0m [0mSee [joyus.org/pub/coderev-demo](http://joyus.org/pub/coderev-demo) f[1;35m>[0m [0m[33m  8[0m [0mSee [joyus.org/pub/coderev-demo](http://joyus.org/pub/coderev-demo) f[1;35m>[0m
-[1;34m@@ -18,9 +17,10 @@
+[33m  9[0m [0mSee [joyus.org/pub/coderev-demo](http://joyus.org/pub/coderev-demo) f[95m>[0m [0m[33m  8[0m [0mSee [joyus.org/pub/coderev-demo](http://joyus.org/pub/coderev-demo) f[95m>[0m
+[34m@@ -18,9 +17,10 @@
 [0m[33m 18[0m [0m[0m                                                                       [0m[33m 17[0m [0m[0m
 [33m 19[0m [0m## Usage of coderev.sh[0m                                                 [0m[33m 18[0m [0m## Usage of coderev.sh[0m
 [33m 20[0m [0m[0m                                                                       [0m[33m 19[0m [0m[0m
@@ -18,12 +18,12 @@
 [33m 22[0m [0m[0m                                                                       [0m[33m 21[0m [0m[0m
 [33m 23[0m [0m    Usage:[0m                                                             [0m[33m 22[0m [0m    Usage:[0m
 [33m   [0m                                                                        [0m[33m 23[0m [32m[0m
-[33m 24[0m [0m        coderev.sh [-r revision] [-w width] [-o outdir] [-y] [-d name[1;35m>[0m [0m[33m 24[0m [0m        coderev.sh [-r revision] [-w width] [-o outdir] [-y] [-d name[1;35m>[0m
+[33m 24[0m [0m        coderev.sh [-r revision] [-w width] [-o outdir] [-y] [-d name[95m>[0m [0m[33m 24[0m [0m        coderev.sh [-r revision] [-w width] [-o outdir] [-y] [-d name[95m>[0m
 [33m 25[0m [0m                [-F comment-file | -m 'comment...'] [file...][0m          [0m[33m 25[0m [0m                [-F comment-file | -m 'comment...'] [file...][0m
 [33m 26[0m [0m[0m                                                                       [0m[33m 26[0m [0m[0m
-[1;34m@@ -145,3 +145,5 @@
-[0m[33m145[0m [0m                            specify column number where lines are bro[1;35m>[0m [0m[33m145[0m [0m                            specify column number where lines are bro[1;35m>[0m
-[33m146[0m [0m                            wrapped for sdiff, default is no line wra[1;35m>[0m [0m[33m146[0m [0m                            wrapped for sdiff, default is no line wra[1;35m>[0m
+[34m@@ -145,3 +145,5 @@
+[0m[33m145[0m [0m                            specify column number where lines are bro[95m>[0m [0m[33m145[0m [0m                            specify column number where lines are bro[95m>[0m
+[33m146[0m [0m                            wrapped for sdiff, default is no line wra[95m>[0m [0m[33m146[0m [0m                            wrapped for sdiff, default is no line wra[95m>[0m
 [33m147[0m [0m    -y, --yes             do not prompt for overwriting[0m                [0m[33m147[0m [0m    -y, --yes             do not prompt for overwriting[0m
 [33m   [0m                                                                        [0m[33m148[0m [32m[0m
 [33m   [0m                                                                        [0m[33m149[0m [32m# EOF[0m

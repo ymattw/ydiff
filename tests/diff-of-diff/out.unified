@@ -2,7 +2,7 @@
 [0m[36m===================================================================
 [0m[33m--- patch-Alias.xs	(revision 384635)
 [0m[33m+++ patch-Alias.xs	(revision 384636)
-[0m[1;34m@@ -140,17 +140,21 @@
+[0m[34m@@ -140,17 +140,21 @@
 [0m[0m  	tmp = kLISTOP->op_first;
 [0m[0m  	if (inside)
 [0m[0m  		op_null(tmp);
@@ -26,7 +26,7 @@
 [0m[0m  	return o;
 [0m[0m  }
 [0m[0m  
-[0m[1;34m@@ -165,7 +169,7 @@
+[0m[34m@@ -165,7 +169,7 @@
 [0m[0m  
 [0m[0m  MODULE = Data::Alias  PACKAGE = Data::Alias
 [0m[0m  

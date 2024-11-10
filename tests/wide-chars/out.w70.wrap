@@ -2,7 +2,7 @@
 [0m[36mindex 9a6d3cf..67b8d67 100644
 [0m[33m--- a/main.go
 [0m[33m+++ b/main.go
-[0m[1;34m@@ -5,5 +5,5 @@ import (
+[0m[34m@@ -5,5 +5,5 @@ import (
 [0m[33m5[0m [0m)[0m                                                                      [0m[33m5[0m [0m)[0m
 [33m6[0m [0m[0m                                                                       [0m[33m6[0m [0m[0m
 [33m7[0m [0mfunc main() {[0m                                                          [0m[33m7[0m [0mfunc main() {[0m

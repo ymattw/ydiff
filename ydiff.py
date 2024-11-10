@@ -37,18 +37,19 @@ class Color(object):
     RESET = '\x1b[0m'
     UNDERLINE = '\x1b[4m'
     REVERSE = '\x1b[7m'
+    # https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
     FG_RED = '\x1b[31m'
     FG_GREEN = '\x1b[32m'
     FG_YELLOW = '\x1b[33m'
     FG_BLUE = '\x1b[34m'
     FG_MAGENTA = '\x1b[35m'
     FG_CYAN = '\x1b[36m'
-    FG_LIGHTRED = '\x1b[1;31m'
-    FG_LIGHTGREEN = '\x1b[1;32m'
-    FG_LIGHTYELLOW = '\x1b[1;33m'
-    FG_LIGHTBLUE = '\x1b[1;34m'
-    FG_LIGHTMAGENTA = '\x1b[1;35m'
-    FG_LIGHTCYAN = '\x1b[1;36m'
+    FG_BRIGHT_RED = '\x1b[91m'
+    FG_BRIGHT_GREEN = '\x1b[92m'
+    FG_BRIGHT_YELLOW = '\x1b[93m'
+    FG_BRIGHT_BLUE = '\x1b[94m'
+    FG_BRIGHT_MAGENTA = '\x1b[95m'
+    FG_BRIGHT_CYAN = '\x1b[96m'
 
 
 # Build a tuple for easy comparing by ANSI color codes
@@ -61,8 +62,8 @@ THEMES = {
         'header': (Color.FG_CYAN,),
         'old_path': (Color.FG_YELLOW,),
         'new_path': (Color.FG_YELLOW,),
-        'hunk_header': (Color.FG_LIGHTCYAN,),
-        'hunk_meta': (Color.FG_LIGHTBLUE,),
+        'hunk_header': (Color.FG_CYAN,),
+        'hunk_meta': (Color.FG_BLUE,),
         'common_line': (Color.RESET,),
         'old_line': (Color.FG_RED,),
         'new_line': (Color.FG_GREEN,),
@@ -72,8 +73,8 @@ THEMES = {
         'replaced_new_text': (Color.REVERSE, Color.FG_GREEN,),
         'old_line_number': (Color.FG_YELLOW,),
         'new_line_number': (Color.FG_YELLOW,),
-        'file_separator': (Color.FG_LIGHTCYAN,),
-        'wrap_marker': (Color.FG_LIGHTMAGENTA,),
+        'file_separator': (Color.FG_BRIGHT_CYAN,),
+        'wrap_marker': (Color.FG_BRIGHT_MAGENTA,),
     },
 }
 
