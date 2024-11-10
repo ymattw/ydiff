@@ -818,6 +818,9 @@ def main():
     # Place possible options defined in YDIFF_OPTIONS at the beginning of argv
     ydiff_opts = [x for x in os.getenv('YDIFF_OPTIONS', '').split(' ') if x]
     opts, args = parser.parse_args(ydiff_opts + sys.argv[1:])
+    if opts.theme not in THEMES:
+        sys.stderr.write('*** Unknown theme, supported are: %s\n' % themes)
+        return 1
 
     stream = None
     if not sys.stdin.isatty():
