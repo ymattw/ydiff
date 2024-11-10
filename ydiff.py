@@ -784,26 +784,27 @@ def main():
         '-l', '--log', action='store_true',
         help='show log with changes from revision control')
     parser.add_option(
-        '-c', '--color', default='auto', metavar='M',
+        '-c', '--color', default='auto', metavar='WHEN',
         help="""colorize mode 'auto' (default), 'always', or 'never'""")
     parser.add_option(
         '-t', '--tab-width', type='int', default=8, metavar='N',
         help="""convert tab chars to this many spaces (default: 8)""")
     parser.add_option(
         '', '--wrap', action='store_true', default=True,
-        help='wrap long lines in side-by-side view (default True; DEPRECATED)')
+        help='wrap long lines in side-by-side mode (default True; DEPRECATED)')
     parser.add_option(
         '--nowrap', '--no-wrap', action='store_false', dest='wrap',
-        help='do not wrap long lines in side-by-side view')
+        help='do not wrap long lines in side-by-side mode')
     parser.add_option(
-        '-p', '--pager', metavar='M',
+        '-p', '--pager', metavar='PAGER',
         help="""pager application to feed output to, default is 'less'""")
     parser.add_option(
-        '-o', '--pager-options', metavar='M',
+        '-o', '--pager-options', metavar='OPT',
         help="""options to supply to pager application""")
+    themes = ', '.join(sorted(THEMES.keys()))
     parser.add_option(
         '', '--theme', metavar='THEME', default='default',
-        help="""options to pick a color theme: ['default'], 'highlight'""")
+        help="""option to pick a color theme (one of %s)""" % themes)
 
     # Hack: use OptionGroup text for extra help message after option list
     option_group = OptionGroup(

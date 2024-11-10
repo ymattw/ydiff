@@ -147,16 +147,18 @@ Type ``ydiff -h`` to show usage::
       -w N, --width=N       set text width for side-by-side mode, 0 (default) for
                             auto detection and fallback to 80 when not possible
       -l, --log             show log with changes from revision control
-      -c M, --color=M       colorize mode 'auto' (default), 'always', or 'never'
+      -c WHEN, --color=WHEN
+                            colorize mode 'auto' (default), 'always', or 'never'
       -t N, --tab-width=N   convert tab chars to this many spaces (default: 8)
-      --wrap                wrap long lines in side-by-side view (default True;
+      --wrap                wrap long lines in side-by-side mode (default True;
                             DEPRECATED)
-      --nowrap, --no-wrap   do not wrap long lines in side-by-side view
-      -p M, --pager=M       pager application to feed output to, default is 'less'
-      -o M, --pager-options=M
+      --nowrap, --no-wrap   do not wrap long lines in side-by-side mode
+      -p PAGER, --pager=PAGER
+                            pager application to feed output to, default is 'less'
+      -o OPT, --pager-options=OPT
                             options to supply to pager application
-      --theme=THEME         options to pick a color theme: ['default'],
-                            'highlight'
+      --theme=THEME         option to pick a color theme (one of default,
+                            highlight)
 
       Note:
         Option parser will stop on first unknown option and pass them down to
