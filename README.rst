@@ -155,6 +155,8 @@ Type ``ydiff -h`` to show usage::
       -p M, --pager=M       pager application to feed output to, default is 'less'
       -o M, --pager-options=M
                             options to supply to pager application
+      --theme=THEME         options to pick a color theme: ['default'],
+                            'highlight'
 
       Note:
         Option parser will stop on first unknown option and pass them down to

@@ -803,7 +803,7 @@ def main():
         help="""options to supply to pager application""")
     parser.add_option(
         '', '--theme', metavar='THEME', default='default',
-        help="""options to pick a color theme  (EXPERIMENTAL)""")
+        help="""options to pick a color theme: ['default'], 'highlight'""")
 
     # Hack: use OptionGroup text for extra help message after option list
     option_group = OptionGroup(
