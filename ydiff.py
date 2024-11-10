@@ -52,10 +52,6 @@ class Color(object):
     BG8_GREEN = '\x1b[48;5;28m'
 
 
-# Build a tuple for easy comparison of ANSI escape sequences
-COLOR_CODES = tuple(v for k, v in vars(Color).items()
-                    if not k.startswith('__') and not callable(v))
-
 THEMES = {
     'default': {
         # kind: (effects,)
@@ -120,8 +116,12 @@ def colorize(text, kind, theme='default'):
     return base_color + text + Color.RESET
 
 
-def strsplit(text, width):
-    r"""Splits a string into two substrings, respecting ANSI escape sequences.
+def theme_color_codes(theme):
+    return set([x for effects in THEMES[theme].values() for x in effects])
+
+
+def strsplit(text, width, color_codes):
+    r"""Splits a string into two substrings, respecting involved color codes.
 
     Returns a 3-tuple: (first substring, second substring, width of visible
     chars in the first substring).
@@ -138,7 +138,7 @@ def strsplit(text, width):
 
     while i < total_chars:
         if text[i] == '\x1b':
-            for c in COLOR_CODES:
+            for c in color_codes:
                 if text.startswith(c, i):
                     first_colors = '' if c == Color.RESET else first_colors + c
                     first += c
@@ -163,17 +163,17 @@ def strsplit(text, width):
     return first, second, first_width
 
 
-def strtrim(text, width, wrap_char, pad):
-    r"""strtrim() trims given string respecting the escape sequences (using
+def strtrim(text, width, wrap_char, pad, color_codes):
+    r"""strtrim() trims given string respecting the involved color codes (using
     strsplit), so that if text is larger than width, it's trimmed to have
     width-1 chars plus wrap_char. Additionally, if pad is True, short strings
     are padded with space to have exactly needed width.
 
     Returns resulting string.
     """
-    text, _, tlen = strsplit(text, width + 1)
+    text, _, tlen = strsplit(text, width + 1, color_codes)
     if tlen > width:
-        text, _, _ = strsplit(text, width - 1)
+        text, _, _ = strsplit(text, width - 1, color_codes)
         text += wrap_char
     elif pad:
         text = '%s%*s' % (text, width - tlen, '')
@@ -423,6 +423,7 @@ class DiffMarker(object):
         self._tab_width = tab_width
         self._wrap = wrap
         self._theme = theme
+        self._codes = theme_color_codes(theme)
 
     def markup(self, diff):
         """Returns a generator"""
@@ -571,8 +572,8 @@ class DiffMarker(object):
                     while left or right:
                         # Split both left and right lines, preserving escaping
                         # sequences correctly.
-                        lcur, left, llen = strsplit(left, width)
-                        rcur, right, rlen = strsplit(right, width)
+                        lcur, left, llen = strsplit(left, width, self._codes)
+                        rcur, right, rlen = strsplit(right, width, self._codes)
 
                         # Pad left line with spaces if needed
                         if llen < width:
@@ -593,8 +594,10 @@ class DiffMarker(object):
                     # char needs to be appended.
                     wrap_marker = colorize('>', 'wrap_marker',
                                            theme=self._theme)
-                    left = strtrim(left, width, wrap_marker, len(right) > 0)
-                    right = strtrim(right, width, wrap_marker, False)
+                    left = strtrim(left, width, wrap_marker, len(right) > 0,
+                                   self._codes)
+                    right = strtrim(right, width, wrap_marker, False,
+                                    self._codes)
 
                     yield line_fmt % {
                         'left_num': left_num,
