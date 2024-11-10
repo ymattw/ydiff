@@ -52,7 +52,7 @@ class Color(object):
     FG_BRIGHT_CYAN = '\x1b[96m'
 
 
-# Build a tuple for easy comparing by ANSI color codes
+# Build a tuple for easy comparison of ANSI escape sequences
 COLOR_CODES = tuple(v for k, v in vars(Color).items()
                     if not k.startswith('__') and not callable(v))
 
@@ -144,10 +144,10 @@ def strsplit(text, width):
     return first, second, first_width
 
 
-def strtrim(text, width, wrap_marker, pad):
+def strtrim(text, width, wrap_char, pad):
     r"""strtrim() trims given string respecting the escape sequences (using
     strsplit), so that if text is larger than width, it's trimmed to have
-    width-1 chars plus wrap_marker. Additionally, if pad is True, short strings
+    width-1 chars plus wrap_char. Additionally, if pad is True, short strings
     are padded with space to have exactly needed width.
 
     Returns resulting string.
@@ -155,9 +155,8 @@ def strtrim(text, width, wrap_marker, pad):
     text, _, tlen = strsplit(text, width + 1)
     if tlen > width:
         text, _, _ = strsplit(text, width - 1)
-        text += wrap_marker
+        text += wrap_char
     elif pad:
-        # The string is short enough, but it might need to be padded.
         text = '%s%*s' % (text, width - tlen, '')
     return text
 
@@ -409,11 +408,11 @@ class DiffMarker(object):
     def markup(self, diff):
         """Returns a generator"""
         if self._side_by_side:
-            for line in self._markup_side_by_side(diff):
-                yield line
+            it = self._markup_side_by_side
         else:
-            for line in self._markup_unified(diff):
-                yield line
+            it = self._markup_unified
+        for line in it(diff):
+            yield line
 
     def _markup_unified(self, diff):
         """Returns a generator"""
