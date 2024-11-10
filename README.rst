@@ -17,24 +17,24 @@ Theme ``default``:
 .. image:: https://github.com/ymattw/ydiff/blob/master/img/side-by-side-default.png
    :alt: side by side, theme 'default'
    :align: center
-   :height: 600 px
+   :height: 300 px
 
 .. image:: https://github.com/ymattw/ydiff/blob/master/img/unified-default.png
    :alt: unified, theme 'default'
    :align: center
-   :height: 600 px
+   :height: 300 px
 
 Theme ``highlight``:
 
 .. image:: https://github.com/ymattw/ydiff/blob/master/img/side-by-side-highlight.png
    :alt: side by side, theme 'highlight'
    :align: center
-   :height: 600 px
+   :height: 300 px
 
 .. image:: https://github.com/ymattw/ydiff/blob/master/img/unified-highlight.png
    :alt: unified, theme 'highlight'
    :align: center
-   :height: 600 px
+   :height: 300 px
 
 Ydiff only supports diff in `Unified Format`_. This is default in most version
 control system except Perforce, which needs an environment variable
