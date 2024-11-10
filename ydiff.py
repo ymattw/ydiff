@@ -100,51 +100,6 @@ def colorize(text, kind, theme='default'):
     return base_color + text + Color.RESET
 
 
-# Keys for revision control probe, diff and log (optional) with diff
-VCS_INFO = {
-    'Git': {
-        'probe': ['git', 'rev-parse'],
-        'diff': ['git', 'diff', '--no-ext-diff'],
-        'log': ['git', 'log', '--patch'],
-    },
-    'Mercurial': {
-        'probe': ['hg', 'summary'],
-        'diff': ['hg', 'diff'],
-        'log': ['hg', 'log', '--patch'],
-    },
-    'Perforce': {
-        'probe': ['p4', 'dirs', '.'],
-        'diff': ['p4', 'diff'],
-        'log': None,
-    },
-    'Svn': {
-        'probe': ['svn', 'info'],
-        'diff': ['svn', 'diff'],
-        'log': ['svn', 'log', '--diff', '--use-merge-history'],
-    },
-}
-
-
-def revision_control_probe():
-    """Returns version control name (key in VCS_INFO) or None."""
-    for vcs_name, ops in VCS_INFO.items():
-        if check_command_status(ops.get('probe')):
-            return vcs_name
-
-
-def revision_control_diff(vcs_name, args):
-    """Return diff from revision control system."""
-    cmd = VCS_INFO[vcs_name]['diff']
-    return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
-
-
-def revision_control_log(vcs_name, args):
-    """Return log from revision control system or None."""
-    cmd = VCS_INFO[vcs_name].get('log')
-    if cmd is not None:
-        return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
-
-
 def strsplit(text, width):
     r"""Splits a string into two substrings, respecting ANSI escape sequences.
 
@@ -668,11 +623,56 @@ def markup_to_pager(stream, opts):
     pager.wait()
 
 
-def check_command_status(arguments):
+# Keys for revision control probe, diff and log (optional) with diff
+VCS_INFO = {
+    'Git': {
+        'probe': ['git', 'rev-parse'],
+        'diff': ['git', 'diff', '--no-ext-diff'],
+        'log': ['git', 'log', '--patch'],
+    },
+    'Mercurial': {
+        'probe': ['hg', 'summary'],
+        'diff': ['hg', 'diff'],
+        'log': ['hg', 'log', '--patch'],
+    },
+    'Perforce': {
+        'probe': ['p4', 'dirs', '.'],
+        'diff': ['p4', 'diff'],
+        'log': None,
+    },
+    'Svn': {
+        'probe': ['svn', 'info'],
+        'diff': ['svn', 'diff'],
+        'log': ['svn', 'log', '--diff', '--use-merge-history'],
+    },
+}
+
+
+def revision_control_probe():
+    """Returns version control name (key in VCS_INFO) or None."""
+    for vcs_name, ops in VCS_INFO.items():
+        if check_command_status(ops.get('probe')):
+            return vcs_name
+
+
+def revision_control_diff(vcs_name, args):
+    """Return diff from revision control system."""
+    cmd = VCS_INFO[vcs_name]['diff']
+    return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
+
+
+def revision_control_log(vcs_name, args):
+    """Return log from revision control system or None."""
+    cmd = VCS_INFO[vcs_name].get('log')
+    if cmd is not None:
+        return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
+
+
+def check_command_status(cmd: List[str]) -> bool:
     """Return True if command returns 0."""
     try:
         return subprocess.call(
-            arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
     except OSError:
         return False
 
@@ -684,7 +684,6 @@ def decode(octets):
             return octets.decode(encoding)
         except UnicodeDecodeError:
             pass
-
     return '*** ydiff: undecodable bytes ***\n'
 
 
