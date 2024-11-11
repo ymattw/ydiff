@@ -115,7 +115,7 @@ def colorize(text, kind, theme='default'):
 
 
 def theme_color_codes(theme):
-    return set([x for effects in THEMES[theme].values() for x in effects])
+    return set(x for x in sum(THEMES[theme].values(), start=()) if x)
 
 
 def strsplit(text, width, color_codes):
