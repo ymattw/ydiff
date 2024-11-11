@@ -70,7 +70,7 @@ THEMES = {
         'file_separator': (Color.FG_BRIGHT_CYAN,),
         'wrap_marker': (Color.FG_BRIGHT_MAGENTA,),
     },
-    'highlight': {
+    'dark': {
         # kind: (effects,)
         'header': (Color.FG_CYAN,),
         'old_path': (Color.BG8_DARK_RED,),
@@ -789,7 +789,7 @@ def main():
     parser.add_option(
         '-o', '--pager-options', metavar='OPT',
         help="""options to supply to pager application""")
-    themes = ', '.join(sorted(THEMES.keys()))
+    themes = ', '.join(['default', *sorted(THEMES.keys() - {'default'})])
     parser.add_option(
         '', '--theme', metavar='THEME', default='default',
         help="""option to pick a color theme (one of %s)""" % themes)

@@ -12,7 +12,7 @@ python >= 3.3 and ``less`` as a pager.
 
 See screenshots below.
 
-Theme ``default``:
+Theme ``default`` (works well for both dark and light terminal background):
 
 .. image:: https://github.com/ymattw/ydiff/blob/master/img/side-by-side-default.png
    :alt: side by side, theme 'default'
@@ -24,15 +24,15 @@ Theme ``default``:
    :align: center
    :height: 300 px
 
-Theme ``highlight``:
+Theme ``dark``: (for dark terminal background):
 
-.. image:: https://github.com/ymattw/ydiff/blob/master/img/side-by-side-highlight.png
-   :alt: side by side, theme 'highlight'
+.. image:: https://github.com/ymattw/ydiff/blob/master/img/side-by-side-dark.png
+   :alt: side by side, theme 'dark'
    :align: center
    :height: 300 px
 
-.. image:: https://github.com/ymattw/ydiff/blob/master/img/unified-highlight.png
-   :alt: unified, theme 'highlight'
+.. image:: https://github.com/ymattw/ydiff/blob/master/img/unified-dark.png
+   :alt: unified, theme 'dark'
    :align: center
    :height: 300 px
 
@@ -157,8 +157,7 @@ Type ``ydiff -h`` to show usage::
                             pager application to feed output to, default is 'less'
       -o OPT, --pager-options=OPT
                             options to supply to pager application
-      --theme=THEME         option to pick a color theme (one of default,
-                            highlight)
+      --theme=THEME         option to pick a color theme (one of default, dark)
 
       Note:
         Option parser will stop on first unknown option and pass them down to
