@@ -52,42 +52,42 @@ class Color(object):
 
 THEMES = {
     'default': {
-        # kind: (effects,)
-        'header': (Color.FG_CYAN,),
-        'old_path': (Color.FG_YELLOW,),
-        'new_path': (Color.FG_YELLOW,),
-        'hunk_header': (Color.FG_CYAN,),
-        'hunk_meta': (Color.FG_BLUE,),
-        'common_line': (Color.RESET,),
-        'old_line': (Color.FG_RED,),
-        'new_line': (Color.FG_GREEN,),
-        'deleted_text': (Color.REVERSE, Color.FG_RED,),
-        'inserted_text': (Color.REVERSE, Color.FG_GREEN,),
-        'replaced_old_text': (Color.REVERSE, Color.FG_RED,),
-        'replaced_new_text': (Color.REVERSE, Color.FG_GREEN,),
-        'old_line_number': (Color.FG_YELLOW,),
-        'new_line_number': (Color.FG_YELLOW,),
-        'file_separator': (Color.FG_BRIGHT_CYAN,),
-        'wrap_marker': (Color.FG_BRIGHT_MAGENTA,),
+        # kind: [effect...]
+        'header': [Color.FG_CYAN],
+        'old_path': [Color.FG_YELLOW],
+        'new_path': [Color.FG_YELLOW],
+        'hunk_header': [Color.FG_CYAN],
+        'hunk_meta': [Color.FG_BLUE],
+        'common_line': [Color.RESET],
+        'old_line': [Color.FG_RED],
+        'new_line': [Color.FG_GREEN],
+        'deleted_text': [Color.REVERSE, Color.FG_RED],
+        'inserted_text': [Color.REVERSE, Color.FG_GREEN],
+        'replaced_old_text': [Color.REVERSE, Color.FG_RED],
+        'replaced_new_text': [Color.REVERSE, Color.FG_GREEN],
+        'old_line_number': [Color.FG_YELLOW],
+        'new_line_number': [Color.FG_YELLOW],
+        'file_separator': [Color.FG_BRIGHT_CYAN],
+        'wrap_marker': [Color.FG_BRIGHT_MAGENTA],
     },
     'dark': {
-        # kind: (effects,)
-        'header': (Color.FG_CYAN,),
-        'old_path': (Color.BG8_DARK_RED,),
-        'new_path': (Color.BG8_DARK_GREEN,),
-        'hunk_header': (Color.FG_CYAN,),
-        'hunk_meta': (Color.FG_BLUE,),
-        'common_line': (Color.RESET,),
-        'old_line': (Color.BG8_DARK_RED,),
-        'new_line': (Color.BG8_DARK_GREEN,),
-        'deleted_text': (Color.BG8_RED,),
-        'inserted_text': (Color.FG8_GRAY, Color.BG8_GREEN,),
-        'replaced_old_text': (Color.BG8_RED,),
-        'replaced_new_text': (Color.FG8_GRAY, Color.BG8_GREEN,),
-        'old_line_number': (Color.FG_YELLOW,),
-        'new_line_number': (Color.FG_YELLOW,),
-        'file_separator': (Color.FG_BRIGHT_CYAN,),
-        'wrap_marker': (Color.FG_BRIGHT_MAGENTA,),
+        # kind: [effect...]
+        'header': [Color.FG_CYAN],
+        'old_path': [Color.BG8_DARK_RED],
+        'new_path': [Color.BG8_DARK_GREEN],
+        'hunk_header': [Color.FG_CYAN],
+        'hunk_meta': [Color.FG_BLUE],
+        'common_line': [Color.RESET],
+        'old_line': [Color.BG8_DARK_RED],
+        'new_line': [Color.BG8_DARK_GREEN],
+        'deleted_text': [Color.BG8_RED],
+        'inserted_text': [Color.FG8_GRAY, Color.BG8_GREEN],
+        'replaced_old_text': [Color.BG8_RED],
+        'replaced_new_text': [Color.FG8_GRAY, Color.BG8_GREEN],
+        'old_line_number': [Color.FG_YELLOW],
+        'new_line_number': [Color.FG_YELLOW],
+        'file_separator': [Color.FG_BRIGHT_CYAN],
+        'wrap_marker': [Color.FG_BRIGHT_MAGENTA],
     },
 }
 
@@ -112,10 +112,6 @@ def colorize(text, kind, theme='default'):
     else:
         base_color = ''.join(THEMES[theme][kind])
     return base_color + text + Color.RESET
-
-
-def theme_color_codes(theme):
-    return set(x for x in sum(THEMES[theme].values(), start=()) if x)
 
 
 def strsplit(text, width, color_codes):
@@ -421,7 +417,7 @@ class DiffMarker(object):
         self._tab_width = tab_width
         self._wrap = wrap
         self._theme = theme
-        self._codes = theme_color_codes(theme)
+        self._codes = set(sum(THEMES[theme].values(), start=[]))
 
     def markup(self, diff):
         """Returns a generator"""
