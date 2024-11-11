@@ -64,6 +64,7 @@ docker-test:
 
 docker-shell:
 	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) -it --rm -P \
-		python:3-alpine /bin/sh
+		python:3-alpine /bin/sh -xc \
+		'apk add bash git less make; pip install -r requirements-dev.txt; exec /bin/sh'
 
 # vim:set noet ts=8 sw=8:
