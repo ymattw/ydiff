@@ -3,7 +3,7 @@
 
 unset YDIFF_OPTIONS
 
-../../ydiff.py -c always --theme legacy -u            < in.diff > out.unified
-../../ydiff.py -c always --theme legacy -w80 --nowrap < in.diff > out.side-by-side
-../../ydiff.py -c always --theme legacy -w70 --nowrap < in.diff > out.w70.nowrap
-../../ydiff.py -c always --theme legacy -w70 --wrap   < in.diff > out.w70.wrap
+../../ydiff.py -c always -u            < in.diff > out.unified
+../../ydiff.py -c always -w80 --nowrap < in.diff > out.side-by-side
+../../ydiff.py -c always -w70 --nowrap < in.diff > out.w70.nowrap
+../../ydiff.py -c always -w70 --wrap   < in.diff > out.w70.wrap

@@ -24,15 +24,15 @@ Theme ``default``:
    :align: center
    :height: 300 px
 
-Theme ``legacy``:
+Theme ``highlight``:
 
-.. image:: https://github.com/ymattw/ydiff/blob/master/img/side-by-side-legacy.png
-   :alt: side by side, theme 'legacy'
+.. image:: https://github.com/ymattw/ydiff/blob/master/img/side-by-side-highlight.png
+   :alt: side by side, theme 'highlight'
    :align: center
    :height: 300 px
 
-.. image:: https://github.com/ymattw/ydiff/blob/master/img/unified-legacy.png
-   :alt: unified, theme 'legacy'
+.. image:: https://github.com/ymattw/ydiff/blob/master/img/unified-highlight.png
+   :alt: unified, theme 'highlight'
    :align: center
    :height: 300 px
 
@@ -157,7 +157,8 @@ Type ``ydiff -h`` to show usage::
                             pager application to feed output to, default is 'less'
       -o OPT, --pager-options=OPT
                             options to supply to pager application
-      --theme=THEME         option to pick a color theme (one of default, legacy)
+      --theme=THEME         option to pick a color theme (one of default,
+                            highlight)
 
       Note:
         Option parser will stop on first unknown option and pass them down to
