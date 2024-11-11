@@ -48,6 +48,10 @@ class Color(object):
     BG8_RED = '\x1b[48;5;88m'
     BG8_DARK_GREEN = '\x1b[48;5;22m'
     BG8_GREEN = '\x1b[48;5;28m'
+    BG8_LIGHT_RED = '\x1b[48;5;217m'
+    BG8_DIMMED_RED = '\x1b[48;5;210m'
+    BG8_LIGHT_GREEN = '\x1b[48;5;194m'
+    BG8_DIMMED_GREEN = '\x1b[48;5;157m'
 
 
 THEMES = {
@@ -84,6 +88,25 @@ THEMES = {
         'inserted_text': [Color.FG8_GRAY, Color.BG8_GREEN],
         'replaced_old_text': [Color.BG8_RED],
         'replaced_new_text': [Color.FG8_GRAY, Color.BG8_GREEN],
+        'old_line_number': [Color.FG_YELLOW],
+        'new_line_number': [Color.FG_YELLOW],
+        'file_separator': [Color.FG_BRIGHT_CYAN],
+        'wrap_marker': [Color.FG_BRIGHT_MAGENTA],
+    },
+    'light': {
+        # kind: [effect...]
+        'header': [Color.FG_CYAN],
+        'old_path': [Color.BG8_LIGHT_RED],
+        'new_path': [Color.BG8_LIGHT_GREEN],
+        'hunk_header': [Color.FG_CYAN],
+        'hunk_meta': [Color.FG_BLUE],
+        'common_line': [Color.RESET],
+        'old_line': [Color.BG8_LIGHT_RED],
+        'new_line': [Color.BG8_LIGHT_GREEN],
+        'deleted_text': [Color.BG8_DIMMED_RED],
+        'inserted_text': [Color.FG8_GRAY, Color.BG8_DIMMED_GREEN],
+        'replaced_old_text': [Color.BG8_DIMMED_RED],
+        'replaced_new_text': [Color.FG8_GRAY, Color.BG8_DIMMED_GREEN],
         'old_line_number': [Color.FG_YELLOW],
         'new_line_number': [Color.FG_YELLOW],
         'file_separator': [Color.FG_BRIGHT_CYAN],
