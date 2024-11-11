@@ -34,6 +34,47 @@ class SplitToWordsTest(unittest.TestCase):
             self.assertEqual(want, got)
 
 
+class StrSplitTest(unittest.TestCase):
+
+    def test_not_colorized(self):
+        text = 'Hi, 你好\n'
+        tests = [
+            # (width, want)
+            (4, ('Hi, ', '你好\n', 4)),
+            (5, ('Hi, 你', '好\n', 6)),
+            (8, ('Hi, 你好', '\n', 8)),
+            (9, ('Hi, 你好\n', '', 9)),
+            (10, ('Hi, 你好\n', '', 9)),
+        ]
+        for width, want in tests:
+            got = ydiff.strsplit(text, width, {})
+            self.assertEqual(want, got)
+
+    def test_colorized(self):
+        g = '\x1b[32m'  # green
+        b = '\x1b[34m'  # blue
+        r = '\x1b[0m'   # reset
+        # Width:     1----2----------3-----[4]5--[6]7
+        parts = [g, 'H', 'i', r, b, '!', r, '你', '好']
+        codes = {g, b, r}
+        tests = [
+            # (width, want_left, want_right, want_width)
+            (1, (g, 'H', r), (g, 'i', r, b, '!', r, '你好'), 1),
+            (2, (g, 'Hi', r, b, r), (b, '!', r, '你好'), 2),
+            (3, (g, 'Hi', r, b, '!', r), ('你好'), 3),
+            (4, (g, 'Hi', r, b, '!', r, '你'), ('好',), 5),
+            (5, (g, 'Hi', r, b, '!', r, '你'), ('好',), 5),
+            (6, (g, 'Hi', r, b, '!', r, '你好'), (), 7),
+            (7, (g, 'Hi', r, b, '!', r, '你好'), (), 7),
+            (8, (g, 'Hi', r, b, '!', r, '你好'), (), 7),
+        ]
+        for width, want_left, want_right, want_width in tests:
+            got = ydiff.strsplit(''.join(parts), width, codes)
+            self.assertEqual(''.join(want_left), got[0])
+            self.assertEqual(''.join(want_right), got[1])
+            self.assertEqual(want_width, got[2])
+
+
 class DecodeTest(unittest.TestCase):
 
     def test_normal(self):
