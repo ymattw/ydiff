@@ -12,29 +12,37 @@ python >= 3.3 and ``less`` as a pager.
 
 See screenshots below.
 
-Theme ``default`` (works well for both dark and light terminal background):
+Theme ``default`` on a dark terminal background:
 
-.. image:: https://github.com/ymattw/ydiff/blob/master/img/side-by-side-default.png
-   :alt: side by side, theme 'default'
+.. image:: https://github.com/ymattw/ydiff/blob/master/img/darkbg-side-by-side-default.png
+   :alt: side by side, theme 'default' on a dark background
    :align: center
    :height: 300 px
 
-.. image:: https://github.com/ymattw/ydiff/blob/master/img/unified-default.png
-   :alt: unified, theme 'default'
+Theme ``default`` on a light terminal background:
+
+.. image:: https://github.com/ymattw/ydiff/blob/master/img/lightbg-side-by-side-default.png
+   :alt: side by side, theme 'default' on a light background
    :align: center
    :height: 300 px
 
-Theme ``dark``: (for dark terminal background):
+Theme ``dark`` on a dark terminal background:
 
-.. image:: https://github.com/ymattw/ydiff/blob/master/img/side-by-side-dark.png
-   :alt: side by side, theme 'dark'
+.. image:: https://github.com/ymattw/ydiff/blob/master/img/darkbg-side-by-side-dark.png
+   :alt: side by side, theme 'dark' on a dark background
    :align: center
    :height: 300 px
 
-.. image:: https://github.com/ymattw/ydiff/blob/master/img/unified-dark.png
-   :alt: unified, theme 'dark'
+Theme ``light`` on a light terminal background:
+
+.. image:: https://github.com/ymattw/ydiff/blob/master/img/lightbg-side-by-side-light.png
+   :alt: side by side, theme 'light' on a light background
    :align: center
    :height: 300 px
+
+See also `screenshots`_ of unified mode.
+
+.. _`screenshots`: https://github.com/ymattw/ydiff/tree/master/img
 
 Ydiff only supports diff in `Unified Format`_. This is default in most version
 control system except Perforce, which needs an environment variable
