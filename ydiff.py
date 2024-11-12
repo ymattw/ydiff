@@ -140,16 +140,16 @@ def colorize(text, kind, theme='default'):
 def strsplit(text, width, color_codes):
     r"""Splits a string into two substrings, respecting involved color codes.
 
-    Returns a 3-tuple: (first substring, second substring, width of visible
-    chars in the first substring).
+    Returns a 3-tuple: (left substring, right substring, width of visible
+    chars in the left substring).
 
-    If some color was active at the splitting point, then the first string is
+    If some color was active at the splitting point, then the left string is
     appended with the resetting sequence, and the second string is prefixed
     with all active colors.
     """
-    first = ''
-    first_colors = ''
-    first_width = 0
+    left = ''
+    seen_colors = ''
+    left_width = 0
     total_chars = len(text)
     i = 0
 
@@ -157,27 +157,24 @@ def strsplit(text, width, color_codes):
         if text[i] == '\x1b':
             for c in color_codes:
                 if text.startswith(c, i):
-                    first_colors = '' if c == Color.RESET else first_colors + c
-                    first += c
+                    seen_colors = '' if c == Color.RESET else seen_colors + c
+                    left += c
                     i += len(c)
                     break
             else:  # not found
-                first += text[i]
+                left += text[i]
                 i += 1
             continue
 
-        if first_width >= width:
+        if left_width >= width:
             break
-
-        char = text[i]
-        char_width = 2 if unicodedata.east_asian_width(char) in 'WF' else 1
-        first_width += char_width
-        first += char
+        left += text[i]
+        left_width += 1 + int(unicodedata.east_asian_width(text[i]) in 'WF')
         i += 1
 
-    first += Color.RESET if first_colors else ''
-    second = first_colors + text[i:]
-    return first, second, first_width
+    left += Color.RESET if seen_colors else ''
+    right = seen_colors + text[i:]
+    return left, right, left_width
 
 
 def strtrim(text, width, wrap_char, pad, color_codes):
@@ -188,13 +185,13 @@ def strtrim(text, width, wrap_char, pad, color_codes):
 
     Returns resulting string.
     """
-    text, _, tlen = strsplit(text, width + 1, color_codes)
-    if tlen > width:
-        text, _, _ = strsplit(text, width - 1, color_codes)
-        text += wrap_char
+    left, _, left_width = strsplit(text, width + 1, color_codes)
+    if left_width > width:
+        left, _, _ = strsplit(left, width - 1, color_codes)
+        left += wrap_char
     elif pad:
-        text = '%s%*s' % (text, width - tlen, '')
-    return text
+        left = '%s%*s' % (left, width - left_width, '')
+    return left
 
 
 def split_to_words(s: str) -> List[str]:
