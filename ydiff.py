@@ -185,8 +185,8 @@ def strtrim(text, width, wrap_char, pad, color_codes):
 
     Returns resulting string.
     """
-    left, _, left_width = strsplit(text, width + 1, color_codes)
-    if left_width > width:
+    left, right, left_width = strsplit(text, width, color_codes)
+    if right or left_width > width:  # asian chars can cause exceeds
         left, _, _ = strsplit(left, width - 1, color_codes)
         left += wrap_char
     elif pad:
