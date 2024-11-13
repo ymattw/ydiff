@@ -192,9 +192,7 @@ Redirect output to another patch file is safe even without ``-u``:
 Notes
 -----
 
-1. Ydiff only supports diffs in `Unified Format`_. This is default in most
-   version control system except Perforce, which needs an environment variable
-   ``P4DIFF="diff -u"`` to output unified diff.
+1. Ydiff only supports diffs in `Unified Format`_.
 
    .. _`Unified Format`: https://en.wikipedia.org/wiki/Diff#Unified_format
 

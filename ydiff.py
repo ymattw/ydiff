@@ -671,8 +671,8 @@ VCS_INFO = {
         'log': ['hg', 'log', '--patch'],
     },
     'Perforce': {
-        'probe': ['p4', 'dirs', '.'],
-        'diff': ['p4', 'diff'],
+        'probe': ['p4', 'info'],
+        'diff': ['p4', 'diff', '-du'],
         'log': None,
     },
     'Svn': {
