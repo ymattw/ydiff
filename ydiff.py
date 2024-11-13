@@ -17,7 +17,7 @@ import unicodedata
 from typing import List, Tuple
 
 PKG_INFO = {
-    'version'     : '2.0',
+    'version'     : '1.4',
     'license'     : 'BSD-3',
     'author'      : 'Matt Wang',
     'url'         : 'https://github.com/ymattw/ydiff',

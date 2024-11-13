@@ -2,6 +2,14 @@
 Change log
 ==========
 
+Version 1.4 (2024-11-13)
+
+  - Fine-grained, word-level diff for change blocks
+  - New ``--theme`` option for selecting different themes
+  - Options ``-side-by-side``, ``--width 0``, and ``--wrap`` become default
+    (use ``--unified``/``--nowrap`` for legacy behavior)
+  - Python 2 support is officially dropped
+
 Version 1.3 (2024-04-02)
 
   - Dropped context diff support
