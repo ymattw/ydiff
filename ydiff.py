@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-Term based tool to view *colored*, *incremental* diff in a *Git/Mercurial/Svn*
-workspace or from stdin, with *side by side* and *auto pager* support. Requires
-python3 and ``less``.
+Terminmal based tool to view colored, incremental diffs in a version-controlled
+workspace or from stdin, in side-by-side or unified mode, and auto paged.
 """
 
 import difflib
@@ -18,13 +17,13 @@ import unicodedata
 from typing import List, Tuple
 
 PKG_INFO = {
-    'version'     : '1.3',
+    'version'     : '2.0',
     'license'     : 'BSD-3',
     'author'      : 'Matt Wang',
     'url'         : 'https://github.com/ymattw/ydiff',
     'keywords'    : 'colored incremental side-by-side diff',
     'description' : ('View colored, incremental diff in a workspace or from '
-                     'stdin, with side by side and auto pager support')
+                     'stdin, in side-by-side or unified moded, and auto paged')
 }
 
 if sys.hexversion < 0x03030000:

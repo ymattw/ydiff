@@ -5,12 +5,10 @@ Ydiff
    :alt: Tests status
    :target: https://github.com/ymattw/ydiff/actions
 
-Term based tool to view *colored*, *incremental* diff in a version controlled
-workspace (supports Git, Mercurial, Perforce and Svn so far) or from stdin,
-with *side by side* (similar to ``diff -y``) and *auto pager* support. Requires
-python >= 3.3 and ``less`` as a pager.
-
-See screenshots below.
+Ydiff is a terminal-based tool to view *colored*, *incremental* diffs in
+a version-controlled workspace or from stdin, in *side-by-side* (similar to
+``diff -y``) or unified mode, and *auto-paged*. It only requires Python >= 3.3
+*without external dependencies* and ``less`` as a pager.
 
 Theme ``default`` on a dark terminal background:
 
@@ -44,31 +42,20 @@ See also `screenshots`_ of unified mode.
 
 .. _`screenshots`: https://github.com/ymattw/ydiff/tree/master/img
 
-Ydiff only supports diff in `Unified Format`_. This is default in most version
-control system except Perforce, which needs an environment variable
-``P4DIFF="diff -u"`` to output unified diff.
-
-.. _`Unified Format`: https://en.wikipedia.org/wiki/Diff#Unified_format
-
 Installation
 ------------
 
 Ydiff only depends on Python built-in libraries, so you can just download the
-source and run without worrying about any installation.
+source and run without worrying about any installation. Git `tagged`_ revisions
+will be packaged and uploaded to `PyPI`_ timely, however, packages hosted
+elsewhere are not (please note they are not managed by the author `@ymattw`_).
 
-Git tagged `releases`_ will be packaged and uploaded to PyPI timely, however,
-packages hosted elsewhere are not (please note they are not managed by the
-author `@ymattw`_).
-
+.. _`tagged`: https://github.com/ymattw/ydiff/tags
+.. _`PyPI`: http://pypi.python.org/pypi/ydiff
 .. _`@ymattw`: https://github.com/ymattw
-.. _`releases`: https://github.com/ymattw/ydiff/releases
 
-Download directly
-~~~~~~~~~~~~~~~~~
-
-Just save `ydiff.py`_ to whatever directory which is in your ``$PATH``, for
-example, ``$HOME/bin`` is in my ``$PATH``, so I save the script there and name
-as ``ydiff``.
+To use the source directly, just save `ydiff.py`_ as ``ydiff`` to whatever
+directory which is in your ``$PATH``, for example, ``$HOME/bin``:
 
 .. _`ydiff.py`: https://raw.github.com/ymattw/ydiff/master/ydiff.py
 
@@ -77,60 +64,27 @@ as ``ydiff``.
     curl -L https://raw.github.com/ymattw/ydiff/master/ydiff.py > ~/bin/ydiff
     chmod +x ~/bin/ydiff
 
-Install with pip
-~~~~~~~~~~~~~~~~
-
-Ydiff is already listed on `PyPI`_, you can install with ``pip`` if you have
-the tool.
-
-.. _PyPI: http://pypi.python.org/pypi/ydiff
+To install from `PyPI`_:
 
 .. code-block:: bash
 
     pip install --upgrade ydiff
 
-Install with setup.py
-~~~~~~~~~~~~~~~~~~~~~
+To install with Homebrew (`Formula`_) on macOS:
 
-You can also run the setup.py from the source if you don't have ``pip``.
-
-.. code-block:: bash
-
-    git clone https://github.com/ymattw/ydiff.git
-    cd ydiff
-    ./setup.py install
-
-Install with Homebrew
-~~~~~~~~~~~~~~~~~~~~~
-
-You can also install with Homebrew on Mac. (Thanks to `@josa42`_,
-`@bfontaine`_, `@hivehand`_ and `@nijikon`_ for contributing to the Homebrew
-`Formula`_).
-
-.. _`@josa42`: https://github.com/josa42
-.. _`@bfontaine`: https://github.com/bfontaine
-.. _`@hivehand`: https://github.com/hivehand
-.. _`@nijikon`: https://github.com/nijikon
 .. _`Formula`: https://github.com/Homebrew/homebrew-core/blob/master/Formula/y/ydiff.rb
 
 .. code-block:: bash
 
     brew install ydiff
 
-
-Install on Fedora
-~~~~~~~~~~~~~~~~~
-
-On Fedora, you can install ydiff with dnf.
+To install on Fedora:
 
 .. code-block:: bash
 
     dnf install ydiff
 
-Install on FreeBSD
-~~~~~~~~~~~~~~~~~~
-
-On FreeBSD, you can install ydiff with pkg.
+To install on FreeBSD:
 
 .. code-block:: bash
 
@@ -234,41 +188,37 @@ Redirect output to another patch file is safe even without ``-u``:
 
     svn diff -r PREV | ydiff > my.patch
 
-Environment variable
---------------------
-
-Environment variable ``YDIFF_OPTIONS`` may be used to specify default options
-that will be placed at the beginning of the argument list, for example:
-
-.. code-block:: bash
-
-    export YDIFF_OPTIONS='-w100'
-    ydiff foo                   # equivalent to "ydiff -w100 foo"
-
-Note the default pager ``less`` takes options from the environment variable
-``LESS``.
-
 Notes
 -----
 
-If you feel more comfortable with a command such as ``git ydiff`` to trigger
-the ydiff command, you may symlink the executable to one named ``git-ydiff``
-as follows:
+1. Ydiff only supports diffs in `Unified Format`_. This is default in most
+   version control system except Perforce, which needs an environment variable
+   ``P4DIFF="diff -u"`` to output unified diff.
 
-.. code-block:: bash
+   .. _`Unified Format`: https://en.wikipedia.org/wiki/Diff#Unified_format
 
-    ydiff_dir=$(dirname $(which ydiff))
-    ln -s "${ydiff_dir}/ydiff" "${ydiff_dir}/git-ydiff"
+2. Environment variable ``YDIFF_OPTIONS`` may be used to specify default
+   options that will be placed at the beginning of the argument list, for
+   example:
+
+   .. code-block:: bash
+
+    export YDIFF_OPTIONS='-w100'
+    ydiff foo  # equivalent to "ydiff -w100 foo"
+
+3. If you feel more comfortable with a command such as ``git ydiff`` to trigger
+   the ydiff command, you may symlink the executable to one named ``git-ydiff``
+   as follows:
+
+   .. code-block:: bash
+
+    installed_dir=$(dirname $(which ydiff))
+    ln -s "${installed_dir}/ydiff" "${installed_dir}/git-ydiff"
 
 Known issues
 ------------
 
-Ydiff has following known issues:
-
-- Side by side mode has alignment problem for wide chars
-- Terminal might be in a mess on exception (type ``reset`` can fix it)
-
-Pull requests are very welcome, please make sure your changes can pass unit
-tests and regression tests by run ``make docker-test``.
+- Wide characters may cause alignment problem in side-by-side mode.
+- Terminal might be in a mess on exception (type ``reset`` can fix it).
 
 .. vim:set ft=rst et sw=4 sts=4 tw=79:
