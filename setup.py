@@ -36,8 +36,14 @@ setup(
     entry_points={
         'console_scripts': [
             'ydiff = ydiff:main',
-        ]
-    }
+        ],
+    },
+    include_package_data=True,
+    package_data={
+        'ydiff': [
+            'CHANGES.rst',
+        ],
+    },
 )
 
 # vim:set et sts=4 sw=4 tw=79:

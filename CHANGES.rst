@@ -2,7 +2,12 @@
 Change log
 ==========
 
-Version 1.4 (2024-11-13)
+Version 1.4.1 (2024-11-13)
+
+  - Fix setup() dependency: MANIFEST.in is still required for Python < 3.8 to
+    pack data files
+
+Version 1.4 (2024-11-13) *Revoked due to #123*
 
   - Fine-grained, word-level diff for change blocks
   - New ``--theme`` option for selecting different themes
