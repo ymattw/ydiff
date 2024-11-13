@@ -47,12 +47,14 @@ clean:
 build:
 	./setup.py build sdist
 
-dist-test: clean build
-	twine upload --repository=testpypi dist/*
+# Expected to run outside docker with twine installed via pip
+dist-test: docker-test clean build
+	~/.local/bin/twine upload --repository=testpypi dist/ydiff-*.tar.gz
 	rm -f ~/.pypirc
 
-dist: clean build
-	twine upload dist/*
+# Expected to run outside docker with twine installed via pip
+dist: docker-test clean build
+	~/.local/bin/twine upload dist/ydiff-*.tar.gz
 	rm -f ~/.pypirc
 
 docker-test:
