@@ -12,7 +12,7 @@ dogfood:
 	git diff | ./ydiff.py -s
 
 lint:
-	pep8 --ignore=E203 *.py tests/*.py
+	pycodestyle --ignore=E203,W503,W504 *.py */*.py
 
 doc-check:
 	./setup.py --long-description | rst2html.py --strict > /dev/null

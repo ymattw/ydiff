@@ -1,4 +1,4 @@
 docutils == 0.20.1
-pep8 == 1.7.1
+pycodestyle ~= 2.12
 Pygments ~= 2.17
 coverage ~= 7.2

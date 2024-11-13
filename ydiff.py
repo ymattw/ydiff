@@ -31,7 +31,7 @@ if sys.hexversion < 0x03030000:
     raise SystemExit('*** Requires python >= 3.3.0')    # pragma: no cover
 
 
-class Color(object):
+class Color:
     RESET = '\x1b[0m'
     REVERSE = '\x1b[7m'
     # https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
@@ -238,7 +238,7 @@ def word_diff(a: str, b: str) -> Tuple[str, str]:
     return ''.join(xs), ''.join(ys)
 
 
-class Hunk(object):
+class Hunk:
 
     def __init__(self, hunk_headers, hunk_meta, old_addr, new_addr):
         self._hunk_headers = hunk_headers
@@ -282,7 +282,7 @@ class Hunk(object):
         return old_completed and new_completed
 
 
-class UnifiedDiff(object):
+class UnifiedDiff:
 
     def __init__(self, headers, old_path, new_path, hunks):
         self._headers = headers
@@ -350,7 +350,7 @@ class UnifiedDiff(object):
         return re.match('^Binary files .* differ$', line.rstrip())
 
 
-class DiffParser(object):
+class DiffParser:
 
     def __init__(self, stream):
         self._stream = stream  # bytes
@@ -428,7 +428,7 @@ class DiffParser(object):
             yield UnifiedDiff(headers, '', '', [])
 
 
-class DiffMarker(object):
+class DiffMarker:
 
     def __init__(self, side_by_side=False, width=0, tab_width=8, wrap=False,
                  theme='default'):
