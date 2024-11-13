@@ -3,7 +3,7 @@
 TOP_DIR=$(cd $(dirname $0)/.. && pwd) || exit 1
 cd $TOP_DIR || exit 1
 
-YDIFF=./ydiff
+YDIFF=./ydiff.py
 
 PYTHON=${PYTHON:-python3}
 unset YDIFF_OPTIONS

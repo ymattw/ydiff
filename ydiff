@@ -1,9 +1,0 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-import sys
-import ydiff
-
-sys.exit(ydiff.main())
-
-# vim:set et sts=4 sw=4 tw=79:

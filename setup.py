@@ -33,7 +33,11 @@ setup(
     ],
     python_requires='>=3',
     py_modules=['ydiff'],
-    scripts=['ydiff'],
+    entry_points={
+        'console_scripts': [
+            'ydiff = ydiff:main',
+        ]
+    }
 )
 
 # vim:set et sts=4 sw=4 tw=79:

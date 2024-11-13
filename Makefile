@@ -1,7 +1,5 @@
 # Makefile for testing
 
-TESTPYPI := pypitest
-PYPI := pypi
 SHELL := bash
 
 .PHONY: dogfood lint doc-check doc-preview clean build dist-test dist \

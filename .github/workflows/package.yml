@@ -4,9 +4,7 @@ on:
   push:
     paths:
       - "CHANGES.rst"
-      - "MANIFEST.in"
       - "setup.py"
-      - "ydiff"
   pull_request:
   workflow_dispatch:
   schedule:
