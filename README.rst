@@ -10,37 +10,38 @@ a version-controlled workspace or from stdin, in *side-by-side* (similar to
 ``diff -y``) or unified mode, and *auto-paged*. It only requires Python >= 3.3
 *without external dependencies* and ``less`` as a pager.
 
-Theme ``default`` on a dark terminal background:
+The diffs in side-by-side mode appear below. See also the `screenshots`_ of the
+unified mode.
 
-.. image:: https://github.com/ymattw/ydiff/blob/master/img/darkbg-side-by-side-default.png
+.. _`screenshots`: https://github.com/ymattw/ydiff/tree/26857b8/img
+
+*Theme "default" on a dark terminal background:*
+
+.. image:: https://raw.githubusercontent.com/ymattw/ydiff/26857b8/img/darkbg-side-by-side-default.png
    :alt: side by side, theme 'default' on a dark background
    :align: center
    :height: 300 px
 
-Theme ``default`` on a light terminal background:
+*Theme "default" on a light terminal background:*
 
-.. image:: https://github.com/ymattw/ydiff/blob/master/img/lightbg-side-by-side-default.png
+.. image:: https://raw.githubusercontent.com/ymattw/ydiff/26857b8/img/lightbg-side-by-side-default.png
    :alt: side by side, theme 'default' on a light background
    :align: center
    :height: 300 px
 
-Theme ``dark`` on a dark terminal background:
+*Theme "dark" on a dark terminal background:*
 
-.. image:: https://github.com/ymattw/ydiff/blob/master/img/darkbg-side-by-side-dark.png
+.. image:: https://raw.githubusercontent.com/ymattw/ydiff/26857b8/img/darkbg-side-by-side-dark.png
    :alt: side by side, theme 'dark' on a dark background
    :align: center
    :height: 300 px
 
-Theme ``light`` on a light terminal background:
+*Theme "light" on a light terminal background:*
 
-.. image:: https://github.com/ymattw/ydiff/blob/master/img/lightbg-side-by-side-light.png
+.. image:: https://raw.githubusercontent.com/ymattw/ydiff/26857b8/img/lightbg-side-by-side-light.png
    :alt: side by side, theme 'light' on a light background
    :align: center
    :height: 300 px
-
-See also `screenshots`_ of unified mode.
-
-.. _`screenshots`: https://github.com/ymattw/ydiff/tree/master/img
 
 Installation
 ------------
@@ -54,7 +55,7 @@ elsewhere are not (please note they are not managed by the author `@ymattw`_).
 .. _`PyPI`: http://pypi.python.org/pypi/ydiff
 .. _`@ymattw`: https://github.com/ymattw
 
-To use the source directly, just save `ydiff.py`_ as ``ydiff`` to whatever
+To run from source directly, just save `ydiff.py`_ as ``ydiff`` to whatever
 directory which is in your ``$PATH``, for example, ``$HOME/bin``:
 
 .. _`ydiff.py`: https://raw.github.com/ymattw/ydiff/master/ydiff.py
