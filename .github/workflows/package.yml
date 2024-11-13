@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "CHANGES.rst"
+      - "MANIFEST.in"
       - "setup.py"
   pull_request:
   workflow_dispatch:
@@ -52,3 +53,4 @@ jobs:
             apk add bash make py3-setuptools
             # Use /usr/bin/python3 instead of /usr/local/bin/python3
             PATH=/usr/bin:$PATH make build
+            PATH=/usr/bin:$PATH pip install dist/ydiff-*.tar.gz
