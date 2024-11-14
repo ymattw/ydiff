@@ -30,7 +30,7 @@ class SplitToWordsTest(unittest.TestCase):
             ('i -= 1\n', ['i', ' ', '-', '=', ' ', '1', '\n']),
         ]
         for s, want in tests:
-            got = ydiff.split_to_words(s)
+            got = ydiff._split_to_words(s)
             self.assertEqual(want, got)
 
 
@@ -47,7 +47,7 @@ class StrSplitTest(unittest.TestCase):
             (10, ('Hi, 你好\n', '', 9)),
         ]
         for width, want in tests:
-            got = ydiff.strsplit(text, width, {})
+            got = ydiff._strsplit(text, width, {})
             self.assertEqual(want, got)
 
     def test_colorized(self):
@@ -69,7 +69,7 @@ class StrSplitTest(unittest.TestCase):
             (8, (g, 'Hi', r, b, '!', r, '你好'), (), 7),
         ]
         for width, want_left, want_right, want_width in tests:
-            got = ydiff.strsplit(''.join(parts), width, codes)
+            got = ydiff._strsplit(''.join(parts), width, codes)
             self.assertEqual(''.join(want_left), got[0])
             self.assertEqual(''.join(want_right), got[1])
             self.assertEqual(want_width, got[2])
@@ -88,7 +88,7 @@ class StrTrimTest(unittest.TestCase):
             (10, ('Hi, 你好\n', '', 9)),
         ]
         for width, want in tests:
-            got = ydiff.strsplit(text, width, {})
+            got = ydiff._strsplit(text, width, {})
             self.assertEqual(want, got)
 
     def test_colorized(self):
@@ -111,7 +111,7 @@ class StrTrimTest(unittest.TestCase):
             (8, True, (g, 'Hi', r, b, '!', r, '你好 ')),
         ]
         for width, pad, want in tests:
-            got = ydiff.strtrim(''.join(parts), width, '>', pad, codes)
+            got = ydiff._strtrim(''.join(parts), width, '>', pad, codes)
             self.assertEqual(''.join(want), got, 'width %d failed' % width)
 
 
@@ -120,12 +120,12 @@ class DecodeTest(unittest.TestCase):
     def test_normal(self):
         octets = b'\xe4\xbd\xa0\xe5\xa5\xbd'
         want = '你好'
-        self.assertEqual(ydiff.decode(octets), want)
+        self.assertEqual(ydiff._decode(octets), want)
 
     def test_latin_1(self):
         octets = b'\x80\x02q\x01(U'
         want = '\x80\x02q\x01(U'
-        self.assertEqual(ydiff.decode(octets), want)
+        self.assertEqual(ydiff._decode(octets), want)
 
 
 class HunkTest(unittest.TestCase):
@@ -809,7 +809,7 @@ class MainTest(unittest.TestCase):
 
     def test_preset_options(self):
         os.environ['YDIFF_OPTIONS'] = '--help'
-        self.assertRaises(SystemExit, ydiff.main)
+        self.assertRaises(SystemExit, ydiff._main)
         os.environ.pop('YDIFF_OPTIONS', None)
 
     def test_read_diff(self):
@@ -817,7 +817,7 @@ class MainTest(unittest.TestCase):
         self._change_file('read_diff')
 
         os.chdir(self._ws)
-        ret = ydiff.main()
+        ret = ydiff._main()
         os.chdir(self._cwd)
         self.assertEqual(ret, 0)
 
@@ -829,21 +829,21 @@ class MainTest(unittest.TestCase):
         self._commit_file()
 
         os.chdir(self._ws)
-        ret = ydiff.main()
+        ret = ydiff._main()
         os.chdir(self._cwd)
         self.assertEqual(ret, 0)
 
     def _test_read_diff_neg(self):
         sys.argv = sys.argv[:1]
         os.chdir(self._non_ws)
-        ret = ydiff.main()
+        ret = ydiff._main()
         os.chdir(self._cwd)
         self.assertNotEqual(ret, 0)
 
     def _test_read_log_neg(self):
         sys.argv = [sys.argv[0], '--log']
         os.chdir(self._non_ws)
-        ret = ydiff.main()
+        ret = ydiff._main()
         os.chdir(self._cwd)
         self.assertNotEqual(ret, 0)
 

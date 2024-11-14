@@ -30,7 +30,7 @@ if sys.hexversion < 0x03030000:
     raise SystemExit('*** Requires python >= 3.3.0')    # pragma: no cover
 
 
-class Color:
+class _Color:
     RESET = '\x1b[0m'
     REVERSE = '\x1b[7m'
     # https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
@@ -53,90 +53,90 @@ class Color:
     BG8_DIMMED_GREEN = '\x1b[48;5;157m'
 
 
-THEMES = {
+_THEMES = {
     'default': {
         # kind: [effect...]
-        'header': [Color.FG_CYAN],
-        'old_path': [Color.FG_YELLOW],
-        'new_path': [Color.FG_YELLOW],
-        'hunk_header': [Color.FG_CYAN],
-        'hunk_meta': [Color.FG_BLUE],
-        'common_line': [Color.RESET],
-        'old_line': [Color.FG_RED],
-        'new_line': [Color.FG_GREEN],
-        'deleted_text': [Color.REVERSE, Color.FG_RED],
-        'inserted_text': [Color.REVERSE, Color.FG_GREEN],
-        'replaced_old_text': [Color.REVERSE, Color.FG_RED],
-        'replaced_new_text': [Color.REVERSE, Color.FG_GREEN],
-        'old_line_number': [Color.FG_YELLOW],
-        'new_line_number': [Color.FG_YELLOW],
-        'file_separator': [Color.FG_BRIGHT_CYAN],
-        'wrap_marker': [Color.FG_BRIGHT_MAGENTA],
+        'header': [_Color.FG_CYAN],
+        'old_path': [_Color.FG_YELLOW],
+        'new_path': [_Color.FG_YELLOW],
+        'hunk_header': [_Color.FG_CYAN],
+        'hunk_meta': [_Color.FG_BLUE],
+        'common_line': [_Color.RESET],
+        'old_line': [_Color.FG_RED],
+        'new_line': [_Color.FG_GREEN],
+        'deleted_text': [_Color.REVERSE, _Color.FG_RED],
+        'inserted_text': [_Color.REVERSE, _Color.FG_GREEN],
+        'replaced_old_text': [_Color.REVERSE, _Color.FG_RED],
+        'replaced_new_text': [_Color.REVERSE, _Color.FG_GREEN],
+        'old_line_number': [_Color.FG_YELLOW],
+        'new_line_number': [_Color.FG_YELLOW],
+        'file_separator': [_Color.FG_BRIGHT_CYAN],
+        'wrap_marker': [_Color.FG_BRIGHT_MAGENTA],
     },
     'dark': {
         # kind: [effect...]
-        'header': [Color.FG_CYAN],
-        'old_path': [Color.BG8_DARK_RED],
-        'new_path': [Color.BG8_DARK_GREEN],
-        'hunk_header': [Color.FG_CYAN],
-        'hunk_meta': [Color.FG_BLUE],
-        'common_line': [Color.RESET],
-        'old_line': [Color.BG8_DARK_RED],
-        'new_line': [Color.BG8_DARK_GREEN],
-        'deleted_text': [Color.BG8_RED],
-        'inserted_text': [Color.FG8_GRAY, Color.BG8_GREEN],
-        'replaced_old_text': [Color.BG8_RED],
-        'replaced_new_text': [Color.FG8_GRAY, Color.BG8_GREEN],
-        'old_line_number': [Color.FG_YELLOW],
-        'new_line_number': [Color.FG_YELLOW],
-        'file_separator': [Color.FG_BRIGHT_CYAN],
-        'wrap_marker': [Color.FG_BRIGHT_MAGENTA],
+        'header': [_Color.FG_CYAN],
+        'old_path': [_Color.BG8_DARK_RED],
+        'new_path': [_Color.BG8_DARK_GREEN],
+        'hunk_header': [_Color.FG_CYAN],
+        'hunk_meta': [_Color.FG_BLUE],
+        'common_line': [_Color.RESET],
+        'old_line': [_Color.BG8_DARK_RED],
+        'new_line': [_Color.BG8_DARK_GREEN],
+        'deleted_text': [_Color.BG8_RED],
+        'inserted_text': [_Color.FG8_GRAY, _Color.BG8_GREEN],
+        'replaced_old_text': [_Color.BG8_RED],
+        'replaced_new_text': [_Color.FG8_GRAY, _Color.BG8_GREEN],
+        'old_line_number': [_Color.FG_YELLOW],
+        'new_line_number': [_Color.FG_YELLOW],
+        'file_separator': [_Color.FG_BRIGHT_CYAN],
+        'wrap_marker': [_Color.FG_BRIGHT_MAGENTA],
     },
     'light': {
         # kind: [effect...]
-        'header': [Color.FG_CYAN],
-        'old_path': [Color.BG8_LIGHT_RED],
-        'new_path': [Color.BG8_LIGHT_GREEN],
-        'hunk_header': [Color.FG_CYAN],
-        'hunk_meta': [Color.FG_BLUE],
-        'common_line': [Color.RESET],
-        'old_line': [Color.BG8_LIGHT_RED],
-        'new_line': [Color.BG8_LIGHT_GREEN],
-        'deleted_text': [Color.BG8_DIMMED_RED],
-        'inserted_text': [Color.FG8_GRAY, Color.BG8_DIMMED_GREEN],
-        'replaced_old_text': [Color.BG8_DIMMED_RED],
-        'replaced_new_text': [Color.FG8_GRAY, Color.BG8_DIMMED_GREEN],
-        'old_line_number': [Color.FG_YELLOW],
-        'new_line_number': [Color.FG_YELLOW],
-        'file_separator': [Color.FG_BRIGHT_CYAN],
-        'wrap_marker': [Color.FG_BRIGHT_MAGENTA],
+        'header': [_Color.FG_CYAN],
+        'old_path': [_Color.BG8_LIGHT_RED],
+        'new_path': [_Color.BG8_LIGHT_GREEN],
+        'hunk_header': [_Color.FG_CYAN],
+        'hunk_meta': [_Color.FG_BLUE],
+        'common_line': [_Color.RESET],
+        'old_line': [_Color.BG8_LIGHT_RED],
+        'new_line': [_Color.BG8_LIGHT_GREEN],
+        'deleted_text': [_Color.BG8_DIMMED_RED],
+        'inserted_text': [_Color.FG8_GRAY, _Color.BG8_DIMMED_GREEN],
+        'replaced_old_text': [_Color.BG8_DIMMED_RED],
+        'replaced_new_text': [_Color.FG8_GRAY, _Color.BG8_DIMMED_GREEN],
+        'old_line_number': [_Color.FG_YELLOW],
+        'new_line_number': [_Color.FG_YELLOW],
+        'file_separator': [_Color.FG_BRIGHT_CYAN],
+        'wrap_marker': [_Color.FG_BRIGHT_MAGENTA],
     },
 }
 
 
-def colorize(text, kind, theme='default'):
+def _colorize(text, kind, theme='default'):
     if kind == 'replaced_old_text':
-        base_color = ''.join(THEMES[theme]['old_line'])
-        del_color = ''.join(THEMES[theme]['replaced_old_text'])
-        chg_color = ''.join(THEMES[theme]['deleted_text'])
-        rst_color = Color.RESET + base_color
+        base_color = ''.join(_THEMES[theme]['old_line'])
+        del_color = ''.join(_THEMES[theme]['replaced_old_text'])
+        chg_color = ''.join(_THEMES[theme]['deleted_text'])
+        rst_color = _Color.RESET + base_color
         text = text.replace('\0-', del_color)
         text = text.replace('\0^', chg_color)
         text = text.replace('\1', rst_color)
     elif kind == 'replaced_new_text':
-        base_color = ''.join(THEMES[theme]['new_line'])
-        add_color = ''.join(THEMES[theme]['replaced_new_text'])
-        chg_color = ''.join(THEMES[theme]['inserted_text'])
-        rst_color = Color.RESET + base_color
+        base_color = ''.join(_THEMES[theme]['new_line'])
+        add_color = ''.join(_THEMES[theme]['replaced_new_text'])
+        chg_color = ''.join(_THEMES[theme]['inserted_text'])
+        rst_color = _Color.RESET + base_color
         text = text.replace('\0+', add_color)
         text = text.replace('\0^', chg_color)
         text = text.replace('\1', rst_color)
     else:
-        base_color = ''.join(THEMES[theme][kind])
-    return base_color + text + Color.RESET
+        base_color = ''.join(_THEMES[theme][kind])
+    return base_color + text + _Color.RESET
 
 
-def strsplit(text, width, color_codes):
+def _strsplit(text, width, color_codes):
     r"""Splits a string into two substrings, respecting involved color codes.
 
     Returns a 3-tuple: (left substring, right substring, width of visible
@@ -156,7 +156,7 @@ def strsplit(text, width, color_codes):
         if text[i] == '\x1b':
             for c in color_codes:
                 if text.startswith(c, i):
-                    seen_colors = '' if c == Color.RESET else seen_colors + c
+                    seen_colors = '' if c == _Color.RESET else seen_colors + c
                     left += c
                     i += len(c)
                     break
@@ -171,29 +171,29 @@ def strsplit(text, width, color_codes):
         left_width += 1 + int(unicodedata.east_asian_width(text[i]) in 'WF')
         i += 1
 
-    left += Color.RESET if seen_colors else ''
+    left += _Color.RESET if seen_colors else ''
     right = seen_colors + text[i:]
     return left, right, left_width
 
 
-def strtrim(text, width, wrap_char, pad, color_codes):
-    r"""strtrim() trims given string respecting the involved color codes (using
+def _strtrim(text, width, wrap_char, pad, color_codes):
+    r"""Trims given string respecting the involved color codes (using
     strsplit), so that if text is larger than width, it's trimmed to have
     width-1 chars plus wrap_char. Additionally, if pad is True, short strings
     are padded with space to have exactly needed width.
 
     Returns resulting string.
     """
-    left, right, left_width = strsplit(text, width, color_codes)
+    left, right, left_width = _strsplit(text, width, color_codes)
     if right or left_width > width:  # asian chars can cause exceeds
-        left, _, _ = strsplit(left, width - 1, color_codes)
+        left, _, _ = _strsplit(left, width - 1, color_codes)
         left += wrap_char
     elif pad:
         left = '%s%*s' % (left, width - left_width, '')
     return left
 
 
-def split_to_words(s: str) -> List[str]:
+def _split_to_words(s: str) -> List[str]:
     r"""Split to list of "words" for fine-grained comparison by breaking
     all uppercased/lowercased, camel and snake cased names at the "word"
     boundary. Note '\s' has to be here to match '\n'.
@@ -202,7 +202,7 @@ def split_to_words(s: str) -> List[str]:
     return r.findall(s)
 
 
-def word_diff(a: str, b: str) -> Tuple[str, str]:
+def _word_diff(a: str, b: str) -> Tuple[str, str]:
     r"""Takes the from/to texts yield by Hunk.mdiff() which are part of the
     'changed' block, remove the special markers (\0-, \0+, \0^, \1), compare
     word by word and return two new texts with the markers reassemabled.
@@ -216,8 +216,8 @@ def word_diff(a: str, b: str) -> Tuple[str, str]:
         a = a.replace(token, '')
         b = b.replace(token, '')
 
-    old = split_to_words(a)
-    new = split_to_words(b)
+    old = _split_to_words(a)
+    new = _split_to_words(b)
     xs = []
     ys = []
     for tag, i, j, m, n in difflib.SequenceMatcher(a=old, b=new).get_opcodes():
@@ -360,7 +360,7 @@ class DiffParser:
         headers = []
 
         for octets in self._stream:
-            line = decode(octets)
+            line = _decode(octets)
 
             if diff.is_old_path(line):
                 # This is a new diff when current hunk is not yet genreated or
@@ -436,7 +436,7 @@ class DiffMarker:
         self._tab_width = tab_width
         self._wrap = wrap
         self._theme = theme
-        self._codes = set(sum(THEMES[theme].values(), start=[]))
+        self._codes = set(sum(_THEMES[theme].values(), start=[]))
 
     def markup(self, diff):
         """Returns a generator"""
@@ -450,39 +450,39 @@ class DiffMarker:
     def _markup_unified(self, diff):
         """Returns a generator"""
         for line in diff._headers:
-            yield colorize(line, 'header', theme=self._theme)
+            yield _colorize(line, 'header', theme=self._theme)
 
-        yield colorize(diff._old_path, 'old_path', theme=self._theme)
-        yield colorize(diff._new_path, 'new_path', theme=self._theme)
+        yield _colorize(diff._old_path, 'old_path', theme=self._theme)
+        yield _colorize(diff._new_path, 'new_path', theme=self._theme)
 
         for hunk in diff._hunks:
             for hunk_header in hunk._hunk_headers:
-                yield colorize(hunk_header, 'hunk_header', theme=self._theme)
-            yield colorize(hunk._hunk_meta, 'hunk_meta', theme=self._theme)
+                yield _colorize(hunk_header, 'hunk_header', theme=self._theme)
+            yield _colorize(hunk._hunk_meta, 'hunk_meta', theme=self._theme)
             for old, new, changed in hunk.mdiff():
                 if changed:
                     if not old[0]:
                         # The '+' char after \0 is kept
                         # DEBUG: yield 'NEW: %s %s\n' % (old, new)
                         line = new[1].strip('\0\1')
-                        yield colorize(line, 'new_line', theme=self._theme)
+                        yield _colorize(line, 'new_line', theme=self._theme)
                     elif not new[0]:
                         # The '-' char after \0 is kept
                         # DEBUG: yield 'OLD: %s %s\n' % (old, new)
                         line = old[1].strip('\0\1')
-                        yield colorize(line, 'old_line', theme=self._theme)
+                        yield _colorize(line, 'old_line', theme=self._theme)
                     else:
                         # DEBUG: yield 'CHG: %s %s\n' % (old, new)
-                        a, b = word_diff(old[1], new[1])
-                        yield (colorize('-', 'old_line', theme=self._theme) +
-                               colorize(a, 'replaced_old_text',
-                                        theme=self._theme))
-                        yield (colorize('+', 'new_line', theme=self._theme) +
-                               colorize(b, 'replaced_new_text',
-                                        theme=self._theme))
+                        a, b = _word_diff(old[1], new[1])
+                        yield (_colorize('-', 'old_line', theme=self._theme) +
+                               _colorize(a, 'replaced_old_text',
+                                         theme=self._theme))
+                        yield (_colorize('+', 'new_line', theme=self._theme) +
+                               _colorize(b, 'replaced_new_text',
+                                         theme=self._theme))
                 else:
-                    yield colorize(' ' + old[1], 'common_line',
-                                   theme=self._theme)
+                    yield _colorize(' ' + old[1], 'common_line',
+                                    theme=self._theme)
 
     def _markup_side_by_side(self, diff):
         """Returns a generator"""
@@ -517,27 +517,27 @@ class DiffMarker:
             # Autodetection of text width according to terminal size.  Each
             # line is like 'nnn TEXT nnn TEXT\n', so width is half of terminal
             # size minus the line number columns and 3 separating spaces
-            width = (terminal_width() - num_width * 2 - 3) // 2
+            width = (_terminal_width() - num_width * 2 - 3) // 2
 
         # Setup lineno and line format
-        num_fmt1 = colorize('%%(left_num)%ds' % num_width, 'old_line_number',
-                            theme=self._theme)
-        num_fmt2 = colorize('%%(right_num)%ds' % num_width, 'new_line_number',
-                            theme=self._theme)
-        line_fmt = (num_fmt1 + ' %(left)s ' + Color.RESET +
+        num_fmt1 = _colorize('%%(left_num)%ds' % num_width, 'old_line_number',
+                             theme=self._theme)
+        num_fmt2 = _colorize('%%(right_num)%ds' % num_width, 'new_line_number',
+                             theme=self._theme)
+        line_fmt = (num_fmt1 + ' %(left)s ' + _Color.RESET +
                     num_fmt2 + ' %(right)s\n')
 
         # yield header, old path and new path
         for line in diff._headers:
-            yield colorize(line, 'header', theme=self._theme)
-        yield colorize(diff._old_path, 'old_path', theme=self._theme)
-        yield colorize(diff._new_path, 'new_path', theme=self._theme)
+            yield _colorize(line, 'header', theme=self._theme)
+        yield _colorize(diff._old_path, 'old_path', theme=self._theme)
+        yield _colorize(diff._new_path, 'new_path', theme=self._theme)
 
         # yield hunks
         for hunk in diff._hunks:
             for hunk_header in hunk._hunk_headers:
-                yield colorize(hunk_header, 'hunk_header', theme=self._theme)
-            yield colorize(hunk._hunk_meta, 'hunk_meta', theme=self._theme)
+                yield _colorize(hunk_header, 'hunk_header', theme=self._theme)
+            yield _colorize(hunk._hunk_meta, 'hunk_meta', theme=self._theme)
             for old, new, changed in hunk.mdiff():
                 if old[0]:
                     left_num = str(hunk._old_addr[0] + int(old[0]) - 1)
@@ -558,22 +558,22 @@ class DiffMarker:
                         right = right.rstrip('\1')
                         if right.startswith('\0+'):
                             right = right[2:]
-                        right = colorize(right, 'new_line', theme=self._theme)
+                        right = _colorize(right, 'new_line', theme=self._theme)
                     elif not new[0]:
                         left = left.rstrip('\1')
                         if left.startswith('\0-'):
                             left = left[2:]
-                        left = colorize(left, 'old_line', theme=self._theme)
+                        left = _colorize(left, 'old_line', theme=self._theme)
                         right = ''
                     else:
-                        left, right = word_diff(left, right)
-                        left = colorize(left, 'replaced_old_text',
-                                        theme=self._theme)
-                        right = colorize(right, 'replaced_new_text',
+                        left, right = _word_diff(left, right)
+                        left = _colorize(left, 'replaced_old_text',
                                          theme=self._theme)
+                        right = _colorize(right, 'replaced_new_text',
+                                          theme=self._theme)
                 else:
-                    left = colorize(left, 'common_line', theme=self._theme)
-                    right = colorize(right, 'common_line', theme=self._theme)
+                    left = _colorize(left, 'common_line', theme=self._theme)
+                    right = _colorize(right, 'common_line', theme=self._theme)
 
                 if self._wrap:
                     # Need to wrap long lines, so here we'll iterate,
@@ -585,8 +585,8 @@ class DiffMarker:
                     while left or right:
                         # Split both left and right lines, preserving escaping
                         # sequences correctly.
-                        lcur, left, llen = strsplit(left, width, self._codes)
-                        rcur, right, rlen = strsplit(right, width, self._codes)
+                        lcur, left, llen = _strsplit(left, width, self._codes)
+                        rcur, right, _ = _strsplit(right, width, self._codes)
 
                         # Pad left line with spaces if needed
                         if llen < width:
@@ -605,12 +605,12 @@ class DiffMarker:
                 else:
                     # Don't need to wrap long lines; instead, a trailing '>'
                     # char needs to be appended.
-                    wrap_marker = colorize('>', 'wrap_marker',
-                                           theme=self._theme)
-                    left = strtrim(left, width, wrap_marker, len(right) > 0,
-                                   self._codes)
-                    right = strtrim(right, width, wrap_marker, False,
+                    wrap_marker = _colorize('>', 'wrap_marker',
+                                            theme=self._theme)
+                    left = _strtrim(left, width, wrap_marker, len(right) > 0,
                                     self._codes)
+                    right = _strtrim(right, width, wrap_marker, False,
+                                     self._codes)
 
                     yield line_fmt % {
                         'left_num': left_num,
@@ -638,7 +638,7 @@ def markup_to_pager(stream, opts):
     marker = DiffMarker(side_by_side=opts.side_by_side, width=opts.width,
                         tab_width=opts.tab_width, wrap=opts.wrap,
                         theme=opts.theme)
-    term_width = terminal_width()
+    term_width = _terminal_width()
     diffs = DiffParser(stream).parse()
     # Fetch one diff first, output a separation line for the rest, if any.
     try:
@@ -648,8 +648,8 @@ def markup_to_pager(stream, opts):
     except StopIteration:
         pass
     for diff in diffs:
-        separator = colorize('─' * (term_width - 1) + '\n', 'file_separator',
-                             theme=opts.theme)
+        separator = _colorize('─' * (term_width - 1) + '\n', 'file_separator',
+                              theme=opts.theme)
         pager.stdin.write(separator.encode('utf-8'))
         for line in marker.markup(diff):
             pager.stdin.write(line.encode('utf-8'))
@@ -683,27 +683,27 @@ VCS_INFO = {
 }
 
 
-def revision_control_probe():
+def _revision_control_probe():
     """Returns version control name (key in VCS_INFO) or None."""
     for vcs_name, ops in VCS_INFO.items():
-        if check_command_status(ops.get('probe')):
+        if _check_command_status(ops.get('probe')):
             return vcs_name
 
 
-def revision_control_diff(vcs_name, args):
+def _revision_control_diff(vcs_name, args):
     """Return diff from revision control system."""
     cmd = VCS_INFO[vcs_name]['diff']
     return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
 
 
-def revision_control_log(vcs_name, args):
+def _revision_control_log(vcs_name, args):
     """Return log from revision control system or None."""
     cmd = VCS_INFO[vcs_name].get('log')
     if cmd is not None:
         return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
 
 
-def check_command_status(cmd: List[str]) -> bool:
+def _check_command_status(cmd: List[str]) -> bool:
     """Return True if command returns 0."""
     try:
         return subprocess.call(
@@ -712,7 +712,7 @@ def check_command_status(cmd: List[str]) -> bool:
         return False
 
 
-def decode(octets):
+def _decode(octets):
     """Decode bytes (read from file)."""
     for encoding in ['utf-8', 'latin1']:
         try:
@@ -722,14 +722,14 @@ def decode(octets):
     return '*** ydiff: undecodable bytes ***\n'
 
 
-def terminal_width():
+def _terminal_width():
     try:
         return shutil.get_terminal_size().columns
     except Exception:
         return 80
 
 
-def trap_interrupts(entry_fn):
+def _trap_interrupts(entry_fn):
     def entry_wrapper():
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         if sys.platform != 'win32':
@@ -746,12 +746,12 @@ def trap_interrupts(entry_fn):
     return entry_wrapper
 
 
-@trap_interrupts
-def main():
+@_trap_interrupts
+def _main():
     from optparse import (OptionParser, BadOptionError, AmbiguousOptionError,
                           OptionGroup)
 
-    class PassThroughOptionParser(OptionParser):
+    class _PassThroughOptionParser(OptionParser):
         """Stop parsing on first unknown option (e.g. --cached, -U10) and pass
         them down.  Note the `opt_str` in exception object does not give us
         chance to take the full option back, e.g. for '-U10' it will only
@@ -770,7 +770,7 @@ def main():
             OptionParser._process_args(self, largs, rargs, values)
 
     usage = """%prog [options] [file|dir ...]"""
-    parser = PassThroughOptionParser(
+    parser = _PassThroughOptionParser(
         usage=usage, description=PKG_INFO['description'],
         version='%%prog %s' % PKG_INFO['version'])
     parser.add_option(
@@ -804,7 +804,7 @@ def main():
     parser.add_option(
         '-o', '--pager-options', metavar='OPT',
         help="""options to supply to pager application""")
-    themes = ', '.join(['default', *sorted(THEMES.keys() - {'default'})])
+    themes = ', '.join(['default', *sorted(_THEMES.keys() - {'default'})])
     parser.add_option(
         '', '--theme', metavar='THEME', default='default',
         help="""option to pick a color theme (one of %s)""" % themes)
@@ -821,7 +821,7 @@ def main():
     # Place possible options defined in YDIFF_OPTIONS at the beginning of argv
     ydiff_opts = [x for x in os.getenv('YDIFF_OPTIONS', '').split(' ') if x]
     opts, args = parser.parse_args(ydiff_opts + sys.argv[1:])
-    if opts.theme not in THEMES:
+    if opts.theme not in _THEMES:
         sys.stderr.write('*** Unknown theme, supported are: %s\n' % themes)
         return 1
 
@@ -829,7 +829,7 @@ def main():
     if not sys.stdin.isatty():
         stream = getattr(sys.stdin, 'buffer', sys.stdin)
     else:
-        vcs = revision_control_probe()
+        vcs = _revision_control_probe()
         if vcs is None:
             supported_vcs = ', '.join(sorted(VCS_INFO.keys()))
             sys.stderr.write('*** Not in a supported workspace, supported are:'
@@ -837,13 +837,13 @@ def main():
             return 1
 
         if opts.log:
-            stream = revision_control_log(vcs, args)
+            stream = _revision_control_log(vcs, args)
             if stream is None:
                 sys.stderr.write('*** %s has no log support.\n' % vcs)
                 return 1
         else:
             # 'diff' is a must have feature.
-            stream = revision_control_diff(vcs, args)
+            stream = _revision_control_diff(vcs, args)
 
     if (opts.color == 'always' or
             (opts.color == 'auto' and sys.stdout.isatty())):
@@ -860,6 +860,6 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(_main())
 
 # vim:set et sts=4 sw=4 tw=79:

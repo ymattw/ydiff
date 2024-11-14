@@ -35,7 +35,7 @@ setup(
     py_modules=['ydiff'],
     entry_points={
         'console_scripts': [
-            'ydiff = ydiff:main',
+            'ydiff = ydiff:_main',
         ],
     },
     include_package_data=True,
