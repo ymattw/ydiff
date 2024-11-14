@@ -730,20 +730,20 @@ def _terminal_width():
 
 
 def _trap_interrupts(entry_fn):
-    def entry_wrapper():
+    def _entry_wrapper():
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         if sys.platform != 'win32':
             signal.signal(signal.SIGPIPE, signal.SIG_DFL)
             return entry_fn()
-        else:
-            import errno
-            try:
-                return entry_fn()
-            except IOError as e:
-                if e.errno not in [errno.EPIPE, errno.EINVAL]:
-                    raise
-                return 0
-    return entry_wrapper
+
+        import errno
+        try:
+            return entry_fn()
+        except IOError as e:
+            if e.errno not in [errno.EPIPE, errno.EINVAL]:
+                raise
+            return 0
+    return _entry_wrapper
 
 
 @_trap_interrupts
