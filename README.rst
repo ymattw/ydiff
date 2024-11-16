@@ -161,11 +161,9 @@ Utilize a specific pager application:
 
 .. code-block:: bash
 
-    ydiff                           # default pager - less
-    LESS_OPTS='-FRSX --shift 1'
-    ydiff -p less -o "${LESS_OPTS}" # emulate default pager
-    ydiff -p /opt/bin/less          # custom pager to override 'less' in $PATH
-    ydiff -p cat                    # non-paging ANSI processor for colorizing
+    ydiff -p more                   # use "more" as a pager
+    ydiff -p cat                    # when neither less nor more is avilable
+    ydiff -o "-FRSX --shift 2"      # custmized option (pager defaults to less)
 
 Pipe in a diff:
 
@@ -192,7 +190,9 @@ Redirect output to another patch file is safe even without ``-u``:
 Notes
 -----
 
-1. Ydiff only supports diffs in `Unified Format`_.
+1. Ydiff only supports diffs in `Unified Format`_. Diffs in other format may be
+   converted to Unified Format via tool ``filterdiff`` (usually offered by
+   package ``patchutils``.)
 
    .. _`Unified Format`: https://en.wikipedia.org/wiki/Diff#Unified_format
 
@@ -205,14 +205,17 @@ Notes
     export YDIFF_OPTIONS='-w100'
     ydiff foo  # equivalent to "ydiff -w100 foo"
 
-3. If you feel more comfortable with a command such as ``git ydiff`` to trigger
-   the ydiff command, you may symlink the executable to one named ``git-ydiff``
-   as follows:
+3. If you feel more comfortable with a command such as ``git d`` to trigger the
+   ydiff command, you may symlink the executable to one named ``git-d``, or
+   configure an alias:
 
    .. code-block:: bash
 
-    installed_dir=$(dirname $(which ydiff))
-    ln -s "${installed_dir}/ydiff" "${installed_dir}/git-ydiff"
+    # Create a symlink git-d -> ydiff
+    D=$(dirname $(which ydiff)); ln -s ydiff $D/git-d
+
+    # Or configure an alias
+    git config --global alias.d '!ydiff'
 
 Known issues
 ------------
