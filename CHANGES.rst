@@ -11,7 +11,7 @@ Version 1.4 (2024-11-13) *Revoked due to #123*
 
   - Fine-grained, word-level diff for change blocks
   - New ``--theme`` option for selecting different themes
-  - Options ``-side-by-side``, ``--width 0``, and ``--wrap`` become default
+  - Options ``--side-by-side``, ``--width 0``, and ``--wrap`` become default
     (use ``--unified``/``--nowrap`` for legacy behavior)
   - Python 2 support is officially dropped
 
