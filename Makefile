@@ -48,14 +48,20 @@ build:
 	./setup.py build sdist
 
 # Expected to run outside docker with twine installed via pip
-dist-test: docker-test clean build
+dist-test: docker-test-min-python3 docker-test clean build
 	~/.local/bin/twine upload --repository=testpypi dist/ydiff-*.tar.gz
 	rm -f ~/.pypirc
 
 # Expected to run outside docker with twine installed via pip
-dist: docker-test clean build
+dist: docker-test-min-python3 docker-test clean build
 	~/.local/bin/twine upload dist/ydiff-*.tar.gz
 	rm -f ~/.pypirc
+
+MIN_PY_VERSION ?= 3.3
+docker-test-min-python3:
+	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) -t --rm \
+		python:$(MIN_PY_VERSION)-alpine /bin/sh -ec \
+		'apk add -U bash git less make; pip install --trusted-host pypi.python.org -r requirements-dev.txt; make test'
 
 docker-test:
 	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) -t --rm \

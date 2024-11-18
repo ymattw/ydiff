@@ -2,6 +2,10 @@
 Change log
 ==========
 
+Version 1.4.2 (2024-11-18)
+
+    - Compatibility Fix: Ensure ydiff works properly with Python 3.3 and later.
+
 Version 1.4.1 (2024-11-13)
 
   - Fix setup() dependency: MANIFEST.in is still required for Python < 3.8 to

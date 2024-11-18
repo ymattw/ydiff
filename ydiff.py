@@ -14,10 +14,9 @@ import signal
 import subprocess
 import sys
 import unicodedata
-from typing import List, Tuple
 
 PKG_INFO = {
-    'version'     : '1.4.1',
+    'version'     : '1.4.2',
     'license'     : 'BSD-3',
     'author'      : 'Matt Wang',
     'url'         : 'https://github.com/ymattw/ydiff',
@@ -193,7 +192,7 @@ def _strtrim(text, width, wrap_char, pad, color_codes):
     return left
 
 
-def _split_to_words(s: str) -> List[str]:
+def _split_to_words(s: str) -> list:
     r"""Split to list of "words" for fine-grained comparison by breaking
     all uppercased/lowercased, camel and snake cased names at the "word"
     boundary. Note '\s' has to be here to match '\n'.
@@ -202,7 +201,7 @@ def _split_to_words(s: str) -> List[str]:
     return r.findall(s)
 
 
-def _word_diff(a: str, b: str) -> Tuple[str, str]:
+def _word_diff(a: str, b: str) -> tuple:
     r"""Takes the from/to texts yield by Hunk.mdiff() which are part of the
     'changed' block, remove the special markers (\0-, \0+, \0^, \1), compare
     word by word and return two new texts with the markers reassemabled.
@@ -436,7 +435,7 @@ class DiffMarker:
         self._tab_width = tab_width
         self._wrap = wrap
         self._theme = theme
-        self._codes = set(sum(_THEMES[theme].values(), start=[]))
+        self._codes = set(sum(_THEMES[theme].values(), []))
 
     def markup(self, diff):
         """Returns a generator"""
@@ -703,7 +702,7 @@ def _revision_control_log(vcs_name, args):
         return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
 
 
-def _check_command_status(cmd: List[str]) -> bool:
+def _check_command_status(cmd: list) -> bool:
     """Return True if command returns 0."""
     try:
         return subprocess.call(
@@ -804,7 +803,7 @@ def _main():
     parser.add_option(
         '-o', '--pager-options', metavar='OPT',
         help="""options to supply to pager application""")
-    themes = ', '.join(['default', *sorted(_THEMES.keys() - {'default'})])
+    themes = ', '.join(['default'] + sorted(_THEMES.keys() - {'default'}))
     parser.add_option(
         '', '--theme', metavar='THEME', default='default',
         help="""option to pick a color theme (one of %s)""" % themes)

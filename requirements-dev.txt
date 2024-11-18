@@ -1,4 +1,4 @@
 Pygments
 coverage
-docutils==0.20.1
+docutils<=0.20.1
 pycodestyle
