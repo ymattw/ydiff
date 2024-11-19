@@ -10,7 +10,7 @@ dogfood:
 	git diff | ./ydiff.py -s
 
 lint:
-	pycodestyle --ignore=E203,W503,W504 *.py */*.py
+	pycodestyle --ignore=W503,W504 *.py */*.py
 
 doc-check:
 	./setup.py --long-description | rst2html.py --strict > /dev/null

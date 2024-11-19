@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup
-from ydiff import PKG_INFO
+from ydiff import __version__, __homepage__, __description__
 
 with open('README.rst') as doc:
     long_description = doc.read()
@@ -11,13 +11,13 @@ with open('CHANGES.rst') as changes:
 
 setup(
     name='ydiff',
-    version=PKG_INFO['version'],
-    author=PKG_INFO['author'],
-    license=PKG_INFO['license'],
-    description=PKG_INFO['description'],
+    version=__version__,
+    author='Matt Wang',
+    license='BSD-3',
+    description=__description__,
     long_description=long_description,
-    keywords=PKG_INFO['keywords'],
-    url=PKG_INFO['url'],
+    keywords='colored incremental side-by-side diff',
+    url=__homepage__,
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         'Development Status :: 5 - Production/Stable',

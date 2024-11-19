@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
-Terminmal based tool to view colored, incremental diffs in a version-controlled
-workspace or from stdin, in side-by-side or unified mode, and auto paged.
-"""
-
 import difflib
 import os
 import re
@@ -15,15 +10,10 @@ import subprocess
 import sys
 import unicodedata
 
-PKG_INFO = {
-    'version'     : '1.4.2',
-    'license'     : 'BSD-3',
-    'author'      : 'Matt Wang',
-    'url'         : 'https://github.com/ymattw/ydiff',
-    'keywords'    : 'colored incremental side-by-side diff',
-    'description' : ('View colored, incremental diff in a workspace or from '
-                     'stdin, in side-by-side or unified moded, and auto paged')
-}
+__version__ = '1.4.2'
+__homepage__ = 'https://github.com/ymattw/ydiff'
+__description__ = ('View colored, incremental diff in a workspace or from '
+                   'stdin, in side-by-side or unified moded, and auto paged')
 
 if sys.hexversion < 0x03030000:
     raise SystemExit('*** Requires python >= 3.3.0')    # pragma: no cover
@@ -756,8 +746,8 @@ def _parse_args():
 
     usage = """%prog [options] [file|dir ...]"""
     parser = _PassThroughOptionParser(
-        usage=usage, description=PKG_INFO['description'],
-        version='%%prog %s' % PKG_INFO['version'])
+        usage=usage, description=__description__,
+        version='%%prog %s' % __version__)
     parser.add_option(
         '-s', '--side-by-side', action='store_true', default=True,
         help='enable side-by-side mode (default True; DEPRECATED)')
