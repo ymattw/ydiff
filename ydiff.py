@@ -425,6 +425,7 @@ class DiffMarker:
         self._tab_width = tab_width
         self._wrap = wrap
         self._theme = theme
+        self._tint = lambda s, k: _colorize(s, k, theme=theme)
         self._codes = set(sum(_THEMES[theme].values(), []))
 
     def markup(self, diff):
@@ -439,39 +440,36 @@ class DiffMarker:
     def _markup_unified(self, diff):
         """Returns a generator"""
         for line in diff._headers:
-            yield _colorize(line, 'header', theme=self._theme)
+            yield self._tint(line, 'header')
 
-        yield _colorize(diff._old_path, 'old_path', theme=self._theme)
-        yield _colorize(diff._new_path, 'new_path', theme=self._theme)
+        yield self._tint(diff._old_path, 'old_path')
+        yield self._tint(diff._new_path, 'new_path')
 
         for hunk in diff._hunks:
             for hunk_header in hunk._hunk_headers:
-                yield _colorize(hunk_header, 'hunk_header', theme=self._theme)
-            yield _colorize(hunk._hunk_meta, 'hunk_meta', theme=self._theme)
+                yield self._tint(hunk_header, 'hunk_header')
+            yield self._tint(hunk._hunk_meta, 'hunk_meta')
             for old, new, changed in hunk.mdiff():
                 if changed:
                     if not old[0]:
                         # The '+' char after \0 is kept
                         # DEBUG: yield 'NEW: %s %s\n' % (old, new)
                         line = new[1].strip('\0\1')
-                        yield _colorize(line, 'new_line', theme=self._theme)
+                        yield self._tint(line, 'new_line')
                     elif not new[0]:
                         # The '-' char after \0 is kept
                         # DEBUG: yield 'OLD: %s %s\n' % (old, new)
                         line = old[1].strip('\0\1')
-                        yield _colorize(line, 'old_line', theme=self._theme)
+                        yield self._tint(line, 'old_line')
                     else:
                         # DEBUG: yield 'CHG: %s %s\n' % (old, new)
                         a, b = _word_diff(old[1], new[1])
-                        yield (_colorize('-', 'old_line', theme=self._theme) +
-                               _colorize(a, 'replaced_old_text',
-                                         theme=self._theme))
-                        yield (_colorize('+', 'new_line', theme=self._theme) +
-                               _colorize(b, 'replaced_new_text',
-                                         theme=self._theme))
+                        yield (self._tint('-', 'old_line') +
+                               self._tint(a, 'replaced_old_text'))
+                        yield (self._tint('+', 'new_line') +
+                               self._tint(b, 'replaced_new_text'))
                 else:
-                    yield _colorize(' ' + old[1], 'common_line',
-                                    theme=self._theme)
+                    yield self._tint(' ' + old[1], 'common_line')
 
     def _markup_side_by_side(self, diff):
         """Returns a generator"""
@@ -509,24 +507,23 @@ class DiffMarker:
             width = (_terminal_width() - num_width * 2 - 3) // 2
 
         # Setup lineno and line format
-        num_fmt1 = _colorize('%%(left_num)%ds' % num_width, 'old_line_number',
-                             theme=self._theme)
-        num_fmt2 = _colorize('%%(right_num)%ds' % num_width, 'new_line_number',
-                             theme=self._theme)
+        num_fmt1 = self._tint('%%(left_num)%ds' % num_width, 'old_line_number')
+        num_fmt2 = self._tint('%%(right_num)%ds' % num_width,
+                              'new_line_number')
         line_fmt = (num_fmt1 + ' %(left)s ' + _Color.RESET +
                     num_fmt2 + ' %(right)s\n')
 
         # yield header, old path and new path
         for line in diff._headers:
-            yield _colorize(line, 'header', theme=self._theme)
-        yield _colorize(diff._old_path, 'old_path', theme=self._theme)
-        yield _colorize(diff._new_path, 'new_path', theme=self._theme)
+            yield self._tint(line, 'header')
+        yield self._tint(diff._old_path, 'old_path')
+        yield self._tint(diff._new_path, 'new_path')
 
         # yield hunks
         for hunk in diff._hunks:
             for hunk_header in hunk._hunk_headers:
-                yield _colorize(hunk_header, 'hunk_header', theme=self._theme)
-            yield _colorize(hunk._hunk_meta, 'hunk_meta', theme=self._theme)
+                yield self._tint(hunk_header, 'hunk_header')
+            yield self._tint(hunk._hunk_meta, 'hunk_meta')
             for old, new, changed in hunk.mdiff():
                 if old[0]:
                     left_num = str(hunk._old_addr[0] + int(old[0]) - 1)
@@ -547,22 +544,20 @@ class DiffMarker:
                         right = right.rstrip('\1')
                         if right.startswith('\0+'):
                             right = right[2:]
-                        right = _colorize(right, 'new_line', theme=self._theme)
+                        right = self._tint(right, 'new_line')
                     elif not new[0]:
                         left = left.rstrip('\1')
                         if left.startswith('\0-'):
                             left = left[2:]
-                        left = _colorize(left, 'old_line', theme=self._theme)
+                        left = self._tint(left, 'old_line')
                         right = ''
                     else:
                         left, right = _word_diff(left, right)
-                        left = _colorize(left, 'replaced_old_text',
-                                         theme=self._theme)
-                        right = _colorize(right, 'replaced_new_text',
-                                          theme=self._theme)
+                        left = self._tint(left, 'replaced_old_text')
+                        right = self._tint(right, 'replaced_new_text')
                 else:
-                    left = _colorize(left, 'common_line', theme=self._theme)
-                    right = _colorize(right, 'common_line', theme=self._theme)
+                    left = self._tint(left, 'common_line')
+                    right = self._tint(right, 'common_line')
 
                 if self._wrap:
                     # Need to wrap long lines, so here we'll iterate,
@@ -594,8 +589,7 @@ class DiffMarker:
                 else:
                     # Don't need to wrap long lines; instead, a trailing '>'
                     # char needs to be appended.
-                    wrap_marker = _colorize('>', 'wrap_marker',
-                                            theme=self._theme)
+                    wrap_marker = self._tint('>', 'wrap_marker')
                     left = _strtrim(left, width, wrap_marker, len(right) > 0,
                                     self._codes)
                     right = _strtrim(right, width, wrap_marker, False,
