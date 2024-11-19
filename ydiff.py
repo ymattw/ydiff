@@ -658,7 +658,7 @@ def markup_to_pager(stream, opts):
 
 
 # Keys for revision control probe, diff and log (optional) with diff
-VCS_INFO = {
+_VCS_INFO = {
     'Git': {
         'probe': ['git', 'rev-parse'],
         'diff': ['git', 'diff', '--no-ext-diff'],
@@ -683,23 +683,10 @@ VCS_INFO = {
 
 
 def _revision_control_probe():
-    """Returns version control name (key in VCS_INFO) or None."""
-    for vcs_name, ops in VCS_INFO.items():
+    """Returns version control name (key in _VCS_INFO) or None."""
+    for vcs_name, ops in _VCS_INFO.items():
         if _check_command_status(ops.get('probe')):
             return vcs_name
-
-
-def _revision_control_diff(vcs_name, args):
-    """Return diff from revision control system."""
-    cmd = VCS_INFO[vcs_name]['diff']
-    return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
-
-
-def _revision_control_log(vcs_name, args):
-    """Return log from revision control system or None."""
-    cmd = VCS_INFO[vcs_name].get('log')
-    if cmd is not None:
-        return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
 
 
 def _check_command_status(cmd: list) -> bool:
@@ -745,8 +732,7 @@ def _trap_interrupts(entry_fn):
     return _entry_wrapper
 
 
-@_trap_interrupts
-def _main():
+def _parse_args():
     from optparse import (OptionParser, BadOptionError, AmbiguousOptionError,
                           OptionGroup)
 
@@ -820,32 +806,43 @@ def _main():
     # Place possible options defined in YDIFF_OPTIONS at the beginning of argv
     ydiff_opts = [x for x in os.getenv('YDIFF_OPTIONS', '').split(' ') if x]
     opts, args = parser.parse_args(ydiff_opts + sys.argv[1:])
+    return opts, args
+
+
+def _get_patch_stream(args: list, read_vcs_log: bool):
+    if not sys.stdin.isatty():
+        return getattr(sys.stdin, 'buffer', sys.stdin)
+
+    vcs = _revision_control_probe()
+    if vcs is None:
+        supported_vcs = ', '.join(sorted(_VCS_INFO.keys()))
+        sys.stderr.write('*** Not in a supported workspace, supported are:'
+                         ' %s\n' % supported_vcs)
+        return None
+
+    if read_vcs_log:
+        cmd = _VCS_INFO[vcs].get('log')
+        if cmd is None:
+            sys.stderr.write('*** %s has no log support.\n' % vcs)
+            return None
+    else:
+        cmd = _VCS_INFO[vcs]['diff']
+
+    return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
+
+
+@_trap_interrupts
+def _main():
+    opts, args = _parse_args()
     if opts.theme not in _THEMES:
         sys.stderr.write('*** Unknown theme, supported are: %s\n' % themes)
         return 1
 
-    stream = None
-    if not sys.stdin.isatty():
-        stream = getattr(sys.stdin, 'buffer', sys.stdin)
-    else:
-        vcs = _revision_control_probe()
-        if vcs is None:
-            supported_vcs = ', '.join(sorted(VCS_INFO.keys()))
-            sys.stderr.write('*** Not in a supported workspace, supported are:'
-                             ' %s\n' % supported_vcs)
-            return 1
+    stream = _get_patch_stream(args, opts.log)
+    if stream is None:
+        return 1
 
-        if opts.log:
-            stream = _revision_control_log(vcs, args)
-            if stream is None:
-                sys.stderr.write('*** %s has no log support.\n' % vcs)
-                return 1
-        else:
-            # 'diff' is a must have feature.
-            stream = _revision_control_diff(vcs, args)
-
-    if (opts.color == 'always' or
-            (opts.color == 'auto' and sys.stdout.isatty())):
+    if opts.color == 'auto' and sys.stdout.isatty() or opts.color == 'always':
         markup_to_pager(stream, opts)
     else:
         # pipe out stream untouched to make sure it is still a patch
