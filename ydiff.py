@@ -728,6 +728,7 @@ def _parse_args():
         (on stackoverflow).  My hack is to try parse and insert a '--' in place
         and parse again.  Let me know if someone has better solution.
         """
+
         def _process_args(self, largs, rargs, values):
             left = largs[:]
             right = rargs[:]
@@ -819,6 +820,7 @@ def _get_patch_stream(args: list, read_vcs_log: bool):
 def _main():
     opts, args = _parse_args()
     if opts.theme not in _THEMES:
+        themes = ', '.join(['default'] + sorted(_THEMES.keys() - {'default'}))
         sys.stderr.write('*** Unknown theme, supported are: %s\n' % themes)
         return 1
 
