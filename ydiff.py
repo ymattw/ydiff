@@ -371,12 +371,11 @@ class DiffParser:
                     diff._hunks[-1].append(diff.parse_hunk_line(line))
 
             elif diff.is_hunk_meta(line):
-                hunk_meta = line
                 try:
-                    old_addr, new_addr = diff.parse_hunk_meta(hunk_meta)
+                    old_addr, new_addr = diff.parse_hunk_meta(line)
                 except (IndexError, ValueError):
-                    raise RuntimeError('invalid hunk meta: %s' % hunk_meta)
-                hunk = Hunk(headers, hunk_meta, old_addr, new_addr)
+                    raise RuntimeError('invalid hunk meta: %s' % line)
+                hunk = Hunk(headers, line, old_addr, new_addr)
                 headers = []
                 diff._hunks.append(hunk)
 
@@ -471,23 +470,22 @@ class DiffMarker:
                 else:
                     yield self._tint(' ' + old[1], 'common_line')
 
+    def _normalize(self, line):
+        index = 0
+        while True:
+            index = line.find('\t', index)
+            if index == -1:
+                break
+            # ignore special codes
+            offset = (line.count('\0', 0, index) * 2 +
+                      line.count('\1', 0, index))
+            # next stop modulo tab width
+            width = self._tab_width - (index - offset) % self._tab_width
+            line = line[:index] + ' ' * width + line[(index + 1):]
+        return line.replace('\n', '').replace('\r', '')
+
     def _markup_side_by_side(self, diff):
         """Returns a generator"""
-
-        def _normalize(line):
-            index = 0
-            while True:
-                index = line.find('\t', index)
-                if index == -1:
-                    break
-                # ignore special codes
-                offset = (line.count('\0', 0, index) * 2 +
-                          line.count('\1', 0, index))
-                # next stop modulo tab width
-                width = self._tab_width - (index - offset) % self._tab_width
-                line = line[:index] + ' ' * width + line[(index + 1):]
-            return line.replace('\n', '').replace('\r', '')
-
         # Set up number width, note last hunk might be empty
         try:
             (start, offset) = diff._hunks[-1]._old_addr
@@ -535,8 +533,8 @@ class DiffMarker:
                 else:
                     right_num = ' '
 
-                left = _normalize(old[1])
-                right = _normalize(new[1])
+                left = self._normalize(old[1])
+                right = self._normalize(new[1])
 
                 if changed:
                     if not old[0]:
