@@ -45,16 +45,16 @@ clean:
 	rm -rf build/ ydiff.egg-info/ dist/ __pycache__/ htmlcov/
 
 build:
-	./setup.py build sdist
+	./setup.py build sdist bdist_wheel
 
 # Expected to run outside docker with twine installed via pip
 dist-test: docker-test-min-python3 docker-test clean build
-	~/.local/bin/twine upload --repository=testpypi dist/ydiff-*.tar.gz
+	~/.local/bin/twine upload --repository=testpypi dist/ydiff-*.tar.gz dist/ydiff-*-any.whl
 	rm -f ~/.pypirc
 
 # Expected to run outside docker with twine installed via pip
 dist: docker-test-min-python3 docker-test clean build
-	~/.local/bin/twine upload dist/ydiff-*.tar.gz
+	~/.local/bin/twine upload dist/ydiff-*.tar.gz dist/ydiff-*.tar.gz dist/ydiff-*-any.whl
 	rm -f ~/.pypirc
 
 MIN_PY_VERSION ?= 3.3
@@ -62,6 +62,11 @@ docker-test-min-python3:
 	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) -t --rm \
 		python:$(MIN_PY_VERSION)-alpine /bin/sh -ec \
 		'apk add -U bash git less make; pip install --trusted-host pypi.python.org -r requirements-dev.txt; make test'
+
+docker-shell-min-python3:
+	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) -it --rm \
+		python:$(MIN_PY_VERSION)-alpine /bin/sh -ec \
+		'apk add -U bash git less make; pip install --trusted-host pypi.python.org -r requirements-dev.txt; exec /bin/sh'
 
 docker-test:
 	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) -t --rm \

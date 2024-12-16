@@ -1,1 +1,4 @@
 include CHANGES.rst
+include Makefile
+include requirements-dev.txt
+graft   tests
