@@ -26,6 +26,15 @@ function fail()
     fi
 }
 
+function show_file()
+{
+    local label=${1:?}
+    local file=${2:?}
+    echo "$label:"
+    sed 's/^/    /' "$file"
+    echo
+}
+
 function cmp_output()
 {
     local input=${1:?}
@@ -37,16 +46,20 @@ function cmp_output()
     printf "$cmd"
 
     if [[ $TRAVIS_OS_NAME == windows ]]; then
-        cmp_tool="diff --strip-trailing-cr -q"
+        cmp_tool="diff --strip-trailing-crq"
     else
-        cmp_tool="cmp -s"  # --silence does not work on Alpine
+        cmp_tool="cmp"
     fi
 
-    if eval $cmd 2>/dev/null | eval $cmp_tool $expected_out - > /dev/null; then
+    if eval $cmd 2>cmd.err | tee actual.out | eval $cmp_tool $expected_out - >cmp_tool.out; then
         pass
         return 0
     else
         fail "!= $expected_out"
+        show_file "expected output" $expected_out
+        show_file "actual output" actual.out
+        show_file "difference ($cmp_tool)" cmp_tool.out
+        show_file "errors ($cmd)" cmd.err
         return 1
     fi
 }
