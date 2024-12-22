@@ -46,6 +46,6 @@ jobs:
           options: --rm -v ${{ github.workspace }}:/workspace -w /workspace
           run: |
             set -o errexit
-            apk add bash git less make
+            apk add bash git less make diffutils
             pip install -r requirements-dev.txt
             make test
