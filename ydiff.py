@@ -643,7 +643,7 @@ def markup_to_pager(stream, opts):
 _VCS_INFO = {
     'Git': {
         'probe': ['git', 'rev-parse'],
-        'diff': ['git', 'diff', '--no-ext-diff'],
+        'diff': ['git', 'diff', '--no-ext-diff', '--color=never'],
         'log': ['git', 'log', '--patch'],
     },
     'Mercurial': {
