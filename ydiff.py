@@ -644,7 +644,7 @@ _VCS_INFO = {
     'Git': {
         'probe': ['git', 'rev-parse'],
         'diff': ['git', 'diff', '--no-ext-diff', '--color=never'],
-        'log': ['git', 'log', '--patch'],
+        'log': ['git', 'log', '--patch', '--color=never'],
     },
     'Mercurial': {
         'probe': ['hg', 'summary'],
