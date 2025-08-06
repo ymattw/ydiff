@@ -701,15 +701,10 @@ def _trap_interrupts(entry_fn):
     def _entry_wrapper():
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         if sys.platform != 'win32':
-            signal.signal(signal.SIGPIPE, signal.SIG_DFL)
-            return entry_fn()
-
-        import errno
+            signal.signal(signal.SIGPIPE, signal.SIG_IGN)
         try:
             return entry_fn()
-        except IOError as e:
-            if e.errno not in [errno.EPIPE, errno.EINVAL]:
-                raise
+        except BrokenPipeError:
             return 0
     return _entry_wrapper
 
