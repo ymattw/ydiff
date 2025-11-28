@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import signal
+import stat
 import subprocess
 import sys
 import unicodedata
@@ -788,7 +789,8 @@ def _parse_args():
 
 
 def _get_patch_stream(args: list, read_vcs_log: bool):
-    if not sys.stdin.isatty():
+    mode = os.fstat(sys.stdin.fileno()).st_mode
+    if stat.S_ISREG(mode) or stat.S_ISFIFO(mode):
         return getattr(sys.stdin, 'buffer', sys.stdin)
 
     vcs = _revision_control_probe()
