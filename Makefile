@@ -35,7 +35,7 @@ reg:
 	tests/regression.sh
 
 profile:
-	tests/profile.sh $(shell for x in {0..99}; do echo tests/*/in.diff; done)
+	@tests/profile.sh $(shell for x in {0..999}; do echo tests/*/in.diff; done)
 
 profile-difflib:
 	tests/profile.sh tests/large-hunk/tao.diff

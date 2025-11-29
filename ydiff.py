@@ -125,7 +125,10 @@ def _colorize(text, kind, theme='default'):
     return base_color + text + _Color.RESET
 
 
-def _strsplit(text, width, color_codes):
+_ANSI_RE = re.compile(r'\x1b\[[0-9;]*m')
+
+
+def _strsplit(text, width, color_codes=None):
     r"""Splits a string into two substrings, respecting involved color codes.
 
     Returns a 3-tuple: (left substring, right substring, width of visible
@@ -135,29 +138,45 @@ def _strsplit(text, width, color_codes):
     appended with the resetting sequence, and the second string is prefixed
     with all active colors.
     """
-    left, seen_colors, left_width, i = '', '', 0, 0
-    while i < len(text):
-        if text[i] == '\x1b':
-            for c in color_codes:
-                if text.startswith(c, i):
-                    seen_colors = '' if c == _Color.RESET else seen_colors + c
-                    left += c
-                    i += len(c)
-                    break
-            else:  # not found
-                left += text[i]
-                i += 1
-            continue
+    color_codes = color_codes or []
+    left_width, seen = 0, ''
 
-        if left_width >= width:
-            break
-        left += text[i]
-        left_width += 1 + int(unicodedata.east_asian_width(text[i]) in 'WF')
-        i += 1
+    def _iter_segments(text):
+        last = 0
+        for match in _ANSI_RE.finditer(text):
+            start, end = match.span()
+            if start > last:
+                yield text[last:start], None, last, start
+            yield match.group(), match.group(), start, end
+            last = end
+        if last < len(text):
+            yield text[last:], None, last, len(text)
 
-    left += _Color.RESET if seen_colors else ''
-    right = seen_colors + text[i:]
-    return left, right, left_width
+    for chunk, code, start, end in _iter_segments(text):
+        if code:
+            if code in color_codes:
+                seen = '' if code == _Color.RESET else seen + code
+        else:
+            try:
+                chunk.encode('ascii')
+                is_ascii = True
+            except UnicodeEncodeError:
+                is_ascii = False
+            if is_ascii and left_width + len(chunk) <= width:
+                left_width += len(chunk)
+                continue
+
+            for i, ch in enumerate(chunk):
+                if left_width >= width:
+                    cutoff = start + i
+                    return (text[:cutoff] + (_Color.RESET if seen else ''),
+                            seen + text[cutoff:],
+                            left_width)
+                left_width += 1
+                if ord(ch) > 127 and unicodedata.east_asian_width(ch) in 'WF':
+                    left_width += 1
+
+    return text, '', left_width
 
 
 def _strtrim(text, width, wrap_char, pad, color_codes):
@@ -176,12 +195,15 @@ def _strtrim(text, width, wrap_char, pad, color_codes):
     return left
 
 
+_WORDS_RE = re.compile(r'[A-Z]{2,}|[A-Z][a-z]+|[a-z]{2,}|[A-Za-z0-9]+|\s|.')
+
+
 def _split_to_words(s: str) -> list:
     r"""Split to list of "words" for fine-grained comparison by breaking
     all uppercased/lowercased, camel and snake cased names at the "word"
     boundary. Note '\s' has to be here to match '\n'.
     """
-    return re.findall(r'[A-Z]{2,}|[A-Z][a-z]+|[a-z]{2,}|[A-Za-z0-9]+|\s|.', s)
+    return _WORDS_RE.findall(s)
 
 
 def _word_diff(a: str, b: str) -> tuple:
@@ -194,8 +216,8 @@ def _word_diff(a: str, b: str) -> tuple:
     a certain ratio (hardcode 0.75). One example: "import foo" vs "import bar"
     is treated full line change instead of only "foo" changed to "bar".
     """
-    for tag in ['\0-', '\0+', '\0^', '\1']:
-        a, b = a.replace(tag, ''), b.replace(tag, '')
+    for t in ['\0-', '\0+', '\0^', '\1']:
+        a, b = a.replace(t, ''), b.replace(t, '')
     old, new = _split_to_words(a), _split_to_words(b)
     xs, ys = [], []
     for tag, i, j, m, n in difflib.SequenceMatcher(a=old, b=new).get_opcodes():
@@ -738,7 +760,7 @@ def _get_patch_stream(args: list, read_vcs_log: bool):
         return None
 
     if read_vcs_log:
-        cmd = _VCS_INFO[vcs].get('log')
+        cmd = _VCS_INFO[vcs]['log']
         if cmd is None:
             sys.stderr.write('*** %s has no log support.\n' % vcs)
             return None
