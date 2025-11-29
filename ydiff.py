@@ -64,7 +64,6 @@ _THEMES = {
         'wrap_marker': [_Color.FG_BRIGHT_MAGENTA],
     },
     'dark': {
-        # kind: [effect...]
         'header': [_Color.FG_CYAN],
         'old_path': [_Color.BG8_DARK_RED],
         'new_path': [_Color.BG8_DARK_GREEN],
@@ -83,7 +82,6 @@ _THEMES = {
         'wrap_marker': [_Color.FG_BRIGHT_MAGENTA],
     },
     'light': {
-        # kind: [effect...]
         'header': [_Color.FG_CYAN],
         'old_path': [_Color.BG8_LIGHT_RED],
         'new_path': [_Color.BG8_LIGHT_GREEN],
@@ -105,24 +103,25 @@ _THEMES = {
 
 
 def _colorize(text, kind, theme='default'):
+    effect = lambda kind: ''.join(_THEMES[theme][kind])
     if kind == 'replaced_old_text':
-        base_color = ''.join(_THEMES[theme]['old_line'])
-        del_color = ''.join(_THEMES[theme]['replaced_old_text'])
-        chg_color = ''.join(_THEMES[theme]['deleted_text'])
+        base_color = effect('old_line')
+        del_color = effect('replaced_old_text')
+        chg_color = effect('deleted_text')
         rst_color = _Color.RESET + base_color
         text = text.replace('\0-', del_color)
         text = text.replace('\0^', chg_color)
         text = text.replace('\1', rst_color)
     elif kind == 'replaced_new_text':
-        base_color = ''.join(_THEMES[theme]['new_line'])
-        add_color = ''.join(_THEMES[theme]['replaced_new_text'])
-        chg_color = ''.join(_THEMES[theme]['inserted_text'])
+        base_color = effect('new_line')
+        add_color = effect('replaced_new_text')
+        chg_color = effect('inserted_text')
         rst_color = _Color.RESET + base_color
         text = text.replace('\0+', add_color)
         text = text.replace('\0^', chg_color)
         text = text.replace('\1', rst_color)
     else:
-        base_color = ''.join(_THEMES[theme][kind])
+        base_color = effect(kind)
     return base_color + text + _Color.RESET
 
 
@@ -136,13 +135,8 @@ def _strsplit(text, width, color_codes):
     appended with the resetting sequence, and the second string is prefixed
     with all active colors.
     """
-    left = ''
-    seen_colors = ''
-    left_width = 0
-    total_chars = len(text)
-    i = 0
-
-    while i < total_chars:
+    left, seen_colors, left_width, i = '', '', 0, 0
+    while i < len(text):
         if text[i] == '\x1b':
             for c in color_codes:
                 if text.startswith(c, i):
@@ -176,10 +170,9 @@ def _strtrim(text, width, wrap_char, pad, color_codes):
     """
     left, right, left_width = _strsplit(text, width, color_codes)
     if right or left_width > width:  # asian chars can cause exceeds
-        left, _, _ = _strsplit(left, width - 1, color_codes)
-        left += wrap_char
+        left = _strsplit(left, width - 1, color_codes)[0] + wrap_char
     elif pad:
-        left = '%s%*s' % (left, width - left_width, '')
+        left += ' ' * (width - left_width)
     return left
 
 
@@ -188,8 +181,7 @@ def _split_to_words(s: str) -> list:
     all uppercased/lowercased, camel and snake cased names at the "word"
     boundary. Note '\s' has to be here to match '\n'.
     """
-    r = re.compile(r'[A-Z]{2,}|[A-Z][a-z]+|[a-z]{2,}|[A-Za-z0-9]+|\s|.')
-    return r.findall(s)
+    return re.findall(r'[A-Z]{2,}|[A-Z][a-z]+|[a-z]{2,}|[A-Za-z0-9]+|\s|.', s)
 
 
 def _word_diff(a: str, b: str) -> tuple:
@@ -202,17 +194,12 @@ def _word_diff(a: str, b: str) -> tuple:
     a certain ratio (hardcode 0.75). One example: "import foo" vs "import bar"
     is treated full line change instead of only "foo" changed to "bar".
     """
-    for token in ['\0-', '\0+', '\0^', '\1']:
-        a = a.replace(token, '')
-        b = b.replace(token, '')
-
-    old = _split_to_words(a)
-    new = _split_to_words(b)
-    xs = []
-    ys = []
+    for tag in ['\0-', '\0+', '\0^', '\1']:
+        a, b = a.replace(tag, ''), b.replace(tag, '')
+    old, new = _split_to_words(a), _split_to_words(b)
+    xs, ys = [], []
     for tag, i, j, m, n in difflib.SequenceMatcher(a=old, b=new).get_opcodes():
-        x = ''.join(old[i:j])
-        y = ''.join(new[m:n])
+        x, y = ''.join(old[i:j]), ''.join(new[m:n])
         # print('%s\t%s\n\t%s' % (tag, repr(x), repr(y)), file=sys.stderr)
         if tag == 'equal':
             xs.append(x)
@@ -257,18 +244,17 @@ class Hunk:
         boolean flag -- None indicates context separation, True indicates
             either "from" or "to" line contains a change, otherwise False.
         """
-        return difflib._mdiff(self._get_old_text(), self._get_new_text())
+        return difflib._mdiff(self._get_old(), self._get_new())
 
-    def _get_old_text(self):
-        return [line for (attr, line) in self._hunk_list if attr != '+']
+    def _get_old(self):
+        return [line for attr, line in self._hunk_list if attr != '+']
 
-    def _get_new_text(self):
-        return [line for (attr, line) in self._hunk_list if attr != '-']
+    def _get_new(self):
+        return [line for attr, line in self._hunk_list if attr != '-']
 
     def is_completed(self):
-        old_completed = self._old_addr[1] == len(self._get_old_text())
-        new_completed = self._new_addr[1] == len(self._get_new_text())
-        return old_completed and new_completed
+        return (self._old_addr[1] == len(self._get_old()) and
+                self._new_addr[1] == len(self._get_new()))
 
 
 class UnifiedDiff:
@@ -293,23 +279,16 @@ class UnifiedDiff:
         return (line.startswith('@@ -') and line.find(' @@') >= 8 or
                 line.startswith('## -') and line.find(' ##') >= 8)
 
-    def parse_hunk_meta(self, hunk_meta):
+    def parse_hunk_meta(self, meta) -> tuple:
+        # Example valid addresses:
         # @@ -3,7 +3,6 @@
-        a = hunk_meta.split()[1].split(',')   # -3 7
-        if len(a) > 1:
-            old_addr = (int(a[0][1:]), int(a[1]))
-        else:
-            # @@ -1 +1,2 @@
-            old_addr = (int(a[0][1:]), 1)
-
-        b = hunk_meta.split()[2].split(',')   # +3 6
-        if len(b) > 1:
-            new_addr = (int(b[0][1:]), int(b[1]))
-        else:
-            # @@ -0,0 +1 @@
-            new_addr = (int(b[0][1:]), 1)
-
-        return old_addr, new_addr
+        # @@ -1 +1,2 @@
+        # @@ -0,0 +1 @@
+        def addr(s):
+            a = s.split(',')
+            return int(a[0][1:]), int(a[1]) if len(a) > 1 else 1
+        parts = meta.split()
+        return addr(parts[1]), addr(parts[2])
 
     def parse_hunk_line(self, line):
         return line[0], line[1:]
@@ -336,7 +315,8 @@ class UnifiedDiff:
         return line.startswith('Only in ')
 
     def is_binary_differ(self, line):
-        return re.match('^Binary files .* differ$', line.rstrip())
+        return (line.startswith('Binary files ') and
+                line.rstrip().endswith(' differ'))
 
 
 class DiffParser:
@@ -376,17 +356,13 @@ class DiffParser:
                     old_addr, new_addr = diff.parse_hunk_meta(line)
                 except (IndexError, ValueError):
                     raise RuntimeError('invalid hunk meta: %s' % line)
-                hunk = Hunk(headers, line, old_addr, new_addr)
+                diff._hunks.append(Hunk(headers, line, old_addr, new_addr))
                 headers = []
-                diff._hunks.append(hunk)
 
             elif diff._hunks and not headers and (diff.is_old(line) or
                                                   diff.is_new(line) or
                                                   diff.is_common(line)):
                 diff._hunks[-1].append(diff.parse_hunk_line(line))
-
-            elif diff.is_eof(line):
-                pass
 
             elif diff.is_only_in_dir(line) or diff.is_binary_differ(line):
                 # 'Only in foo:' and 'Binary files ... differ' are considered
@@ -399,7 +375,7 @@ class DiffParser:
                 headers = []
                 diff = UnifiedDiff([], None, None, [])
 
-            else:
+            elif not diff.is_eof(line):
                 # Non-recognized lines: headers or hunk headers
                 headers.append(line)
 
@@ -430,24 +406,18 @@ class DiffMarker:
 
     def markup(self, diff):
         """Returns a generator"""
-        if self._side_by_side:
-            it = self._markup_side_by_side
-        else:
-            it = self._markup_unified
-        for line in it(diff):
-            yield line
+        return (self._markup_side_by_side(diff) if self._side_by_side
+                else self._markup_unified(diff))
 
     def _markup_unified(self, diff):
         """Returns a generator"""
-        for line in diff._headers:
-            yield self._tint(line, 'header')
-
+        yield from (self._tint(x, 'header') for x in diff._headers)
         yield self._tint(diff._old_path, 'old_path')
         yield self._tint(diff._new_path, 'new_path')
 
         for hunk in diff._hunks:
-            for hunk_header in hunk._hunk_headers:
-                yield self._tint(hunk_header, 'hunk_header')
+            yield from (self._tint(x, 'hunk_header')
+                        for x in hunk._hunk_headers)
             yield self._tint(hunk._hunk_meta, 'hunk_meta')
             for old, new, changed in hunk.mdiff():
                 if changed:
@@ -472,17 +442,15 @@ class DiffMarker:
                     yield self._tint(' ' + old[1], 'common_line')
 
     def _normalize(self, line):
-        index = 0
         while True:
-            index = line.find('\t', index)
-            if index == -1:
+            idx = line.find('\t')
+            if idx == -1:
                 break
             # ignore special codes
-            offset = (line.count('\0', 0, index) * 2 +
-                      line.count('\1', 0, index))
+            offset = line.count('\0', 0, idx) * 2 + line.count('\1', 0, idx)
             # next stop modulo tab width
-            width = self._tab_width - (index - offset) % self._tab_width
-            line = line[:index] + ' ' * width + line[(index + 1):]
+            width = self._tab_width - (idx - offset) % self._tab_width
+            line = line[:idx] + ' ' * width + line[idx + 1:]
         return line.replace('\n', '').replace('\r', '')
 
     def _markup_side_by_side(self, diff):
@@ -512,31 +480,22 @@ class DiffMarker:
         line_fmt = (num_fmt1 + ' %(left)s ' + _Color.RESET +
                     num_fmt2 + ' %(right)s\n')
 
-        # yield header, old path and new path
-        for line in diff._headers:
-            yield self._tint(line, 'header')
+        yield from (self._tint(x, 'header') for x in diff._headers)
         yield self._tint(diff._old_path, 'old_path')
         yield self._tint(diff._new_path, 'new_path')
 
-        # yield hunks
         for hunk in diff._hunks:
             for hunk_header in hunk._hunk_headers:
                 yield self._tint(hunk_header, 'hunk_header')
             yield self._tint(hunk._hunk_meta, 'hunk_meta')
             for old, new, changed in hunk.mdiff():
+                left_num, right_num = ' ', ' '
                 if old[0]:
                     left_num = str(hunk._old_addr[0] + int(old[0]) - 1)
-                else:
-                    left_num = ' '
-
                 if new[0]:
                     right_num = str(hunk._new_addr[0] + int(new[0]) - 1)
-                else:
-                    right_num = ' '
 
-                left = self._normalize(old[1])
-                right = self._normalize(new[1])
-
+                left, right = self._normalize(old[1]), self._normalize(new[1])
                 if changed:
                     if not old[0]:
                         left = ''
@@ -573,7 +532,7 @@ class DiffMarker:
 
                         # Pad left line with spaces if needed
                         if llen < width:
-                            lcur = '%s%*s' % (lcur, width - llen, '')
+                            lcur += ' ' * (width - llen)
 
                         yield line_fmt % {
                             'left_num': lncur,
@@ -773,10 +732,9 @@ def _get_patch_stream(args: list, read_vcs_log: bool):
         return getattr(sys.stdin, 'buffer', sys.stdin)
 
     vcs = _revision_control_probe()
-    if vcs is None:
-        supported_vcs = ', '.join(sorted(_VCS_INFO.keys()))
-        sys.stderr.write('*** Not in a supported workspace, supported are:'
-                         ' %s\n' % supported_vcs)
+    if not vcs:
+        sys.stderr.write('*** Not in a supported workspace, supported are: '
+                         '%s\n' % ', '.join(sorted(_VCS_INFO.keys())))
         return None
 
     if read_vcs_log:

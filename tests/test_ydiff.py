@@ -130,19 +130,19 @@ class DecodeTest(unittest.TestCase):
 
 class HunkTest(unittest.TestCase):
 
-    def test_get_old_text(self):
+    def test_get_old(self):
         hunk = ydiff.Hunk([], '@@ -1,2 +1,2 @@', (1, 2), (1, 2))
         hunk.append(('-', 'foo\n'))
         hunk.append(('+', 'bar\n'))
         hunk.append((' ', 'common\n'))
-        self.assertEqual(hunk._get_old_text(), ['foo\n', 'common\n'])
+        self.assertEqual(hunk._get_old(), ['foo\n', 'common\n'])
 
-    def test_get_new_text(self):
+    def test_get_new(self):
         hunk = ydiff.Hunk([], '@@ -1,2 +1,2 @@', (1, 2), (1, 2))
         hunk.append(('-', 'foo\n'))
         hunk.append(('+', 'bar\n'))
         hunk.append((' ', 'common\n'))
-        self.assertEqual(hunk._get_new_text(), ['bar\n', 'common\n'])
+        self.assertEqual(hunk._get_new(), ['bar\n', 'common\n'])
 
 
 class DiffMarkupTest(unittest.TestCase):
