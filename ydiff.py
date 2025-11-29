@@ -14,7 +14,7 @@ import unicodedata
 __version__ = '1.4.2'
 __homepage__ = 'https://github.com/ymattw/ydiff'
 __description__ = ('View colored, incremental diff in a workspace or from '
-                   'stdin, in side-by-side or unified moded, and auto paged')
+                   'stdin, in side-by-side or unified moded, and auto paged.')
 
 if sys.hexversion < 0x03030000:
     raise SystemExit('*** Requires python >= 3.3.0')    # pragma: no cover
@@ -711,80 +711,59 @@ def _trap_interrupts(entry_fn):
 
 
 def _parse_args():
-    from optparse import (OptionParser, BadOptionError, AmbiguousOptionError,
-                          OptionGroup)
+    import argparse
 
-    class _PassThroughOptionParser(OptionParser):
-        """Stop parsing on first unknown option (e.g. --cached, -U10) and pass
-        them down.  Note the `opt_str` in exception object does not give us
-        chance to take the full option back, e.g. for '-U10' it will only
-        contain '-U' and the '10' part will be lost.  Ref: http://goo.gl/IqY4A
-        (on stackoverflow).  My hack is to try parse and insert a '--' in place
-        and parse again.  Let me know if someone has better solution.
-        """
+    parser = argparse.ArgumentParser(
+        description=__description__,
+        usage='%(prog)s [options] [file|dir ...]',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=('Note: Option parser will stop on first unknown option '
+                'and pass them down to underneath revision control. '
+                'Environment variable YDIFF_OPTIONS may be used to '
+                'specify default options that will be placed at the '
+                'beginning of the argument list.'))
 
-        def _process_args(self, largs, rargs, values):
-            left = largs[:]
-            right = rargs[:]
-            try:
-                OptionParser._process_args(self, left, right, values)
-            except (BadOptionError, AmbiguousOptionError):
-                parsed_num = len(rargs) - len(right) - 1
-                rargs.insert(parsed_num, '--')
-            OptionParser._process_args(self, largs, rargs, values)
-
-    usage = """%prog [options] [file|dir ...]"""
-    parser = _PassThroughOptionParser(
-        usage=usage, description=__description__,
-        version='%%prog %s' % __version__)
-    parser.add_option(
+    parser.add_argument(
         '-s', '--side-by-side', action='store_true', default=True,
         help='enable side-by-side mode (default True; DEPRECATED)')
-    parser.add_option(
+    parser.add_argument(
         '-u', '--unified', action='store_false', dest='side_by_side',
         help='show diff in unified mode (disables side-by-side mode)')
-    parser.add_option(
-        '-w', '--width', type='int', default=0, metavar='N',
+    parser.add_argument(
+        '-w', '--width', type=int, default=0, metavar='N',
         help='set text width for side-by-side mode, 0 (default) for auto '
              'detection and fallback to 80 when not possible')
-    parser.add_option(
+    parser.add_argument(
         '-l', '--log', action='store_true',
         help='show log with changes from revision control')
-    parser.add_option(
+    parser.add_argument(
         '-c', '--color', default='auto', metavar='WHEN',
-        help="""colorize mode 'auto' (default), 'always', or 'never'""")
-    parser.add_option(
-        '-t', '--tab-width', type='int', default=8, metavar='N',
-        help="""convert tab chars to this many spaces (default: 8)""")
-    parser.add_option(
-        '', '--wrap', action='store_true', default=True,
+        help="colorize mode 'auto' (default), 'always', or 'never'")
+    parser.add_argument(
+        '-t', '--tab-width', type=int, default=8, metavar='N',
+        help='convert tab chars to this many spaces (default: 8)')
+    parser.add_argument(
+        '--wrap', action='store_true', default=True,
         help='wrap long lines in side-by-side mode (default True; DEPRECATED)')
-    parser.add_option(
+    parser.add_argument(
         '--nowrap', '--no-wrap', action='store_false', dest='wrap',
         help='do not wrap long lines in side-by-side mode')
-    parser.add_option(
+    parser.add_argument(
         '-p', '--pager', metavar='PAGER',
-        help="""pager application to feed output to, default is 'less'""")
-    parser.add_option(
+        help="pager application to feed output to, default is 'less'")
+    parser.add_argument(
         '-o', '--pager-options', metavar='OPT',
-        help="""options to supply to pager application""")
+        help='options to supply to pager application')
     themes = ', '.join(['default'] + sorted(_THEMES.keys() - {'default'}))
-    parser.add_option(
-        '', '--theme', metavar='THEME', default='default',
-        help="""option to pick a color theme (one of %s)""" % themes)
-
-    # Hack: use OptionGroup text for extra help message after option list
-    option_group = OptionGroup(
-        parser, 'Note', ('Option parser will stop on first unknown option '
-                         'and pass them down to underneath revision control. '
-                         'Environment variable YDIFF_OPTIONS may be used to '
-                         'specify default options that will be placed at the '
-                         'beginning of the argument list.'))
-    parser.add_option_group(option_group)
+    parser.add_argument(
+        '--theme', metavar='THEME', default='default',
+        help='option to pick a color theme (one of %s)' % themes)
+    parser.add_argument(
+        '--version', action='version', version='%%(prog)s %s' % __version__)
 
     # Place possible options defined in YDIFF_OPTIONS at the beginning of argv
     ydiff_opts = [x for x in os.getenv('YDIFF_OPTIONS', '').split(' ') if x]
-    opts, args = parser.parse_args(ydiff_opts + sys.argv[1:])
+    opts, args = parser.parse_known_args(ydiff_opts + sys.argv[1:])
     return opts, args
 
 

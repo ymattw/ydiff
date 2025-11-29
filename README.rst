@@ -100,7 +100,7 @@ Type ``ydiff -h`` to show usage::
     Usage: ydiff [options] [file|dir ...]
 
     View colored, incremental diff in a workspace or from stdin, with side by side
-    and auto pager support
+    and auto pager support.
 
     Options:
       --version             show program's version number and exit
@@ -141,8 +141,7 @@ Read diff from local modification in a *Git/Mercurial/Perforce/Svn* workspace
     ydiff -w 90                 # use text width 90, wrap long lines
     ydiff --no-wrap             # auto set text width but do not wrap long lines
     ydiff file1 dir2            # view modification of given files/dirs only
-    ydiff -w90 -- -U10          # pass '-U10' to underneath revision diff tool
-    ydiff -w90 -U10             # '--' is optional as it's unknown to ydiff
+    ydiff -w90 -U10             # pass '-U10' to underneath revision diff tool
     ydiff --cached              # show git staged diff (git diff --cached)
     ydiff -r1234                # show svn diff to revision 1234
 
