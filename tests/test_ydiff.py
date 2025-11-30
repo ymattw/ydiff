@@ -3,11 +3,14 @@
 
 """Unit test for ydiff"""
 
-import sys
-import unittest
-import tempfile
-import subprocess
+from unittest import mock
+import io
 import os
+import re
+import subprocess
+import sys
+import tempfile
+import unittest
 
 sys.path.insert(0, '')
 import ydiff  # nopep8
@@ -298,154 +301,6 @@ class DiffMarkupTest(unittest.TestCase):
             '\x1b[0m\x1b[33m5\x1b[0m '
             '\x1b[32m \x1b[7m\x1b[32mspaced\x1b[0m\x1b[32m\x1b[0m\n')
 
-    # This test is not valid anymore
-    def __test_markup_side_by_side_neg_width(self):
-        diff = self._init_diff()
-        marker = ydiff.DiffMarker(side_by_side=True, width=-1)
-        out = list(marker.markup(diff))
-        self.assertEqual(len(out), 11)
-
-        self.assertEqual(out[0], '\x1b[36mheader\n\x1b[0m')
-        self.assertEqual(out[1], '\x1b[33m--- old\n\x1b[0m')
-        self.assertEqual(out[2], '\x1b[33m+++ new\n\x1b[0m')
-        self.assertEqual(out[3], '\x1b[36mhunk header\n\x1b[0m')
-        self.assertEqual(out[4], '\x1b[34m@@ -1,4 +1,4 @@\n\x1b[0m')
-        self.assertEqual(
-            out[5],
-            '\x1b[33m1\x1b[0m '
-            '\x1b[31m\x1b[7m\x1b[31mh\x1b[0m\x1b[31mhello\x1b[0m ' +
-            (' ' * 74) +
-            '\x1b[0m\x1b[33m1\x1b[0m '
-            '\x1b[32mhello\x1b[7m\x1b[32mo\x1b[0m\x1b[32m\x1b[0m\n')
-        self.assertEqual(
-            out[6],
-            '\x1b[33m '
-            '\x1b[0m  ' + (' ' * 80) +
-            '\x1b[0m\x1b[33m2\x1b[0m '
-            '\x1b[32mspammm\x1b[0m\n')
-        self.assertEqual(
-            out[7],
-            '\x1b[33m2\x1b[0m '
-            '\x1b[0mworld\x1b[0m ' + (' ' * 75) +
-            '\x1b[0m\x1b[33m3\x1b[0m '
-            '\x1b[0mworld\x1b[0m\n')
-        self.assertEqual(
-            out[8],
-            '\x1b[33m3\x1b[0m '
-            '\x1b[31mgarb\x1b[0m '
-            '\x1b[0m\x1b[33m '
-            '\x1b[0m \n')
-        self.assertEqual(
-            out[9],
-            '\x1b[33m4\x1b[0m '
-            '\x1b[31m\x1b[7m\x1b[31mAgain\x1b[0m ' +
-            (' ' * 75) +
-            '\x1b[0m\x1b[33m4\x1b[0m '
-            '\x1b[32m\x1b[7m\x1b[32magain\x1b[0m\n')
-
-    def test_markup_side_by_side_off_by_one(self):
-        diff = self._init_diff()
-        marker = ydiff.DiffMarker(side_by_side=True, width=6)
-        out = list(marker.markup(diff))
-        self.assertEqual(len(out), 11)
-
-        sys.stdout.write('\n')
-        for markup in out:
-            sys.stdout.write(markup)
-
-        self.assertEqual(out[0], '\x1b[36mheader\n\x1b[0m')
-        self.assertEqual(out[1], '\x1b[33m--- old\n\x1b[0m')
-        self.assertEqual(out[2], '\x1b[33m+++ new\n\x1b[0m')
-        self.assertEqual(out[3], '\x1b[36mhunk header\n\x1b[0m')
-        self.assertEqual(out[4], '\x1b[34m@@ -1,5 +1,5 @@\n\x1b[0m')
-        self.assertEqual(
-            out[5],
-            '\x1b[33m1\x1b[0m '
-            '\x1b[31m\x1b[7m\x1b[31m_\x1b[0m\x1b[31mhello\x1b[0m '
-            '\x1b[0m\x1b[33m1\x1b[0m '
-            '\x1b[32mhello\x1b[7m\x1b[32m+\x1b[0m\x1b[32m\x1b[0m\n')
-        self.assertEqual(
-            out[6],
-            '\x1b[33m \x1b[0m        '
-            '\x1b[0m\x1b[33m2\x1b[0m '
-            '\x1b[32mspammm\x1b[0m\n')
-        self.assertEqual(
-            out[7],
-            '\x1b[33m2\x1b[0m '
-            '\x1b[0mworld\x1b[0m  '
-            '\x1b[0m\x1b[33m3\x1b[0m '
-            '\x1b[0mworld\x1b[0m\n')
-        self.assertEqual(
-            out[8],
-            '\x1b[33m3\x1b[0m '
-            '\x1b[31mgarb\x1b[0m '
-            '\x1b[0m\x1b[33m '
-            '\x1b[0m \n')
-        self.assertEqual(
-            out[9],
-            '\x1b[33m4\x1b[0m '
-            '\x1b[31m\x1b[7m\x1b[31mAgain\x1b[0m\x1b[31m\x1b[0m  '
-            '\x1b[0m\x1b[33m4\x1b[0m '
-            '\x1b[32m\x1b[7m\x1b[32magain\x1b[0m\x1b[32m\x1b[0m\n')
-        self.assertEqual(
-            out[10],
-            '\x1b[33m5\x1b[0m '
-            '\x1b[31m \x1b[7m\x1b[31m    \x1b[0m\x1b[95m>\x1b[0m '
-            '\x1b[0m\x1b[33m5\x1b[0m '
-            '\x1b[32m \x1b[7m\x1b[32mspac\x1b[0m\x1b[95m>\x1b[0m\n')
-
-    def test_markup_side_by_side_wrapped(self):
-        diff = self._init_diff()
-        marker = ydiff.DiffMarker(side_by_side=True, width=5)
-        out = list(marker.markup(diff))
-        self.assertEqual(len(out), 11)
-
-        sys.stdout.write('\n')
-        for markup in out:
-            sys.stdout.write(markup)
-
-        self.assertEqual(out[0], '\x1b[36mheader\n\x1b[0m')
-        self.assertEqual(out[1], '\x1b[33m--- old\n\x1b[0m')
-        self.assertEqual(out[2], '\x1b[33m+++ new\n\x1b[0m')
-        self.assertEqual(out[3], '\x1b[36mhunk header\n\x1b[0m')
-        self.assertEqual(out[4], '\x1b[34m@@ -1,5 +1,5 @@\n\x1b[0m')
-        self.assertEqual(
-            out[5],
-            '\x1b[33m1\x1b[0m '
-            '\x1b[31m\x1b[7m\x1b[31m_\x1b[0m\x1b[31mhel\x1b[0m\x1b[95m>\x1b[0m '  # nopep8
-            '\x1b[0m\x1b[33m1\x1b[0m '
-            '\x1b[32mhell\x1b[0m\x1b[95m>\x1b[0m\n')
-        self.assertEqual(
-            out[6],
-            '\x1b[33m \x1b[0m       '
-            '\x1b[0m\x1b[33m2\x1b[0m '
-            ''
-            '\x1b[32mspam\x1b[0m\x1b[95m>\x1b[0m\n')
-        self.assertEqual(
-            out[7],
-            '\x1b[33m2\x1b[0m '
-            '\x1b[0mworld\x1b[0m '
-            '\x1b[0m\x1b[33m3\x1b[0m '
-            '\x1b[0mworld\x1b[0m\n')
-        self.assertEqual(
-            out[8],
-            '\x1b[33m3\x1b[0m '
-            '\x1b[31mgarb\x1b[0m '
-            '\x1b[0m\x1b[33m '
-            '\x1b[0m \n')
-        self.assertEqual(
-            out[9],
-            '\x1b[33m4\x1b[0m '
-            '\x1b[31m\x1b[7m\x1b[31mAgain\x1b[0m\x1b[31m\x1b[0m '
-            '\x1b[0m\x1b[33m4\x1b[0m '
-            '\x1b[32m\x1b[7m\x1b[32magain\x1b[0m\x1b[32m\x1b[0m\n')
-        self.assertEqual(
-            out[10],
-            '\x1b[33m5\x1b[0m '
-            '\x1b[31m \x1b[7m\x1b[31m   \x1b[0m\x1b[95m>\x1b[0m '
-            '\x1b[0m\x1b[33m5\x1b[0m '
-            '\x1b[32m \x1b[7m\x1b[32mspa\x1b[0m\x1b[95m>\x1b[0m\n')
-
     def test_markup_side_by_side_tabbed(self):
         diff = self._init_diff()
         marker = ydiff.DiffMarker(side_by_side=True, width=8, tab_width=2)
@@ -497,6 +352,57 @@ class DiffMarkupTest(unittest.TestCase):
             '\x1b[31m \x1b[7m\x1b[31m tabbed\x1b[0m\x1b[31m\x1b[0m '
             '\x1b[0m\x1b[33m5\x1b[0m '
             '\x1b[32m \x1b[7m\x1b[32mspaced\x1b[0m\x1b[32m\x1b[0m\n')
+
+    def test_markup_side_by_side_wrap_true(self):
+        hunk = ydiff.Hunk([], '@@ -1 +1 @@\n', (1, 1), (1, 1))
+        # Create lines longer than width (width=5)
+        hunk.append(('-', '1234567890\n'))
+        hunk.append(('+', 'abcdefghij\n'))
+        diff = ydiff.UnifiedDiff([], '--- a', '+++ b', [hunk])
+        marker = ydiff.DiffMarker(side_by_side=True, width=5, wrap=True)
+
+        out = list(marker.markup(diff))
+
+        self.assertEqual(len(out), 5)
+        self.assertEqual(out[0], '\x1b[33m--- a\x1b[0m')
+        self.assertEqual(out[1], '\x1b[33m+++ b\x1b[0m')
+        self.assertEqual(out[2], '\x1b[34m@@ -1 +1 @@\n\x1b[0m')
+
+        self.assertIn('12345', out[3])
+        self.assertIn('abcde', out[3])
+        self.assertIn('67890', out[4])
+        self.assertIn('fghij', out[4])
+
+    def test_markup_side_by_side_empty_hunks(self):
+        # Diff with no hunks
+        diff = ydiff.UnifiedDiff([], '--- a', '+++ b', [])
+        marker = ydiff.DiffMarker(side_by_side=True)
+        out = list(marker.markup(diff))
+        self.assertEqual(len(out), 2)
+        self.assertEqual(out[0], '\x1b[33m--- a\x1b[0m')
+        self.assertEqual(out[1], '\x1b[33m+++ b\x1b[0m')
+
+    def test_markup_side_by_side_pad(self):
+        hunk = ydiff.Hunk([], '@@ -1 +1 @@\n', (1, 1), (1, 1))
+        hunk.append(('-', '123456\n'))
+        hunk.append(('+', 'abcdef\n'))
+        diff = ydiff.UnifiedDiff([], '--- a', '+++ b', [hunk])
+        marker = ydiff.DiffMarker(side_by_side=True, width=5, wrap=True)
+        out = list(marker.markup(diff))
+
+        # Line 1: "1 12345 1 abcde"
+        # Line 2: "  6       f" (left padded, right not padded)
+        # "6" is len 1. width 5. pad 4 spaces. "6    "
+
+        # Strip ANSI codes for easier verification
+        ansi_escape = re.compile(r'\x1b\[[0-9;]*m')
+        line2 = ansi_escape.sub('', out[4])
+
+        # Note: num_width is 1.
+        self.assertIn('6    ', line2)
+        # Right side is not padded
+        self.assertIn(' f', line2)
+        self.assertNotIn('f    ', line2)
 
 
 class UnifiedDiffTest(unittest.TestCase):
@@ -779,8 +685,135 @@ Added: svn:keywords
         self.assertEqual(hunk._hunk_headers, ['Added: svn:keywords\n'])
         self.assertEqual(hunk._hunk_list, [('+', 'Id\n')])
 
+    def test_parse_hunk_with_path_like_lines(self):
+        patch = b"""\
+--- a
++++ b
+@@ -1,4 +1,4 @@
+-foo
++bar
+--- a
++++ b
+"""
+        items = patch.splitlines(True)
+        stream = iter(items)
+        parser = ydiff.DiffParser(stream)
 
-@unittest.skipIf(os.name == 'nt', 'Travis CI Windows not ready for shell cmds')
+        out = list(parser.parse())
+        self.assertEqual(len(out), 1)
+        self.assertEqual(len(out[0]._hunks), 1)
+        self.assertEqual(len(out[0]._hunks[0]._hunk_list), 4)
+        self.assertEqual(out[0]._hunks[0]._hunk_list[2], ('-', '-- a\n'))
+        self.assertEqual(out[0]._hunks[0]._hunk_list[3], ('+', '++ b\n'))
+
+
+class UtilsTest(unittest.TestCase):
+
+    def test_decode_error(self):
+        m = mock.Mock()
+        m.decode.side_effect = UnicodeDecodeError('', b'', 0, 1, '')
+        self.assertIn('undecodable bytes', ydiff._decode(m))
+
+    def test_terminal_width_error(self):
+        with mock.patch('shutil.get_terminal_size', side_effect=Exception):
+            self.assertEqual(ydiff._terminal_width(), 80)
+
+    def test_check_command_status_error(self):
+        with mock.patch('subprocess.call', side_effect=OSError):
+            self.assertFalse(ydiff._check_command_status(['ls']))
+
+    def test_trap_interrupts_broken_pipe(self):
+        @ydiff._trap_interrupts
+        def func():
+            raise BrokenPipeError
+        self.assertEqual(func(), 0)
+
+
+class MainUnitTests(unittest.TestCase):
+
+    def test_markup_to_pager(self):
+        with mock.patch('sys.stdout.isatty', return_value=True), \
+                mock.patch('subprocess.Popen') as m_popen, \
+                mock.patch('ydiff.DiffParser.parse', return_value=iter([])), \
+                mock.patch('ydiff.DiffMarker.markup', return_value=iter([])):
+            opts = mock.Mock()
+            opts.pager = 'less'
+            opts.pager_options = None
+            opts.side_by_side = True
+            opts.width = 80
+            opts.tab_width = 8
+            opts.wrap = False
+            opts.theme = 'default'
+
+            ydiff.markup_to_pager(b'', opts)
+            self.assertTrue(m_popen.called)
+
+    def test_markup_to_pager_multiple_diffs(self):
+        diff1 = mock.Mock()
+        diff2 = mock.Mock()
+        with mock.patch('sys.stdout.isatty', return_value=True), \
+                mock.patch('subprocess.Popen') as m_popen, \
+                mock.patch('ydiff.DiffParser.parse',
+                           return_value=iter([diff1, diff2])), \
+                mock.patch('ydiff.DiffMarker.markup', side_effect=lambda _:
+                           iter(['line'])):
+            opts = mock.Mock()
+            opts.pager = 'less'
+            opts.pager_options = None
+            opts.side_by_side = True
+            opts.width = 80
+            opts.tab_width = 8
+            opts.wrap = False
+            opts.theme = 'default'
+
+            ydiff.markup_to_pager(b'', opts)
+            self.assertTrue(m_popen.called)
+            # 2 diffs -> 1 separator + 2 * lines
+            # markup called twice
+            self.assertEqual(ydiff.DiffMarker.markup.call_count, 2)
+
+    def test_get_patch_stream_stdin_file(self):
+        with mock.patch('os.fstat') as m_fstat:
+            m_fstat.return_value.st_mode = 33188  # S_IFREG
+            self.assertEqual(ydiff._get_patch_stream(
+                [], False), sys.stdin.buffer)
+
+    def test_get_patch_stream_no_log_support(self):
+        with mock.patch('ydiff._revision_control_probe',
+                        return_value='Perforce'), \
+                mock.patch('sys.stderr',
+                           new_callable=io.StringIO) as m_stderr:
+            self.assertIsNone(ydiff._get_patch_stream([], True))
+            self.assertIn('no log support', m_stderr.getvalue())
+
+    def test_main_pipe_output(self):
+        with mock.patch('ydiff._get_patch_stream',
+                        return_value=io.BytesIO(b'foo')), \
+            mock.patch('ydiff._parse_args',
+                       return_value=(mock.Mock(
+                           theme='default', color='auto', log=False), [])), \
+                mock.patch('sys.stdout', new_callable=mock.Mock) as m_stdout:
+            # mock buffer for python 3
+            m_stdout.buffer = mock.Mock()
+            m_stdout.isatty.return_value = False
+
+            ydiff._main()
+            m_stdout.buffer.write.assert_called_with(b'foo')
+
+    def test_main_unknown_theme(self):
+        with mock.patch('sys.stderr', new_callable=io.StringIO) as m_stderr:
+            with mock.patch('ydiff._parse_args',
+                            return_value=(mock.Mock(theme='foo'), [])):
+                self.assertEqual(ydiff._main(), 1)
+                self.assertIn('Unknown theme', m_stderr.getvalue())
+
+    def test_main_no_stream(self):
+        with mock.patch('ydiff._parse_args',
+                        return_value=(mock.Mock(theme='default'), [])), \
+                mock.patch('ydiff._get_patch_stream', return_value=None):
+            self.assertEqual(ydiff._main(), 1)
+
+
 class MainTest(unittest.TestCase):
 
     def setUp(self):
@@ -821,10 +854,8 @@ class MainTest(unittest.TestCase):
         os.chdir(self._cwd)
         self.assertEqual(ret, 0)
 
-    # Following 3 tests does not pass on Travis anymore due to tty problem
-
-    def _test_read_log(self):
-        sys.argv = [sys.argv[0], '--log']
+    def test_read_log(self):
+        sys.argv = [sys.argv[0], '--log', '--pager=cat']
         self._change_file('read_log')
         self._commit_file()
 
@@ -833,15 +864,15 @@ class MainTest(unittest.TestCase):
         os.chdir(self._cwd)
         self.assertEqual(ret, 0)
 
-    def _test_read_diff_neg(self):
-        sys.argv = sys.argv[:1]
+    def test_read_diff_neg(self):
+        sys.argv = sys.argv[:1] + ['--pager=cat']
         os.chdir(self._non_ws)
         ret = ydiff._main()
         os.chdir(self._cwd)
         self.assertNotEqual(ret, 0)
 
-    def _test_read_log_neg(self):
-        sys.argv = [sys.argv[0], '--log']
+    def test_read_log_neg(self):
+        sys.argv = [sys.argv[0], '--log', '--pager=cat']
         os.chdir(self._non_ws)
         ret = ydiff._main()
         os.chdir(self._cwd)
