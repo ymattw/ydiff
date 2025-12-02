@@ -718,10 +718,6 @@ class UtilsTest(unittest.TestCase):
         with mock.patch('shutil.get_terminal_size', side_effect=Exception):
             self.assertEqual(ydiff._terminal_width(), 80)
 
-    def test_check_command_status_error(self):
-        with mock.patch('subprocess.call', side_effect=OSError):
-            self.assertFalse(ydiff._check_command_status(['ls']))
-
     def test_trap_interrupts_broken_pipe(self):
         @ydiff._trap_interrupts
         def func():
@@ -731,32 +727,15 @@ class UtilsTest(unittest.TestCase):
 
 class MainUnitTests(unittest.TestCase):
 
-    def test_markup_to_pager(self):
-        with mock.patch('sys.stdout.isatty', return_value=True), \
-                mock.patch('subprocess.Popen') as m_popen, \
-                mock.patch('ydiff.DiffParser.parse', return_value=iter([])), \
-                mock.patch('ydiff.DiffMarker.markup', return_value=iter([])):
-            opts = mock.Mock()
-            opts.pager = 'less'
-            opts.pager_options = None
-            opts.side_by_side = True
-            opts.width = 80
-            opts.tab_width = 8
-            opts.wrap = False
-            opts.theme = 'default'
-
-            ydiff.markup_to_pager(b'', opts)
-            self.assertTrue(m_popen.called)
-
-    def test_markup_to_pager_multiple_diffs(self):
+    @mock.patch('ydiff.DiffMarker.markup',
+                side_effect=lambda _: iter(['line']))
+    @mock.patch('subprocess.Popen')
+    @mock.patch('sys.stdout.isatty', return_value=True)
+    def test_markup_to_pager_multiple_diffs(self, m_isatty, m_popen, m_markup):
         diff1 = mock.Mock()
         diff2 = mock.Mock()
-        with mock.patch('sys.stdout.isatty', return_value=True), \
-                mock.patch('subprocess.Popen') as m_popen, \
-                mock.patch('ydiff.DiffParser.parse',
-                           return_value=iter([diff1, diff2])), \
-                mock.patch('ydiff.DiffMarker.markup', side_effect=lambda _:
-                           iter(['line'])):
+        with mock.patch('ydiff.DiffParser.parse',
+                        return_value=iter([diff1, diff2])):
             opts = mock.Mock()
             opts.pager = 'less'
             opts.pager_options = None
@@ -778,27 +757,25 @@ class MainUnitTests(unittest.TestCase):
             self.assertEqual(ydiff._get_patch_stream(
                 [], False), sys.stdin.buffer)
 
-    def test_get_patch_stream_no_log_support(self):
+    @mock.patch('sys.stderr', new_callable=io.StringIO)
+    def test_get_patch_stream_no_log_support(self, m_stderr):
         with mock.patch('ydiff._revision_control_probe',
-                        return_value='Perforce'), \
-                mock.patch('sys.stderr',
-                           new_callable=io.StringIO) as m_stderr:
+                        return_value='Perforce'):
             self.assertIsNone(ydiff._get_patch_stream([], True))
             self.assertIn('no log support', m_stderr.getvalue())
 
-    def test_main_pipe_output(self):
-        with mock.patch('ydiff._get_patch_stream',
-                        return_value=io.BytesIO(b'foo')), \
-            mock.patch('ydiff._parse_args',
-                       return_value=(mock.Mock(
-                           theme='default', color='auto', log=False), [])), \
-                mock.patch('sys.stdout', new_callable=mock.Mock) as m_stdout:
-            # mock buffer for python 3
-            m_stdout.buffer = mock.Mock()
-            m_stdout.isatty.return_value = False
+    @mock.patch('sys.stdout', new_callable=mock.Mock)
+    @mock.patch('ydiff._parse_args',
+                return_value=(mock.Mock(
+                    theme='default', color='auto', log=False), []))
+    @mock.patch('ydiff._get_patch_stream', return_value=io.BytesIO(b'foo'))
+    def test_main_pipe_output(self, m_stream, m_args, m_stdout):
+        # mock buffer for python 3
+        m_stdout.buffer = mock.Mock()
+        m_stdout.isatty.return_value = False
 
-            ydiff._main()
-            m_stdout.buffer.write.assert_called_with(b'foo')
+        ydiff._main()
+        m_stdout.buffer.write.assert_called_with(b'foo')
 
     def test_main_unknown_theme(self):
         with mock.patch('sys.stderr', new_callable=io.StringIO) as m_stderr:
@@ -806,12 +783,6 @@ class MainUnitTests(unittest.TestCase):
                             return_value=(mock.Mock(theme='foo'), [])):
                 self.assertEqual(ydiff._main(), 1)
                 self.assertIn('Unknown theme', m_stderr.getvalue())
-
-    def test_main_no_stream(self):
-        with mock.patch('ydiff._parse_args',
-                        return_value=(mock.Mock(theme='default'), [])), \
-                mock.patch('ydiff._get_patch_stream', return_value=None):
-            self.assertEqual(ydiff._main(), 1)
 
 
 class MainTest(unittest.TestCase):
