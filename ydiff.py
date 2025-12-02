@@ -20,95 +20,78 @@ if sys.hexversion < 0x03030000:
     raise SystemExit('*** Requires python >= 3.3.0')    # pragma: no cover
 
 
-class _Color:
-    RESET = '\x1b[0m'
-    REVERSE = '\x1b[7m'
-    # https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
-    FG_RED = '\x1b[31m'
-    FG_GREEN = '\x1b[32m'
-    FG_YELLOW = '\x1b[33m'
-    FG_BLUE = '\x1b[34m'
-    FG_CYAN = '\x1b[36m'
-    FG_BRIGHT_MAGENTA = '\x1b[95m'
-    FG_BRIGHT_CYAN = '\x1b[96m'
-    # https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
-    FG8_GRAY = '\x1b[38;5;235m'
-    BG8_DARK_RED = '\x1b[48;5;52m'
-    BG8_RED = '\x1b[48;5;88m'
-    BG8_DARK_GREEN = '\x1b[48;5;22m'
-    BG8_GREEN = '\x1b[48;5;28m'
-    BG8_LIGHT_RED = '\x1b[48;5;217m'
-    BG8_DIMMED_RED = '\x1b[48;5;210m'
-    BG8_LIGHT_GREEN = '\x1b[48;5;194m'
-    BG8_DIMMED_GREEN = '\x1b[48;5;157m'
-
+_ANSI_RE = re.compile(r'\x1b\[[0-9;]*m')
+_WORDS_RE = re.compile(r'[A-Z]{2,}|[A-Z][a-z]+|[a-z]{2,}|[A-Za-z0-9]+|\s|.')
+_RESET = '\x1b[0m'
 
 _THEMES = {
+    # References of the ANSI color codes:
+    # https://en.wikipedia.org/wiki/ANSI_escape_code
     'default': {
-        # kind: [effect...]
-        'header': [_Color.FG_CYAN],
-        'old_path': [_Color.FG_YELLOW],
-        'new_path': [_Color.FG_YELLOW],
-        'hunk_header': [_Color.FG_CYAN],
-        'hunk_meta': [_Color.FG_BLUE],
-        'common_line': [_Color.RESET],
-        'old_line': [_Color.FG_RED],
-        'new_line': [_Color.FG_GREEN],
-        'deleted_text': [_Color.REVERSE, _Color.FG_RED],
-        'inserted_text': [_Color.REVERSE, _Color.FG_GREEN],
-        'replaced_old_text': [_Color.REVERSE, _Color.FG_RED],
-        'replaced_new_text': [_Color.REVERSE, _Color.FG_GREEN],
-        'old_line_number': [_Color.FG_YELLOW],
-        'new_line_number': [_Color.FG_YELLOW],
-        'file_separator': [_Color.FG_BRIGHT_CYAN],
-        'wrap_marker': [_Color.FG_BRIGHT_MAGENTA],
+        # kind: [color codes ...]
+        'header': ['36'],                               # Cyan FG
+        'old_path': ['33'],                             # Yellow FG
+        'new_path': ['33'],                             # Yellow FG
+        'hunk_header': ['36'],                          # Cyan FG
+        'hunk_meta': ['34'],                            # Blue FG
+        'common_line': ['0'],                           # Reset
+        'old_line': ['31'],                             # Red FG
+        'new_line': ['32'],                             # Green FG
+        'deleted_text': ['7', '31'],                    # Reverse, Red FG
+        'inserted_text': ['7', '32'],                   # Reverse, Green FG
+        'replaced_old_text': ['7', '31'],               # Reverse, Red FG
+        'replaced_new_text': ['7', '32'],               # Reverse, Green FG
+        'old_line_number': ['33'],                      # Yellow FG
+        'new_line_number': ['33'],                      # Yellow FG
+        'file_separator': ['96'],                       # Bright Cyan FG
+        'wrap_marker': ['95'],                          # Bright Magenta FG
     },
     'dark': {
-        'header': [_Color.FG_CYAN],
-        'old_path': [_Color.BG8_DARK_RED],
-        'new_path': [_Color.BG8_DARK_GREEN],
-        'hunk_header': [_Color.FG_CYAN],
-        'hunk_meta': [_Color.FG_BLUE],
-        'common_line': [_Color.RESET],
-        'old_line': [_Color.BG8_DARK_RED],
-        'new_line': [_Color.BG8_DARK_GREEN],
-        'deleted_text': [_Color.BG8_RED],
-        'inserted_text': [_Color.FG8_GRAY, _Color.BG8_GREEN],
-        'replaced_old_text': [_Color.BG8_RED],
-        'replaced_new_text': [_Color.FG8_GRAY, _Color.BG8_GREEN],
-        'old_line_number': [_Color.FG_YELLOW],
-        'new_line_number': [_Color.FG_YELLOW],
-        'file_separator': [_Color.FG_BRIGHT_CYAN],
-        'wrap_marker': [_Color.FG_BRIGHT_MAGENTA],
+        'header': ['36'],                               # Cyan FG
+        'old_path': ['48;5;52'],                        # Dark Red BG
+        'new_path': ['48;5;22'],                        # Dark Green BG
+        'hunk_header': ['36'],                          # Cyan FG
+        'hunk_meta': ['34'],                            # Blue FG
+        'common_line': ['0'],                           # Reset
+        'old_line': ['48;5;52'],                        # Dark Red BG
+        'new_line': ['48;5;22'],                        # Dark Green BG
+        'deleted_text': ['48;5;88'],                    # Red BG
+        'inserted_text': ['38;5;235', '48;5;28'],       # Gray FG, Green BG
+        'replaced_old_text': ['48;5;88'],               # Red BG
+        'replaced_new_text': ['38;5;235', '48;5;28'],   # Gray FG, Green BG
+        'old_line_number': ['33'],                      # Yellow FG
+        'new_line_number': ['33'],                      # Yellow FG
+        'file_separator': ['96'],                       # Bright Cyan FG
+        'wrap_marker': ['95'],                          # Bright Magenta FG
     },
     'light': {
-        'header': [_Color.FG_CYAN],
-        'old_path': [_Color.BG8_LIGHT_RED],
-        'new_path': [_Color.BG8_LIGHT_GREEN],
-        'hunk_header': [_Color.FG_CYAN],
-        'hunk_meta': [_Color.FG_BLUE],
-        'common_line': [_Color.RESET],
-        'old_line': [_Color.BG8_LIGHT_RED],
-        'new_line': [_Color.BG8_LIGHT_GREEN],
-        'deleted_text': [_Color.BG8_DIMMED_RED],
-        'inserted_text': [_Color.FG8_GRAY, _Color.BG8_DIMMED_GREEN],
-        'replaced_old_text': [_Color.BG8_DIMMED_RED],
-        'replaced_new_text': [_Color.FG8_GRAY, _Color.BG8_DIMMED_GREEN],
-        'old_line_number': [_Color.FG_YELLOW],
-        'new_line_number': [_Color.FG_YELLOW],
-        'file_separator': [_Color.FG_BRIGHT_CYAN],
-        'wrap_marker': [_Color.FG_BRIGHT_MAGENTA],
+        'header': ['36'],                               # Cyan FG
+        'old_path': ['48;5;217'],                       # Light Red BG
+        'new_path': ['48;5;194'],                       # Light Green BG
+        'hunk_header': ['36'],                          # Cyan FG
+        'hunk_meta': ['34'],                            # Blue FG
+        'common_line': ['0'],                           # Reset
+        'old_line': ['48;5;217'],                       # Light Red BG
+        'new_line': ['48;5;194'],                       # Light Green BG
+        'deleted_text': ['48;5;210'],                   # Dim Red BG
+        'inserted_text': ['38;5;235', '48;5;157'],      # Gray FG, Dim Green BG
+        'replaced_old_text': ['48;5;210'],              # Dim Red BG
+        'replaced_new_text': ['38;5;235', '48;5;157'],  # Gray FG, Dim Green BG
+        'old_line_number': ['33'],                      # Yellow FG
+        'new_line_number': ['33'],                      # Yellow FG
+        'file_separator': ['96'],                       # Bright Cyan FG
+        'wrap_marker': ['95'],                          # Bright Magenta FG
     },
 }
 
 
 def _colorize(text, kind, theme='default'):
-    effect = lambda kind: ''.join(_THEMES[theme][kind])
+    effect = lambda kind: ''.join('\x1b[%sm' % c for c in _THEMES[theme][kind])
     if kind == 'replaced_old_text':
         base_color = effect('old_line')
         del_color = effect('replaced_old_text')
         chg_color = effect('deleted_text')
-        rst_color = _Color.RESET + base_color
+        rst_color = _RESET + base_color
         text = text.replace('\0-', del_color)
         text = text.replace('\0^', chg_color)
         text = text.replace('\1', rst_color)
@@ -116,16 +99,13 @@ def _colorize(text, kind, theme='default'):
         base_color = effect('new_line')
         add_color = effect('replaced_new_text')
         chg_color = effect('inserted_text')
-        rst_color = _Color.RESET + base_color
+        rst_color = _RESET + base_color
         text = text.replace('\0+', add_color)
         text = text.replace('\0^', chg_color)
         text = text.replace('\1', rst_color)
     else:
         base_color = effect(kind)
-    return base_color + text + _Color.RESET
-
-
-_ANSI_RE = re.compile(r'\x1b\[[0-9;]*m')
+    return base_color + text + _RESET
 
 
 def _strsplit(text, width, color_codes=None):
@@ -155,7 +135,7 @@ def _strsplit(text, width, color_codes=None):
     for chunk, code, start, end in _iter_segments(text):
         if code:
             if code in color_codes:
-                seen = '' if code == _Color.RESET else seen + code
+                seen = '' if code == _RESET else seen + code
         else:
             try:
                 chunk.encode('ascii')
@@ -169,7 +149,7 @@ def _strsplit(text, width, color_codes=None):
             for i, ch in enumerate(chunk):
                 if left_width >= width:
                     cutoff = start + i
-                    return (text[:cutoff] + (_Color.RESET if seen else ''),
+                    return (text[:cutoff] + (_RESET if seen else ''),
                             seen + text[cutoff:],
                             left_width)
                 left_width += 1
@@ -193,9 +173,6 @@ def _strtrim(text, width, wrap_char, pad, color_codes):
     elif pad:
         left += ' ' * (width - left_width)
     return left
-
-
-_WORDS_RE = re.compile(r'[A-Z]{2,}|[A-Z][a-z]+|[a-z]{2,}|[A-Za-z0-9]+|\s|.')
 
 
 def _split_to_words(s: str) -> list:
@@ -424,7 +401,8 @@ class DiffMarker:
         self._wrap = wrap
         self._theme = theme
         self._tint = lambda s, k: _colorize(s, k, theme=theme)
-        self._codes = set(sum(_THEMES[theme].values(), []))
+        colors = set(sum(_THEMES[theme].values(), []))
+        self._codes = tuple('\x1b[%sm' % c for c in colors)
 
     def markup(self, diff):
         """Returns a generator"""
@@ -499,7 +477,7 @@ class DiffMarker:
         num_fmt1 = self._tint('%%(left_num)%ds' % num_width, 'old_line_number')
         num_fmt2 = self._tint('%%(right_num)%ds' % num_width,
                               'new_line_number')
-        line_fmt = (num_fmt1 + ' %(left)s ' + _Color.RESET +
+        line_fmt = (num_fmt1 + ' %(left)s ' + _RESET +
                     num_fmt2 + ' %(right)s\n')
 
         yield from (self._tint(x, 'header') for x in diff._headers)
