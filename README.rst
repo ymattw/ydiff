@@ -120,7 +120,7 @@ Type ``ydiff -h`` to show usage::
                             pager application to feed output to, default is 'less'
       -o OPT, --pager-options=OPT
                             options to supply to pager application
-      --theme=THEME         option to pick a color theme (one of default, dark,
+      --theme=THEME         option to pick a color theme (one of dark, default,
                             light)
 
       Note:
@@ -162,7 +162,7 @@ Utilize a specific pager application:
 
     ydiff -p more                   # use "more" as a pager
     ydiff -p cat                    # when neither less nor more is avilable
-    ydiff -o "-FRSX --shift 2"      # custmized option (pager defaults to less)
+    ydiff -o "-FRSX --shift 2"      # customized option (pager defaults to less)
 
 Pipe in a diff:
 
@@ -185,6 +185,17 @@ Redirect output to another patch file is safe even without ``-u``:
 .. code-block:: bash
 
     svn diff -r PREV | ydiff > my.patch
+
+Customized themes
+-----------------
+
+You can define your own themes in ``~/.config/ydiff/themes.ini``. Check out the
+`built-in themes`_ for examples.
+
+.. _`built-in themes`: https://github.com/search?q=repo%3Aymattw%2Fydiff+%2F_BUILTIN_THEMES+%3D%2F&type=code
+
+The section names are theme names. Undeclared theme keys will inherit values
+from the same-named built-in theme or from the "default" theme otherwise.
 
 Notes
 -----

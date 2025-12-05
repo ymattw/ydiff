@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import configparser
 import difflib
 import os
 import re
@@ -20,73 +21,105 @@ if sys.hexversion < 0x03030000:
     raise SystemExit('*** Requires python >= 3.3.0')    # pragma: no cover
 
 
+_BUILTIN_THEMES = """
+# Reference: https://en.wikipedia.org/wiki/ANSI_escape_code
+
+[default]
+header = 36                             # Cyan fg
+old_path = 33                           # Yellow fg
+new_path = 33                           # Yellow fg
+hunk_header = 36                        # Cyan fg
+hunk_meta = 34                          # Blue fg
+common_line = 0                         # Reset
+old_line = 31                           # Red fg
+new_line = 32                           # Green fg
+deleted_text = 7 31                     # Reverse, red fg
+inserted_text = 7 32                    # Reverse, green fg
+replaced_old_text = 7 31                # Reverse, red fg
+replaced_new_text = 7 32                # Reverse, green fg
+old_line_number = 33                    # Yellow fg
+new_line_number = 33                    # Yellow fg
+file_separator = 96                     # Bright cyan fg
+wrap_marker = 95                        # Bright magenta fg
+
+[dark]
+header = 36                             # Cyan fg
+old_path = 48;5;52                      # Dark red bg
+new_path = 48;5;22                      # Dark green bg
+hunk_header = 36                        # Cyan fg
+hunk_meta = 34                          # Blue fg
+common_line = 0                         # Reset
+old_line = 48;5;52                      # Dark red bg
+new_line = 48;5;22                      # Dark green bg
+deleted_text = 48;5;88                  # Red bg
+inserted_text = 38;5;235 48;5;28        # Gray fg, green bg
+replaced_old_text = 48;5;88             # Red bg
+replaced_new_text = 38;5;235 48;5;28    # Gray fg, green bg
+old_line_number = 33                    # Yellow fg
+new_line_number = 33                    # Yellow fg
+file_separator = 96                     # Bright cyan fg
+wrap_marker = 95                        # Bright magenta fg
+
+[light]
+header = 36                             # Cyan fg
+old_path = 48;5;217                     # Light red bg
+new_path = 48;5;194                     # Light green bg
+hunk_header = 36                        # Cyan fg
+hunk_meta = 34                          # Blue fg
+common_line = 0                         # Reset
+old_line = 48;5;217                     # Light red bg
+new_line = 48;5;217                     # Light red bg
+deleted_text = 48;5;210                 # Dim red bg
+inserted_text = 38;5;235 48;5;157       # Gray fg, dim green bg
+replaced_old_text = 48;5;210            # Dim red bg
+replaced_new_text = 38;5;235 48;5;157   # Gray fg, dim green bg
+old_line_number = 33                    # Yellow fg
+new_line_number = 33                    # Yellow fg
+file_separator = 96                     # Bright cyan fg
+wrap_marker = 95                        # Bright magenta fg
+"""
+
+_THEMES_CACHE = {}  # type: dict[str, dict[str, list[str]]]
+_RESET = '\x1b[0m'
 _ANSI_RE = re.compile(r'\x1b\[[0-9;]*m')
 _WORDS_RE = re.compile(r'[A-Z]{2,}|[A-Z][a-z]+|[a-z]{2,}|[A-Za-z0-9]+|\s|.')
-_RESET = '\x1b[0m'
 
-_THEMES = {
-    # References of the ANSI color codes:
-    # https://en.wikipedia.org/wiki/ANSI_escape_code
-    'default': {
-        # kind: [color codes ...]
-        'header': ['36'],                               # Cyan FG
-        'old_path': ['33'],                             # Yellow FG
-        'new_path': ['33'],                             # Yellow FG
-        'hunk_header': ['36'],                          # Cyan FG
-        'hunk_meta': ['34'],                            # Blue FG
-        'common_line': ['0'],                           # Reset
-        'old_line': ['31'],                             # Red FG
-        'new_line': ['32'],                             # Green FG
-        'deleted_text': ['7', '31'],                    # Reverse, Red FG
-        'inserted_text': ['7', '32'],                   # Reverse, Green FG
-        'replaced_old_text': ['7', '31'],               # Reverse, Red FG
-        'replaced_new_text': ['7', '32'],               # Reverse, Green FG
-        'old_line_number': ['33'],                      # Yellow FG
-        'new_line_number': ['33'],                      # Yellow FG
-        'file_separator': ['96'],                       # Bright Cyan FG
-        'wrap_marker': ['95'],                          # Bright Magenta FG
-    },
-    'dark': {
-        'header': ['36'],                               # Cyan FG
-        'old_path': ['48;5;52'],                        # Dark Red BG
-        'new_path': ['48;5;22'],                        # Dark Green BG
-        'hunk_header': ['36'],                          # Cyan FG
-        'hunk_meta': ['34'],                            # Blue FG
-        'common_line': ['0'],                           # Reset
-        'old_line': ['48;5;52'],                        # Dark Red BG
-        'new_line': ['48;5;22'],                        # Dark Green BG
-        'deleted_text': ['48;5;88'],                    # Red BG
-        'inserted_text': ['38;5;235', '48;5;28'],       # Gray FG, Green BG
-        'replaced_old_text': ['48;5;88'],               # Red BG
-        'replaced_new_text': ['38;5;235', '48;5;28'],   # Gray FG, Green BG
-        'old_line_number': ['33'],                      # Yellow FG
-        'new_line_number': ['33'],                      # Yellow FG
-        'file_separator': ['96'],                       # Bright Cyan FG
-        'wrap_marker': ['95'],                          # Bright Magenta FG
-    },
-    'light': {
-        'header': ['36'],                               # Cyan FG
-        'old_path': ['48;5;217'],                       # Light Red BG
-        'new_path': ['48;5;194'],                       # Light Green BG
-        'hunk_header': ['36'],                          # Cyan FG
-        'hunk_meta': ['34'],                            # Blue FG
-        'common_line': ['0'],                           # Reset
-        'old_line': ['48;5;217'],                       # Light Red BG
-        'new_line': ['48;5;194'],                       # Light Green BG
-        'deleted_text': ['48;5;210'],                   # Dim Red BG
-        'inserted_text': ['38;5;235', '48;5;157'],      # Gray FG, Dim Green BG
-        'replaced_old_text': ['48;5;210'],              # Dim Red BG
-        'replaced_new_text': ['38;5;235', '48;5;157'],  # Gray FG, Dim Green BG
-        'old_line_number': ['33'],                      # Yellow FG
-        'new_line_number': ['33'],                      # Yellow FG
-        'file_separator': ['96'],                       # Bright Cyan FG
-        'wrap_marker': ['95'],                          # Bright Magenta FG
-    },
-}
+
+def _all_themes():
+    global _THEMES_CACHE
+    if _THEMES_CACHE:
+        return _THEMES_CACHE
+
+    builtin = configparser.ConfigParser(
+        comment_prefixes='#', inline_comment_prefixes='#')
+    builtin.read_string(_BUILTIN_THEMES)
+    _THEMES_CACHE = {
+        name: {key: value.split() for key, value in builtin.items(name)}
+        for name in builtin.sections()
+    }
+
+    xdg = os.getenv('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
+    cfg = os.path.join(xdg, 'ydiff', 'themes.ini')
+    if not os.path.exists(cfg):
+        return _THEMES_CACHE
+
+    customized = configparser.ConfigParser(
+        comment_prefixes='#', inline_comment_prefixes='#')
+    customized.read(cfg)
+    for name in customized.sections():
+        if name not in _THEMES_CACHE:
+            _THEMES_CACHE[name] = _THEMES_CACHE['default'].copy()
+        for key, value in customized.items(name):
+            if key not in _THEMES_CACHE[name]:
+                raise KeyError('Invalid key %r in theme %r' % (key, name))
+            _THEMES_CACHE[name][key] = value.split()
+    return _THEMES_CACHE
 
 
 def _colorize(text, kind, theme='default'):
-    effect = lambda kind: ''.join('\x1b[%sm' % c for c in _THEMES[theme][kind])
+    def effect(kind):
+        return ''.join('\x1b[%sm' % c for c in _all_themes()[theme][kind])
+
     if kind == 'replaced_old_text':
         base_color = effect('old_line')
         del_color = effect('replaced_old_text')
@@ -401,7 +434,7 @@ class DiffMarker:
         self._wrap = wrap
         self._theme = theme
         self._tint = lambda s, k: _colorize(s, k, theme=theme)
-        colors = set(sum(_THEMES[theme].values(), []))
+        colors = set(sum(_all_themes()[theme].values(), []))
         self._codes = tuple('\x1b[%sm' % c for c in colors)
 
     def markup(self, diff):
@@ -713,7 +746,7 @@ def _parse_args():
     parser.add_argument(
         '-o', '--pager-options', metavar='OPT',
         help='options to supply to pager application')
-    themes = ', '.join(['default'] + sorted(_THEMES.keys() - {'default'}))
+    themes = ', '.join(sorted(_all_themes().keys()))
     parser.add_argument(
         '--theme', metavar='THEME', default='default',
         help='option to pick a color theme (one of %s)' % themes)
@@ -751,9 +784,10 @@ def _get_patch_stream(args: list, read_vcs_log: bool):
 @_trap_interrupts
 def _main():
     opts, args = _parse_args()
-    if opts.theme not in _THEMES:
-        themes = ', '.join(['default'] + sorted(_THEMES.keys() - {'default'}))
-        sys.stderr.write('*** Unknown theme, supported are: %s\n' % themes)
+
+    if opts.theme not in _all_themes():
+        themes = ', '.join(sorted(_all_themes().keys()))
+        sys.stderr.write('*** Unknown theme, available are: %s\n' % themes)
         return 1
 
     stream = _get_patch_stream(args, opts.log)

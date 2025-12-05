@@ -725,6 +725,54 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual(func(), 0)
 
 
+class AllThemesTest(unittest.TestCase):
+
+    def setUp(self):
+        self._orig_cache = ydiff._THEMES_CACHE
+        ydiff._THEMES_CACHE = None
+
+    def tearDown(self):
+        ydiff._THEMES_CACHE = self._orig_cache
+
+    @mock.patch('os.path.exists', return_value=False)
+    def test_no_config(self, m_exists):
+        themes = ydiff._all_themes()
+        self.assertEqual(len(themes), 3)
+
+    @mock.patch('configparser.ConfigParser')
+    @mock.patch('os.path.exists', return_value=True)
+    def test_config_override(self, m_exists, m_parser):
+        # Mock for builtin parser
+        builtin_mock = mock.Mock()
+        builtin_mock.sections.return_value = ['default']
+        builtin_mock.items.return_value = [('header', '36')]
+
+        # Mock for user parser
+        user_mock = mock.Mock()
+        user_mock.sections.return_value = ['default']
+        user_mock.items.return_value = [('header', '31')]
+
+        m_parser.side_effect = [builtin_mock, user_mock]
+
+        themes = ydiff._all_themes()
+        self.assertEqual(themes['default']['header'], ['31'])
+
+    @mock.patch('configparser.ConfigParser')
+    @mock.patch('os.path.exists', return_value=True)
+    def test_invalid_key(self, m_exists, m_parser):
+        builtin_mock = mock.Mock()
+        builtin_mock.sections.return_value = ['default']
+        builtin_mock.items.return_value = [('header', '36')]
+
+        user_mock = mock.Mock()
+        user_mock.sections.return_value = ['default']
+        user_mock.items.return_value = [('bad_key', '31')]
+
+        m_parser.side_effect = [builtin_mock, user_mock]
+
+        self.assertRaises(KeyError, ydiff._all_themes)
+
+
 class MainUnitTests(unittest.TestCase):
 
     @mock.patch('ydiff.DiffMarker.markup',
