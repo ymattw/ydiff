@@ -609,27 +609,33 @@ def markup_to_pager(stream, opts):
     pager = subprocess.Popen(
         pager_cmd, stdin=subprocess.PIPE, stdout=sys.stdout)
 
-    marker = DiffMarker(side_by_side=opts.side_by_side, width=opts.width,
-                        tab_width=opts.tab_width, wrap=opts.wrap,
-                        theme=opts.theme)
-    term_width = _terminal_width()
-    diffs = DiffParser(stream).parse()
-    # Fetch one diff first, output a separation line for the rest, if any.
     try:
-        diff = next(diffs)
-        for line in marker.markup(diff):
-            pager.stdin.write(line.encode('utf-8'))
-    except StopIteration:
+        marker = DiffMarker(side_by_side=opts.side_by_side, width=opts.width,
+                            tab_width=opts.tab_width, wrap=opts.wrap,
+                            theme=opts.theme)
+        term_width = _terminal_width()
+        diffs = DiffParser(stream).parse()
+        # Fetch one diff first, output a separation line for the rest, if any.
+        try:
+            diff = next(diffs)
+            for line in marker.markup(diff):
+                pager.stdin.write(line.encode('utf-8'))
+        except StopIteration:
+            pass
+        for diff in diffs:
+            separator = _colorize('─' * (term_width - 1) + '\n',
+                                  'file_separator', theme=opts.theme)
+            pager.stdin.write(separator.encode('utf-8'))
+            for line in marker.markup(diff):
+                pager.stdin.write(line.encode('utf-8'))
+    except BrokenPipeError:
         pass
-    for diff in diffs:
-        separator = _colorize('─' * (term_width - 1) + '\n', 'file_separator',
-                              theme=opts.theme)
-        pager.stdin.write(separator.encode('utf-8'))
-        for line in marker.markup(diff):
-            pager.stdin.write(line.encode('utf-8'))
-
-    pager.stdin.close()
-    pager.wait()
+    finally:
+        try:
+            pager.stdin.close()
+        except BrokenPipeError:
+            pass
+        pager.wait()
 
 
 # Keys for revision control probe, diff and log (optional) with diff

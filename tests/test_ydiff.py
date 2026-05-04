@@ -799,6 +799,41 @@ class MainUnitTests(unittest.TestCase):
             # markup called twice
             self.assertEqual(ydiff.DiffMarker.markup.call_count, 2)
 
+    @mock.patch('ydiff.DiffMarker.markup',
+                side_effect=lambda _: iter(['line']))
+    @mock.patch('subprocess.Popen')
+    def test_markup_to_pager_broken_pipe_cleanup(self, m_popen, m_markup):
+        class BrokenPipeStdin:
+            def __init__(self):
+                self.closed = False
+
+            def write(self, data):
+                raise BrokenPipeError
+
+            def close(self):
+                self.closed = True
+                raise BrokenPipeError
+
+        diff = mock.Mock()
+        stdin = BrokenPipeStdin()
+        pager = mock.Mock(stdin=stdin)
+        m_popen.return_value = pager
+
+        with mock.patch('ydiff.DiffParser.parse', return_value=iter([diff])):
+            opts = mock.Mock()
+            opts.pager = 'less'
+            opts.pager_options = None
+            opts.side_by_side = True
+            opts.width = 80
+            opts.tab_width = 8
+            opts.wrap = False
+            opts.theme = 'default'
+
+            ydiff.markup_to_pager(b'', opts)
+
+        self.assertTrue(stdin.closed)
+        pager.wait.assert_called_once_with()
+
     def test_get_patch_stream_stdin_file(self):
         with mock.patch('os.fstat') as m_fstat:
             m_fstat.return_value.st_mode = 33188  # S_IFREG
