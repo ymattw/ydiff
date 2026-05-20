@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import configparser
+import contextlib
 import difflib
 import os
 import re
@@ -17,8 +18,8 @@ __homepage__ = 'https://github.com/ymattw/ydiff'
 __description__ = ('View colored, incremental diff in a workspace or from '
                    'stdin, in side-by-side or unified moded, and auto paged.')
 
-if sys.hexversion < 0x03030000:
-    raise SystemExit('*** Requires python >= 3.3.0')    # pragma: no cover
+if sys.hexversion < 0x03040000:
+    raise SystemExit('*** Requires python >= 3.4.0')    # pragma: no cover
 
 
 _BUILTIN_THEMES = """
@@ -613,22 +614,22 @@ def markup_to_pager(stream, opts):
                         tab_width=opts.tab_width, wrap=opts.wrap,
                         theme=opts.theme)
     term_width = _terminal_width()
+    separator = _colorize('─' * (term_width - 1) + '\n', 'file_separator',
+                          theme=opts.theme)
     diffs = DiffParser(stream).parse()
-    # Fetch one diff first, output a separation line for the rest, if any.
-    try:
+
+    with contextlib.suppress(StopIteration, BrokenPipeError):
+        # Fetch one diff first, output a separation line for the rest, if any.
         diff = next(diffs)
         for line in marker.markup(diff):
             pager.stdin.write(line.encode('utf-8'))
-    except StopIteration:
-        pass
-    for diff in diffs:
-        separator = _colorize('─' * (term_width - 1) + '\n', 'file_separator',
-                              theme=opts.theme)
-        pager.stdin.write(separator.encode('utf-8'))
-        for line in marker.markup(diff):
-            pager.stdin.write(line.encode('utf-8'))
+        for diff in diffs:
+            pager.stdin.write(separator.encode('utf-8'))
+            for line in marker.markup(diff):
+                pager.stdin.write(line.encode('utf-8'))
 
-    pager.stdin.close()
+    with contextlib.suppress(BrokenPipeError):
+        pager.stdin.close()
     pager.wait()
 
 
@@ -695,10 +696,7 @@ def _trap_interrupts(entry_fn):
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         if sys.platform != 'win32':
             signal.signal(signal.SIGPIPE, signal.SIG_IGN)
-        try:
-            return entry_fn()
-        except BrokenPipeError:
-            return 0
+        return entry_fn()
     return _entry_wrapper
 
 

@@ -718,12 +718,6 @@ class UtilsTest(unittest.TestCase):
         with mock.patch('shutil.get_terminal_size', side_effect=Exception):
             self.assertEqual(ydiff._terminal_width(), 80)
 
-    def test_trap_interrupts_broken_pipe(self):
-        @ydiff._trap_interrupts
-        def func():
-            raise BrokenPipeError
-        self.assertEqual(func(), 0)
-
 
 class AllThemesTest(unittest.TestCase):
 

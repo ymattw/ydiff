@@ -7,7 +7,7 @@ Ydiff
 
 Ydiff is a terminal-based tool to view *colored*, *incremental* diffs in
 a version-controlled workspace or from stdin, in *side-by-side* (similar to
-``diff -y``) or unified mode, and *auto-paged*. It only requires Python >= 3.3
+``diff -y``) or unified mode, and *auto-paged*. It only requires Python >= 3.4
 *without external dependencies* and ``less`` as a pager.
 
 The diffs in side-by-side mode appear below. See also the `screenshots`_ of the

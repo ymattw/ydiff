@@ -57,7 +57,7 @@ dist: docker-test-min-python3 docker-test clean build
 	~/.local/bin/twine upload dist/ydiff-*.tar.gz dist/ydiff-*.tar.gz dist/ydiff-*-any.whl
 	rm -f ~/.pypirc
 
-MIN_PY_VERSION ?= 3.3
+MIN_PY_VERSION ?= 3.4
 docker-test-min-python3:
 	docker run -v $(shell pwd):$(shell pwd) -w $(shell pwd) -t --rm \
 		python:$(MIN_PY_VERSION)-alpine /bin/sh -ec \

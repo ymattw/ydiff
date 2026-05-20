@@ -31,7 +31,7 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
     ],
-    python_requires='>=3.3',  # see sys.hexversion check in ydiff.py
+    python_requires='>=3.4',  # see sys.hexversion check in ydiff.py
     py_modules=['ydiff'],
     entry_points={
         'console_scripts': [
