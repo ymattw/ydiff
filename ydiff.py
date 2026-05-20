@@ -642,7 +642,7 @@ _VCS_INFO = {
     },
     'Mercurial': {
         'probe': ['hg', 'summary'],
-        'diff': ['hg', 'diff'],
+        'diff': ['hg', 'diff', '--git', '--noprefix', '--root', '.'],
         'log': ['hg', 'log', '--patch'],
     },
     'Perforce': {
