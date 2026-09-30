@@ -636,24 +636,29 @@ def markup_to_pager(stream, opts):
 # Keys for revision control probe, diff and log (optional) with diff
 _VCS_INFO = {
     'Git': {
-        'probe': ['git', 'rev-parse'],
-        'diff': ['git', 'diff', '--no-ext-diff', '--color=never'],
-        'log': ['git', 'log', '--patch', '--color=never'],
+        'probe': 'git rev-parse',
+        'diff': 'git diff --no-ext-diff --color=never',
+        'log': 'git log --patch --color=never',
+    },
+    'Jujutsu': {
+        'probe': 'jj workspace root --no-pager',
+        'diff': 'jj diff --git --no-pager --color=never',
+        'log': 'jj log --patch --no-pager --color=never --git --no-graph',
     },
     'Mercurial': {
-        'probe': ['hg', 'summary'],
-        'diff': ['hg', 'diff', '--git', '--noprefix', '--root', '.'],
-        'log': ['hg', 'log', '--patch'],
+        'probe': 'hg summary',
+        'diff': 'hg diff --git --noprefix --root .',
+        'log': 'hg log --patch',
     },
     'Perforce': {
-        'probe': ['p4', 'info'],
-        'diff': ['p4', 'diff', '-du'],
-        'log': None,
+        'probe': 'p4 info',
+        'diff': 'p4 diff -du',
+        'log': '',
     },
     'Svn': {
-        'probe': ['svn', 'info'],
-        'diff': ['svn', 'diff'],
-        'log': ['svn', 'log', '--diff', '--use-merge-history'],
+        'probe': 'svn info',
+        'diff': 'svn diff',
+        'log': 'svn log --diff --use-merge-history',
     },
 }
 
@@ -661,7 +666,7 @@ _VCS_INFO = {
 def _revision_control_probe():
     """Returns version control name (key in _VCS_INFO) or None."""
     for vcs_name, ops in _VCS_INFO.items():
-        if _check_command_status(ops.get('probe')):
+        if _check_command_status(ops['probe'].split()):
             return vcs_name
 
 
@@ -769,12 +774,12 @@ def _get_patch_stream(args: list, read_vcs_log: bool):
         return None
 
     if read_vcs_log:
-        cmd = _VCS_INFO[vcs]['log']
-        if cmd is None:
+        cmd = _VCS_INFO[vcs]['log'].split()
+        if not cmd:
             sys.stderr.write('*** %s has no log support.\n' % vcs)
             return None
     else:
-        cmd = _VCS_INFO[vcs]['diff']
+        cmd = _VCS_INFO[vcs]['diff'].split()
 
     return subprocess.Popen(cmd + args, stdout=subprocess.PIPE).stdout
 
