@@ -509,7 +509,28 @@ spam
         items = patch.splitlines(True)
         stream = iter(items)
         parser = ydiff.DiffParser(stream)
-        self.assertRaises(AssertionError, list, parser.parse())
+
+        out = list(parser.parse())
+        self.assertEqual(len(out), 2)
+        self.assertEqual(out[1]._headers, ['--- c\n'])
+        self.assertEqual(out[1]._old_path, '')
+        self.assertEqual(out[1]._new_path, '')
+        self.assertEqual(len(out[1]._hunks), 0)
+
+    def test_parse_truncated_old_path_only(self):
+        patch = b"""\
+--- a/foo.py
+"""
+        items = patch.splitlines(True)
+        stream = iter(items)
+        parser = ydiff.DiffParser(stream)
+
+        out = list(parser.parse())
+        self.assertEqual(len(out), 1)
+        self.assertEqual(out[0]._headers, ['--- a/foo.py\n'])
+        self.assertEqual(out[0]._old_path, '')
+        self.assertEqual(out[0]._new_path, '')
+        self.assertEqual(len(out[0]._hunks), 0)
 
     def test_parse_missing_hunk_meta(self):
         patch = b"""\
@@ -548,7 +569,14 @@ spam
         items = patch.splitlines(True)
         stream = iter(items)
         parser = ydiff.DiffParser(stream)
-        self.assertRaises(AssertionError, list, parser.parse())
+
+        out = list(parser.parse())
+        self.assertEqual(len(out), 2)
+        self.assertEqual(
+            out[1]._headers, ['--- c\n', '+++ d\n', '@@ -1,2 +1,2 @@\n'])
+        self.assertEqual(out[1]._old_path, '')
+        self.assertEqual(out[1]._new_path, '')
+        self.assertEqual(len(out[1]._hunks), 0)
 
     def test_parse_only_in_dir(self):
         patch = b"""\
