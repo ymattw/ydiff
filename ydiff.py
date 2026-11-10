@@ -412,12 +412,24 @@ class DiffParser:
                 # Non-recognized lines: headers or hunk headers
                 headers.append(line)
 
-        # Validate and yield the last patch set if it is not yielded yet
-        if diff._old_path:
-            assert diff._new_path is not None
-            if diff._hunks:
-                assert len(diff._hunks[-1]._hunk_meta) > 0
-                assert len(diff._hunks[-1]._hunk_list) > 0
+        # Validate and yield the last patch set if it is not yielded yet.
+        # Tolerate truncated diffs (an old path with no matching new path,
+        # or a trailing hunk header with no lines) like dangling headers
+        # instead of crashing with AssertionError.
+        if diff._old_path and (
+            diff._new_path is None
+            or (diff._hunks and len(diff._hunks[-1]._hunk_list) == 0)
+        ):
+            headers.extend(diff._headers)
+            headers.append(diff._old_path)
+            if diff._new_path is not None:
+                headers.append(diff._new_path)
+            for hunk in diff._hunks:
+                headers.append(hunk._hunk_meta)
+                headers.extend(
+                    attr + text for attr, text in hunk._hunk_list
+                )
+        elif diff._old_path:
             yield diff
 
         if headers:
